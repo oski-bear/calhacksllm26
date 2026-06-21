@@ -18,7 +18,7 @@ const PENDING_STEPS = {
   calfresh: [
     'Preparing secure Browserbase session...',
     'Opening BenefitsCal routed portal...',
-    'Creating the demo account workspace...',
+    'Creating the account workspace...',
     'Mapping your saved profile to the application fields...',
     'Waiting for portal confirmation proof...',
   ],
@@ -144,7 +144,7 @@ export default function AgentView({ program, userInfo, onApplied, onBack }) {
             {done && (
               <Alert severity={isPersisted ? 'success' : 'warning'} icon={<CheckCircleIcon />} sx={{ mb: 3 }}>
                 {isPersisted
-                  ? `Demo application submitted. ${result.confirmation || 'Confirmation captured.'}`
+                  ? `Application workflow completed. ${result.confirmation || 'Confirmation captured.'}`
                   : `Simulation complete. No application was recorded as submitted. ${result.confirmation || ''}`}
               </Alert>
             )}
@@ -154,7 +154,7 @@ export default function AgentView({ program, userInfo, onApplied, onBack }) {
               {isLive ? (
                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ alignItems: { sm: 'center' } }}>
                   <Typography variant="body2" sx={{ flex: 1 }}>
-                    Browserbase navigated the demo portal, filled it, and submitted it. Final portal state below.
+                    Browserbase navigated the routed portal, filled it, and submitted it. Final portal state below.
                   </Typography>
                   <Button
                     component="a"
@@ -228,7 +228,7 @@ function PendingPortal({ programName }) {
         </Box>
         <Stack direction="row" spacing={1} sx={{ justifyContent: 'center', flexWrap: 'wrap', rowGap: 1 }}>
           <Chip size="small" color="info" label="Browserbase session starting" />
-          <Chip size="small" variant="outlined" label="Human-safe demo portal" />
+          <Chip size="small" variant="outlined" label="Human-safe routed portal" />
           <Chip size="small" variant="outlined" label="No real government submission" />
         </Stack>
       </Stack>

@@ -35,7 +35,7 @@ PORTAL_VIEWPORTS = {
 STEPS = {
     "calfresh": [
         "Opening BenefitsCal application portal...",
-        "Creating a demo BenefitsCal account...",
+        "Creating a BenefitsCal account workspace...",
         "Choosing CalFresh from the benefits menu...",
         "Entering applicant name and date of birth...",
         "Entering contact details...",
@@ -43,7 +43,7 @@ STEPS = {
         "Entering household size, income, and expenses...",
         "Reviewing answers before submission...",
         "Signing the application electronically...",
-        "Submitting completed demo application...",
+        "Submitting completed CalFresh application...",
         "Capturing the confirmation number.",
     ],
     "wic": [
@@ -53,7 +53,7 @@ STEPS = {
         "Selecting a nearby WIC office...",
         "Entering appointment contact details...",
         "Reviewing the WIC appointment request...",
-        "Submitting completed demo request...",
+        "Submitting completed WIC request...",
         "Capturing the confirmation number.",
     ],
 }
