@@ -36,19 +36,23 @@ export default function BasicInfoForm({
   initialValues = {},
   onSubmit,
   demoProfile,
+  onLoadProfile,
   title = 'Find the benefits you qualify for',
   subtitle = "Tell us a bit about your situation. We'll figure out which programs you're eligible for and help you apply.",
   submitLabel = 'Find my benefits →',
   onBack,
   children,
 }) {
-  const [data, setData] = useState(() => ({
+  const [data, setData] = useState(() => normalizeProfile({
     name: '', email: '', zipcode: '', county: '', citizenship: '',
     members: [newMember(true)],
     expenses: [], assets: '', currentBenefits: [], immediateNeeds: [],
     state: 'CA',
     ...initialValues,
   }))
+  const [resumeEmail, setResumeEmail] = useState('')
+  const [resumeMessage, setResumeMessage] = useState('')
+  const [resumeLoading, setResumeLoading] = useState(false)
 
   const set = (field, val) => setData((d) => ({ ...d, [field]: val }))
 
@@ -80,6 +84,21 @@ export default function BasicInfoForm({
       income: String(Math.round(annualIncome)),
       age: primary.birthYear ? String(CURRENT_YEAR - Number(primary.birthYear)) : '',
     })
+  }
+
+  async function handleLoadSavedProfile() {
+    if (!resumeEmail.trim() || !onLoadProfile) return
+    setResumeLoading(true)
+    setResumeMessage('')
+    try {
+      const profile = await onLoadProfile(resumeEmail.trim())
+      setData((current) => normalizeProfile({ ...current, ...profile }))
+      setResumeMessage('Saved profile loaded. Review it, then check eligibility.')
+    } catch (err) {
+      setResumeMessage(err.message || 'Could not load that profile.')
+    } finally {
+      setResumeLoading(false)
+    }
   }
 
   return (
@@ -126,12 +145,59 @@ export default function BasicInfoForm({
                     Loads a Berkeley household that qualifies for both CalFresh and WIC.
                   </Typography>
                   <Button
+                    type="button"
                     variant="outlined"
                     color="primary"
                     onClick={() => setData(demoProfile())}
                   >
                     Load CalFresh + WIC demo profile
                   </Button>
+                </Box>
+              )}
+              {onLoadProfile && (
+                <Box
+                  sx={{
+                    mb: 3,
+                    p: 2,
+                    borderRadius: 2,
+                    bgcolor: 'white',
+                    border: '1px solid #e2e8f0',
+                  }}
+                >
+                  <Typography variant="subtitle2" color="primary" sx={{ mb: 0.5 }}>
+                    Resume a saved profile
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+                    Enter the email used before to reload household details and application status.
+                  </Typography>
+                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      type="email"
+                      label="Saved profile email"
+                      value={resumeEmail}
+                      onChange={(e) => setResumeEmail(e.target.value)}
+                    />
+                    <Button
+                      type="button"
+                      variant="outlined"
+                      disabled={resumeLoading || !resumeEmail.trim()}
+                      onClick={handleLoadSavedProfile}
+                      sx={{ minWidth: 130 }}
+                    >
+                      {resumeLoading ? 'Loading...' : 'Load'}
+                    </Button>
+                  </Stack>
+                  {resumeMessage && (
+                    <Typography
+                      variant="caption"
+                      color={resumeMessage.startsWith('Saved') ? 'success.main' : 'error'}
+                      sx={{ display: 'block', mt: 1 }}
+                    >
+                      {resumeMessage}
+                    </Typography>
+                  )}
                 </Box>
               )}
 
@@ -302,6 +368,26 @@ export default function BasicInfoForm({
       </Box>
     </Box>
   )
+}
+
+function normalizeProfile(profile) {
+  const members = Array.isArray(profile.members) && profile.members.length
+    ? profile.members
+    : [newMember(true)]
+  return {
+    name: '',
+    email: '',
+    zipcode: '',
+    county: '',
+    citizenship: '',
+    assets: '',
+    state: 'CA',
+    ...profile,
+    members,
+    expenses: Array.isArray(profile.expenses) ? profile.expenses : [],
+    currentBenefits: Array.isArray(profile.currentBenefits) ? profile.currentBenefits : [],
+    immediateNeeds: Array.isArray(profile.immediateNeeds) ? profile.immediateNeeds : [],
+  }
 }
 
 // ════════════════════════════════════════════════════════════════════

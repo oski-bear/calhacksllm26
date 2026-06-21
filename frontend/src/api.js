@@ -1,5 +1,5 @@
 // Talks to the Flask backend. One place to change the URL if it moves.
-const API_BASE = 'http://localhost:5001'
+const API_BASE = 'http://127.0.0.1:5001'
 
 // Send the user's info to the eligibility engine and get back the program list.
 export async function fetchEligibility(userInfo) {

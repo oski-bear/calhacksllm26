@@ -6,7 +6,7 @@ import DraftReview from './screens/DraftReview.jsx'
 import AgentView from './screens/AgentView.jsx'
 import { LoadingScreen, ErrorScreen } from './screens/StatusScreens.jsx'
 import DocumentsSection from './screens/DocumentsSection.jsx'
-import { fetchEligibility, saveProfile, fetchExplanations, fetchApplications } from './api.js'
+import { fetchEligibility, saveProfile, fetchExplanations, fetchApplications, getProfile } from './api.js'
 import { demoProfile } from './data/demoProfile.js'
 
 // The whole app is a simple "wizard". `screen` decides which page shows,
@@ -104,6 +104,14 @@ export default function App() {
     setApplications((prev) => ({ ...prev, [programId]: application }))
   }
 
+  async function handleLoadProfile(email) {
+    const profile = await getProfile(email)
+    if (!profile) {
+      throw new Error('No saved profile found for that email.')
+    }
+    return profile
+  }
+
   const selectedProgram =
     programs.find((p) => p.id === selectedProgramId) || null
 
@@ -182,6 +190,7 @@ export default function App() {
       initialValues={userInfo}
       onSubmit={handleFormSubmit}
       demoProfile={demoProfile}
+      onLoadProfile={handleLoadProfile}
     />
   )
 }
