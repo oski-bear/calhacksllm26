@@ -65,16 +65,13 @@ export default function Dashboard({
 }) {
   const order = { eligible: 0, maybe: 1 }
   const demoMode = userInfo.demoMode === true
-  const visiblePrograms = demoMode
-    ? programs.filter((p) => DEMO_PROGRAM_IDS.has(p.id))
-    : programs
-  const shown = visiblePrograms
+  const shown = programs
     .filter((p) => p.status === 'eligible' || p.status === 'maybe')
     .sort((a, b) => order[a.status] - order[b.status])
 
   const submitted = shown.filter((p) => applications[p.id]?.status === 'submitted')
   const available = shown.filter((p) => !submitted.includes(p))
-  const featured = available.filter((p) => p.auto_apply && p.status === 'eligible')
+  const featured = available.filter((p) => p.auto_apply && p.status === 'eligible' && DEMO_PROGRAM_IDS.has(p.id))
   const others = available.filter((p) => !featured.includes(p))
   const firstName = userInfo.name ? userInfo.name.split(' ')[0] : 'there'
   const submittedCount = submitted.length
@@ -180,8 +177,13 @@ export default function Dashboard({
           <>
             <Divider sx={{ mb: 2 }} />
             <Typography variant="overline" sx={{ color: 'text.secondary', fontWeight: 700, letterSpacing: '0.1em' }}>
-              Also worth applying for
+              Other benefits to review
             </Typography>
+            {demoMode && (
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                These are rule-based matches with official links; the live AI auto-apply demo is scoped to CalFresh and WIC.
+              </Typography>
+            )}
             <Stack spacing={1.5} sx={{ mt: 1.5 }}>
               {others.map((program) => (
                 <ProgramCard
@@ -202,11 +204,11 @@ export default function Dashboard({
 
 function dashboardIntroText({ demoMode, submittedCount, featuredCount, otherCount, shownCount }) {
   if (demoMode) {
-    if (submittedCount === 2) return 'CalFresh and WIC are submitted and verified for the demo.'
+    if (submittedCount === 2) return 'CalFresh and WIC are submitted and verified for the demo. Other likely benefits remain below for review.'
     if (submittedCount > 0) {
-      return `${submittedCount} demo application${submittedCount === 1 ? ' is' : 's are'} submitted. ${featuredCount > 0 ? `${featuredCount} remains ready for auto-apply.` : ''}`
+      return `${submittedCount} demo application${submittedCount === 1 ? ' is' : 's are'} submitted. ${featuredCount > 0 ? `${featuredCount} remains ready for auto-apply; ${otherCount} other benefit${otherCount === 1 ? '' : 's'} can still be reviewed below.` : `${otherCount} other benefit${otherCount === 1 ? '' : 's'} can still be reviewed below.`}`
     }
-    return 'For the demo, we are focusing on the two end-to-end agent flows: CalFresh and WIC.'
+    return 'For the demo, CalFresh and WIC have end-to-end AI auto-apply. Other likely benefits are still surfaced with official next steps.'
   }
 
   if (submittedCount > 0) {
@@ -235,9 +237,9 @@ function ImpactSummary({ programs, userInfo }) {
       helper: impact.valueHelper,
     },
     {
-      label: 'Application time saved',
+      label: 'Auto-apply time saved',
       value: impact.applicationMinutes ? formatMinutes(impact.applicationMinutes) : 'Varies',
-      helper: 'Agent drafts the paperwork for review',
+      helper: 'CalFresh and WIC agent flows',
     },
   ]
 
@@ -284,7 +286,7 @@ function buildImpactSummary(programs, userInfo) {
     return {
       programCount: current.programCount + 1,
       monthlyValue: current.monthlyValue + monthlyValue,
-      applicationMinutes: current.applicationMinutes + (impact?.applicationMinutes || 0),
+      applicationMinutes: current.applicationMinutes + (program.auto_apply ? (impact?.applicationMinutes || 0) : 0),
       valueSources: monthlyValue && impact?.summaryLabel
         ? [...current.valueSources, impact.summaryLabel]
         : current.valueSources,

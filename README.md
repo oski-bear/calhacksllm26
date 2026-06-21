@@ -15,8 +15,10 @@ application status to SQLite.
 - Rich household intake with saved profile data
 - Rule-based eligibility results for California benefit programs
 - CalFresh and WIC prioritized in demo mode
+- Other eligible/maybe benefits still surface with official next-step links,
+  even when they do not have AI auto-apply
 - Impact summary showing programs found, estimated monthly value, and
-  application time saved
+  auto-apply time saved
 - Per-program document preflight checklists before auto-apply
 - Official apply/rules links and compact program branding on each benefit card
 - Claude-generated explanations/draft answers when `ANTHROPIC_API_KEY` exists

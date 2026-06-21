@@ -70,6 +70,16 @@ class EligibilityTests(unittest.TestCase):
         self.assertTrue(any("Source:" in reason for reason in programs["calfresh"]["reasons"]))
         self.assertTrue(any("Source:" in reason for reason in programs["wic"]["reasons"]))
 
+    def test_demo_profile_also_surfaces_non_auto_apply_benefits(self):
+        programs = {program["id"]: program for program in evaluate_all(DEMO_PROFILE)}
+
+        for program_id in ("medical", "liheap", "lifeline"):
+            self.assertEqual(programs[program_id]["status"], "eligible")
+            self.assertFalse(programs[program_id]["auto_apply"])
+
+        self.assertEqual(programs["calworks"]["status"], "maybe")
+        self.assertFalse(programs["calworks"]["auto_apply"])
+
     def test_wic_requires_pregnancy_or_child_under_five(self):
         profile = deepcopy(DEMO_PROFILE)
         profile["currentBenefits"] = []
