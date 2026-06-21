@@ -13,6 +13,8 @@ The agent navigates to realistic BenefitsCal/WIC URLs in Browserbase, but
 Playwright intercepts those page loads and serves our local demo portal HTML.
 This is intentional: no real government application is submitted during the
 demo.
+The app shell discloses that this is a safe demo portal; the routed portal
+pages themselves are kept high-fidelity so the submitted proof looks realistic.
 
 The demo profile creates a fresh `oski.demo+...@example.com` email each time,
 so repeated rehearsals start with clean application statuses.

@@ -293,7 +293,7 @@ def _drive_portal(page, program_id, values, profile):
             ["accountEmail", "accountPassword", "accountPhone"],
             evidence,
         )
-        _click(page, '[data-agent-create-account="true"]', evidence, "Create demo account")
+        _click(page, '[data-agent-create-account="true"]', evidence, "Create account")
         _click(page, '[data-agent-start-application="true"]', evidence, "Start CalFresh application")
         _fill_fields(
             page,
