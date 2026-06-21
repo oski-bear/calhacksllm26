@@ -74,7 +74,22 @@ export default function App() {
         userInfo={userInfo}
         programs={programs}
         onSelectProgram={handleSelectProgram}
-        onBack={() => setScreen('form')}
+        onEditProfile={() => setScreen('profile')}
+      />
+    )
+  }
+
+  // The profile page reuses the form, pre-filled with the saved info.
+  // Saving runs the same path as the intake form (persist + re-check eligibility).
+  if (screen === 'profile') {
+    return (
+      <BasicInfoForm
+        initialValues={userInfo}
+        onSubmit={handleFormSubmit}
+        title="Your information"
+        subtitle="Update your details anytime. We'll save your changes and refresh the programs you qualify for."
+        submitLabel="Save changes"
+        onBack={() => setScreen('dashboard')}
       />
     )
   }

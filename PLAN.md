@@ -35,8 +35,10 @@ React (MUI) · Flask · SQLite + Redis · Anthropic · Browserbase · Deepgram
 - [ ] Deepgram — voice agent calling county offices
 
 ## 🟡 Remaining frontend
-- [ ] **Profile / Documents page** — view & edit saved PII + uploaded
-      documents, since a user's situation can change later.
+- [x] **Profile page (PII)** — view & edit saved info ("Edit my info" on the
+      dashboard); saving persists to the DB and re-checks eligibility.
+- [ ] Document upload/management on the profile page (needs the documents
+      table + real file-upload endpoints).
 - [ ] Voice-call + transcript panel on the agent page (Deepgram half)
 - [ ] Dashboard reflects per-program status (In progress / Submitted)
 - [ ] "Auto re-apply to programs" (noted on whiteboard)

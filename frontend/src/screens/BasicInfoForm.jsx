@@ -55,7 +55,14 @@ const BENEFIT_OPTIONS = [
   'Section 8 Housing',
 ]
 
-export default function BasicInfoForm({ initialValues, onSubmit }) {
+export default function BasicInfoForm({
+  initialValues,
+  onSubmit,
+  title = 'Find the benefits you qualify for',
+  subtitle = "Tell us a bit about your situation. We'll figure out which programs you're eligible for and help you apply.",
+  submitLabel = 'Find my programs',
+  onBack,
+}) {
   const [values, setValues] = useState(initialValues)
 
   // One generic handler for all the simple (single-value) fields.
@@ -86,11 +93,10 @@ export default function BasicInfoForm({ initialValues, onSubmit }) {
       <Container maxWidth="md">
         <Stack spacing={1} sx={{ mb: 4, textAlign: 'center' }}>
           <Typography variant="h4" color="primary">
-            Find the benefits you qualify for
+            {title}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            Tell us a bit about your situation. We'll figure out which programs
-            you're eligible for and help you apply.
+            {subtitle}
           </Typography>
         </Stack>
 
@@ -270,12 +276,18 @@ export default function BasicInfoForm({ initialValues, onSubmit }) {
                   size="large"
                   fullWidth
                 >
-                  Find my programs
+                  {submitLabel}
                 </Button>
               </Grid>
             </Grid>
           </form>
         </Paper>
+
+        {onBack && (
+          <Button onClick={onBack} sx={{ mt: 3 }}>
+            ← Back to dashboard
+          </Button>
+        )}
       </Container>
     </Box>
   )

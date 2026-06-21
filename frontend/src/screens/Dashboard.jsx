@@ -18,7 +18,7 @@ const STATUS_STYLES = {
   maybe: { label: 'May qualify', color: 'warning', Icon: HelpOutlineIcon },
 }
 
-export default function Dashboard({ userInfo, programs, onSelectProgram, onBack }) {
+export default function Dashboard({ userInfo, programs, onSelectProgram, onEditProfile }) {
   // Only show programs the user might get; ineligible ones are hidden.
   // Eligible first, then "maybe".
   const order = { eligible: 0, maybe: 1 }
@@ -31,6 +31,12 @@ export default function Dashboard({ userInfo, programs, onSelectProgram, onBack 
   return (
     <Box sx={{ minHeight: '100vh', py: 6 }}>
       <Container maxWidth="md">
+        <Stack direction="row" justifyContent="flex-end" sx={{ mb: 1 }}>
+          <Button variant="outlined" onClick={onEditProfile}>
+            Edit my info
+          </Button>
+        </Stack>
+
         <Stack spacing={1} sx={{ mb: 4 }}>
           <Typography variant="h4" color="primary">
             Hi {firstName} — here's what you may qualify for
@@ -102,9 +108,6 @@ export default function Dashboard({ userInfo, programs, onSelectProgram, onBack 
           })}
         </Stack>
 
-        <Button onClick={onBack} sx={{ mt: 3 }}>
-          ← Back to form
-        </Button>
       </Container>
     </Box>
   )
