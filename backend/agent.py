@@ -20,23 +20,25 @@ BASE_DIR = os.path.dirname(__file__)
 # The ordered fill steps shown to the user, per program.
 STEPS = {
     "calfresh": [
-        "Opening BenefitsCal application portal…",
-        "Entering applicant name & date of birth…",
-        "Entering contact details…",
-        "Entering home address & county…",
-        "Entering household size & income…",
-        "Entering rent & utility expenses…",
-        "Submitting completed demo application…",
+        "Opening BenefitsCal application portal...",
+        "Creating a demo BenefitsCal account...",
+        "Choosing CalFresh from the benefits menu...",
+        "Entering applicant name and date of birth...",
+        "Entering contact details...",
+        "Entering home address and county...",
+        "Entering household size, income, and expenses...",
+        "Reviewing answers before submission...",
+        "Submitting completed demo application...",
         "Capturing the confirmation number.",
     ],
     "wic": [
-        "Opening California WIC request portal…",
-        "Entering contact details…",
-        "Entering location & county…",
-        "Selecting participant category…",
-        "Entering household size & income…",
-        "Noting adjunctive eligibility…",
-        "Submitting completed demo request…",
+        "Opening California WIC assessment portal...",
+        "Entering ZIP code, county, and WIC category...",
+        "Checking income and adjunctive benefit answers...",
+        "Selecting a nearby WIC office...",
+        "Entering appointment contact details...",
+        "Reviewing the WIC appointment request...",
+        "Submitting completed demo request...",
         "Capturing the confirmation number.",
     ],
 }
@@ -150,6 +152,14 @@ def field_values(program_id, profile):
     return common
 
 
+def account_values(profile):
+    return {
+        "accountEmail": profile.get("email", "oski@example.com"),
+        "accountPassword": "DemoPass!2026",
+        "accountPhone": profile.get("phone", "(510) 555-0148"),
+    }
+
+
 def _portal_url(program_id):
     base = os.environ.get("MOCK_PORTAL_BASE", "http://localhost:5001/mock")
     page = "benefitscal" if program_id == "calfresh" else "wic"
@@ -172,6 +182,82 @@ def _is_local_url(url):
 
 def _confirmation(program_id):
     return "WIC-DEMO-2048" if program_id == "wic" else "CF-DEMO-4821"
+
+
+def _fill_fields(page, values, names):
+    for name in names:
+        if name not in values:
+            continue
+        try:
+            page.fill(f'[name="{name}"]', str(values[name]), timeout=4000)
+            page.wait_for_timeout(250)  # let the live view show each field
+        except Exception:
+            pass
+
+
+def _click(page, selector):
+    try:
+        page.click(selector, timeout=4000)
+        page.wait_for_timeout(650)
+    except Exception:
+        pass
+
+
+def _drive_portal(page, program_id, values, profile):
+    """Drive the staged demo portals in the same order a user would."""
+    if program_id == "wic":
+        _fill_fields(
+            page,
+            values,
+            ["zip", "county", "category", "householdSize", "monthlyIncome", "adjunctive"],
+        )
+        _click(page, '[data-agent-start-assessment="true"]')
+        _click(page, '[data-agent-choose-office="true"]')
+        _fill_fields(
+            page,
+            values,
+            [
+                "firstName",
+                "lastName",
+                "phone",
+                "email",
+                "contactMethod",
+                "language",
+                "address",
+                "city",
+                "dueDate",
+            ],
+        )
+        _click(page, '[data-agent-review="true"]')
+    else:
+        _fill_fields(page, account_values(profile), ["accountEmail", "accountPassword", "accountPhone"])
+        _click(page, '[data-agent-create-account="true"]')
+        _click(page, '[data-agent-start-application="true"]')
+        _fill_fields(
+            page,
+            values,
+            [
+                "firstName",
+                "lastName",
+                "dob",
+                "ssn",
+                "phone",
+                "email",
+                "address",
+                "city",
+                "zip",
+                "county",
+                "householdSize",
+                "monthlyIncome",
+                "rent",
+                "utilities",
+                "pregnant",
+                "childrenUnder18",
+            ],
+        )
+        _click(page, '[data-agent-review="true"]')
+
+    _click(page, '[data-agent-submit="true"]')
 
 
 def run_application(program_id, profile):
@@ -225,15 +311,8 @@ def run_application(program_id, profile):
                     page.set_content(f.read(), wait_until="load")
             else:
                 page.goto(portal_url, wait_until="load")
-            for name, value in values.items():
-                try:
-                    page.fill(f'[name="{name}"]', str(value), timeout=4000)
-                    page.wait_for_timeout(350)  # let the live view show each field
-                except Exception:
-                    pass
+            _drive_portal(page, program_id, values, profile)
             try:
-                page.click('[data-agent-submit="true"]', timeout=4000)
-                page.wait_for_timeout(800)
                 confirmation = page.locator("#confirmation").inner_text(timeout=2000)
             except Exception:
                 pass

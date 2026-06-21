@@ -37,7 +37,10 @@ export function BenHeader() {
 export function BenFooter() {
   return (
     <Box sx={{ bgcolor: NAVY, py: 3, px: 3 }}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={2}>
+      <Stack
+        direction="row"
+        sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}
+      >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Box
             sx={{

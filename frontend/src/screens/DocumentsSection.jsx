@@ -89,9 +89,8 @@ export default function DocumentsSection({ email }) {
               <Stack
                 key={doc.id}
                 direction="row"
-                justifyContent="space-between"
-                alignItems="center"
                 spacing={2}
+                sx={{ justifyContent: 'space-between', alignItems: 'center' }}
               >
                 <Stack spacing={0} sx={{ minWidth: 0 }}>
                   <Link

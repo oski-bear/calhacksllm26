@@ -59,8 +59,8 @@ def explain():
     try:
         result = generate_explanations(user, programs)
     except RuntimeError as err:
-        # Missing API key — surface a clear, non-fatal signal.
-        return jsonify({"error": str(err)}), 503
+        # Missing API key is okay in demo mode; keep the rule-based flow quiet.
+        return jsonify({"summary": "", "explanations": {}, "skipped": str(err)})
     except Exception as err:  # noqa: BLE001 - report any API failure to the client
         return jsonify({"error": "explanation failed", "detail": str(err)}), 502
     return jsonify(result)
@@ -80,7 +80,7 @@ def draft():
     try:
         result = draft_application(user, program)
     except RuntimeError as err:
-        return jsonify({"error": str(err)}), 503
+        return jsonify({"statement": "", "answers": [], "skipped": str(err)})
     except Exception as err:  # noqa: BLE001 - report any API failure to the client
         return jsonify({"error": "drafting failed", "detail": str(err)}), 502
     return jsonify(result)

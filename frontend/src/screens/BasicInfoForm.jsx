@@ -291,7 +291,7 @@ function MemberCard({ member, index, onChange, onRemove }) {
 
   return (
     <Box sx={{ border: '1px solid #d8dee6', borderRadius: 2, p: 2, bgcolor: '#fafbfc' }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
+      <Stack direction="row" sx={{ mb: 1.5, justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="subtitle1" fontWeight={700} color={TEAL}>
           {member.isPrimary ? 'You' : `Household member ${index + 1}`}
         </Typography>

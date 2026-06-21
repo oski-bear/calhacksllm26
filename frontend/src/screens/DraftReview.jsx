@@ -61,7 +61,7 @@ export default function DraftReview({ program, userInfo, onProceed, onBack }) {
         </Stack>
 
         {loading ? (
-          <Stack direction="row" spacing={1.5} alignItems="center" sx={{ py: 4 }}>
+          <Stack direction="row" spacing={1.5} sx={{ py: 4, alignItems: 'center' }}>
             <CircularProgress size={20} />
             <Typography color="text.secondary">
               Drafting your application with Claude…

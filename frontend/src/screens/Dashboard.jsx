@@ -43,7 +43,7 @@ export default function Dashboard({
   return (
     <Box sx={{ minHeight: '100vh', py: 6 }}>
       <Container maxWidth="md">
-        <Stack direction="row" justifyContent="flex-end" sx={{ mb: 1 }}>
+        <Stack direction="row" sx={{ mb: 1, justifyContent: 'flex-end' }}>
           <Button variant="outlined" onClick={onEditProfile}>Edit my info</Button>
         </Stack>
 
@@ -77,7 +77,7 @@ export default function Dashboard({
             <Typography variant="body2">{summary}</Typography>
           </Box>
         ) : explaining ? (
-          <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 3 }}>
+          <Stack direction="row" spacing={1} sx={{ mb: 3, alignItems: 'center' }}>
             <CircularProgress size={16} />
             <Typography variant="body2" color="text.secondary">
               Personalizing your guidance...
@@ -87,7 +87,7 @@ export default function Dashboard({
 
         {featured.length > 0 && (
           <>
-            <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1.5 }}>
+            <Stack direction="row" spacing={1} sx={{ mb: 1.5, alignItems: 'center' }}>
               <AutoAwesomeIcon sx={{ color: TEAL, fontSize: 20 }} />
               <Typography variant="overline" sx={{ color: TEAL, fontWeight: 700, letterSpacing: '0.1em' }}>
                 Ready to auto-apply
@@ -136,7 +136,11 @@ function ProgramCard({ program, featured, onAction }) {
       sx={featured ? { borderColor: TEAL, borderWidth: 2, bgcolor: '#f6fbfa' } : undefined}
     >
       <CardContent>
-        <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={2}>
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{ justifyContent: 'space-between', alignItems: 'flex-start' }}
+        >
           <Box>
             <Typography variant={featured ? 'h6' : 'subtitle1'} fontWeight={700}>
               {program.name}

@@ -52,9 +52,7 @@ export default function ProgramDetail({ program, onContinue, onBack }) {
       <Container maxWidth="md">
         <Stack
           direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          sx={{ mb: 3 }}
+          sx={{ mb: 3, justifyContent: 'space-between', alignItems: 'center' }}
         >
           <Typography variant="h4" color="primary">
             {program.name}

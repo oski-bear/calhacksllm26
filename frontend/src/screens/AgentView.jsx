@@ -60,8 +60,8 @@ export default function AgentView({ program, userInfo, onBack }) {
   return (
     <Box sx={{ minHeight: '100vh', py: 6, bgcolor: 'background.default' }}>
       <Container maxWidth="lg">
-        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-          <Stack direction="row" spacing={1.5} alignItems="center">
+        <Stack direction="row" sx={{ mb: 3, justifyContent: 'space-between', alignItems: 'center' }}>
+          <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
             <AutoAwesomeIcon color="primary" />
             <Typography variant="h4" color="primary">
               AI agent applying to {programName}
@@ -74,7 +74,7 @@ export default function AgentView({ program, userInfo, onBack }) {
         </Stack>
 
         {loading && (
-          <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 3 }}>
+          <Stack direction="row" spacing={1.5} sx={{ mb: 3, alignItems: 'center' }}>
             <CircularProgress size={20} />
             <Typography color="text.secondary">Starting the agent…</Typography>
           </Stack>
@@ -181,7 +181,7 @@ function ActivityRow({ label, state }) {
   else if (state === 'active') icon = <CircularProgress size={16} />
   else icon = <Box sx={{ width: 16, height: 16, borderRadius: '50%', border: '2px solid', borderColor: 'divider' }} />
   return (
-    <Stack direction="row" spacing={1.5} alignItems="center">
+    <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
       {icon}
       <Typography variant="body2" color={state === 'pending' ? 'text.disabled' : 'text.primary'}>
         {label}
@@ -193,8 +193,18 @@ function ActivityRow({ label, state }) {
 function BrowserChrome({ url, children }) {
   return (
     <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, overflow: 'hidden', bgcolor: 'white' }}>
-      <Stack direction="row" spacing={1.5} alignItems="center"
-        sx={{ bgcolor: 'grey.100', px: 2, py: 1.25, borderBottom: '1px solid', borderColor: 'divider' }}>
+      <Stack
+        direction="row"
+        spacing={1.5}
+        sx={{
+          alignItems: 'center',
+          bgcolor: 'grey.100',
+          px: 2,
+          py: 1.25,
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+        }}
+      >
         <Stack direction="row" spacing={0.75}>
           <Dot color="#ff5f56" /><Dot color="#ffbd2e" /><Dot color="#27c93f" />
         </Stack>

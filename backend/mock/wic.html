@@ -3,97 +3,354 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>California WIC — Appointment Request (DEMO)</title>
+  <title>WIC - Eligibility Assessment (DEMO)</title>
   <style>
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: system-ui, "Segoe UI", Roboto, sans-serif; background: #f3f0f7; color: #2a1a3c; }
-    .banner { background: #fff3cd; color: #664d03; text-align: center; padding: 6px; font-size: 13px; border-bottom: 1px solid #ffe69c; }
-    header { background: #6a2c91; color: #fff; padding: 14px 28px; display: flex; align-items: center; gap: 12px; }
-    header .logo { font-weight: 800; font-size: 20px; letter-spacing: -.5px; }
-    header .tag { font-size: 13px; opacity: .85; }
-    .wrap { max-width: 720px; margin: 24px auto; background: #fff; border: 1px solid #e0d7e6; border-radius: 8px; padding: 28px 32px; }
-    h1 { font-size: 22px; margin: 0 0 4px; }
-    .sub { color: #6b5a7b; margin: 0 0 24px; font-size: 14px; }
-    fieldset { border: none; border-top: 1px solid #ece4f0; padding: 18px 0 4px; margin: 0; }
-    legend { font-weight: 700; color: #6a2c91; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; padding: 0; }
-    .row { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px; }
-    .field { flex: 1 1 200px; display: flex; flex-direction: column; }
-    label { font-size: 13px; font-weight: 600; margin-bottom: 5px; color: #4a3b54; }
-    input, select { padding: 10px 12px; border: 1px solid #c9b9d4; border-radius: 6px; font-size: 15px; }
-    input:focus, select:focus { outline: 2px solid #6a2c91; border-color: #6a2c91; }
-    .actions { margin-top: 28px; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
-    button { background: #6a2c91; color: #fff; border: none; padding: 12px 22px; border-radius: 6px; font-size: 15px; font-weight: 700; cursor: pointer; }
-    .review { color: #1c7c54; font-weight: 700; font-size: 14px; }
-    .confirmation { display: none; margin-top: 18px; padding: 16px; border-radius: 6px; background: #e8f5e9; border: 1px solid #8cc79a; color: #14532d; font-weight: 700; }
-    form.submitted .confirmation { display: block; }
-    form.submitted button { background: #1c7c54; }
+    body {
+      margin: 0;
+      font-family: Arial, "Helvetica Neue", sans-serif;
+      background: #f6f6f6;
+      color: #3d3a40;
+    }
+    .demo {
+      background: #fff6d7;
+      border-bottom: 1px solid #f2d47d;
+      color: #4f3b00;
+      font-size: 13px;
+      padding: 7px 16px;
+      text-align: center;
+    }
+    .social {
+      background: #30338f;
+      color: white;
+      height: 30px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 14px;
+      padding: 0 48px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    header {
+      background: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 48px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, .18);
+      position: relative;
+      z-index: 2;
+    }
+    .logo {
+      color: #6f55b5;
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: -2px;
+    }
+    nav { display: flex; align-items: center; gap: 28px; color: #30338f; font-size: 14px; font-weight: 800; }
+    .get-started {
+      background: #30338f;
+      color: white;
+      border-radius: 999px;
+      padding: 12px 20px;
+    }
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background: white;
+      min-height: 360px;
+      display: grid;
+      grid-template-columns: 1fr 430px;
+      gap: 32px;
+      align-items: center;
+      padding: 44px 64px 60px;
+    }
+    .hero h1 {
+      color: #7054b5;
+      font-size: 48px;
+      line-height: .98;
+      letter-spacing: -.8px;
+      margin: 0 0 18px;
+      max-width: 430px;
+      text-transform: uppercase;
+    }
+    .hero p { color: #67616d; font-size: 18px; line-height: 1.45; max-width: 430px; }
+    .photo {
+      min-height: 250px;
+      border-radius: 10px;
+      background:
+        linear-gradient(rgba(255,255,255,.05), rgba(255,255,255,.05)),
+        url("https://wic-staging.nyc3.cdn.digitaloceanspaces.com/transforms/homepage/_640x427_crop_center-center_80_none/45/New-SignUpWIC-Images-4.webp") center / cover;
+      box-shadow: 0 12px 26px rgba(65, 55, 98, .2);
+      position: relative;
+    }
+    .shape {
+      position: absolute;
+      border-radius: 40px;
+      transform: rotate(-18deg);
+      opacity: .95;
+    }
+    .shape.red { background: #fc726a; width: 70px; height: 190px; right: 360px; bottom: -84px; }
+    .shape.green { background: #a7d733; width: 115px; height: 230px; right: -44px; bottom: -30px; }
+    .shape.purple { background: #7459b8; width: 62px; height: 148px; right: 150px; bottom: -70px; }
+    main { max-width: 1120px; margin: -34px auto 56px; padding: 0 28px; position: relative; z-index: 4; }
+    .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 24px; align-items: start; }
+    .side, .panel {
+      background: white;
+      border: 1px solid #e1dde8;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(58, 45, 90, .15);
+    }
+    .side { padding: 22px; }
+    .side h2 { color: #7054b5; font-size: 22px; margin: 0 0 16px; text-transform: uppercase; }
+    .side div {
+      border-bottom: 1px solid #e8e4ef;
+      color: #5a5367;
+      font-weight: 800;
+      padding: 12px 0;
+    }
+    .side div.active { color: #30338f; }
+    .panel { padding: 30px; }
+    .stage { display: none; }
+    .stage.active { display: block; }
+    h2 {
+      color: #7054b5;
+      font-size: 28px;
+      line-height: 1.05;
+      margin: 0 0 8px;
+      text-transform: uppercase;
+    }
+    .hint { color: #6f6977; margin: 0 0 22px; line-height: 1.45; }
+    .row { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 14px; }
+    .field { flex: 1 1 220px; display: flex; flex-direction: column; }
+    .field.wide { flex-basis: 100%; }
+    label { color: #423a55; font-size: 13px; font-weight: 900; margin-bottom: 6px; }
+    input {
+      border: 1px solid #cfc8dc;
+      border-radius: 8px;
+      font-size: 15px;
+      padding: 12px 13px;
+      background: white;
+    }
+    input:focus { border-color: #7054b5; outline: 3px solid rgba(112, 84, 181, .16); }
+    .office {
+      border: 2px solid #dcd6eb;
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 14px;
+      background: #fbfaff;
+    }
+    .office strong { color: #30338f; display: block; margin-bottom: 5px; }
+    .office.active { border-color: #7054b5; box-shadow: inset 0 0 0 1px #7054b5; }
+    .summary {
+      border: 1px solid #dcd6eb;
+      border-radius: 10px;
+      padding: 18px;
+      background: #fbfaff;
+      margin-top: 18px;
+    }
+    .summary dl { display: grid; grid-template-columns: 190px 1fr; gap: 10px 16px; margin: 0; }
+    .summary dt { color: #777083; font-weight: 900; }
+    .summary dd { margin: 0; }
+    .actions { display: flex; justify-content: space-between; align-items: center; margin-top: 28px; gap: 16px; }
+    button {
+      background: #30338f;
+      border: 0;
+      border-radius: 999px;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 900;
+      padding: 12px 22px;
+    }
+    button.secondary { background: white; color: #30338f; border: 2px solid #30338f; }
+    button.success { background: #1b7f45; }
+    .callout {
+      background: #f1f8e6;
+      border-left: 6px solid #a7d733;
+      border-radius: 8px;
+      color: #33452a;
+      font-weight: 800;
+      padding: 14px 16px;
+      margin-top: 18px;
+    }
+    .confirmation {
+      display: none;
+      margin-top: 18px;
+      border: 1px solid #7abb91;
+      background: #e8f6ed;
+      color: #155b2f;
+      border-radius: 8px;
+      padding: 18px;
+      font-weight: 900;
+    }
+    .submitted .confirmation { display: block; }
+    footer {
+      background: #30343b;
+      color: white;
+      padding: 28px 48px;
+      font-size: 13px;
+    }
+    @media (max-width: 840px) {
+      header, .social { padding-left: 18px; padding-right: 18px; }
+      nav { gap: 12px; flex-wrap: wrap; }
+      .hero { grid-template-columns: 1fr; padding: 34px 28px 64px; }
+      .layout { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 38px; }
+    }
   </style>
   <script>
+    function showStage(id) {
+      document.querySelectorAll('.stage').forEach((el) => el.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      document.querySelectorAll('[data-step]').forEach((el) => {
+        el.classList.toggle('active', el.dataset.step === id);
+      });
+    }
+    function mirrorReview() {
+      const names = ['firstName', 'lastName', 'phone', 'email', 'address', 'city', 'zip', 'county', 'contactMethod', 'language', 'category', 'dueDate', 'householdSize', 'monthlyIncome', 'adjunctive'];
+      names.forEach((name) => {
+        const target = document.querySelector(`[data-review="${name}"]`);
+        const field = document.querySelector(`[name="${name}"]`);
+        if (target && field) target.textContent = field.value || '-';
+      });
+    }
     function submitDemo(event) {
       event.preventDefault();
-      const form = event.currentTarget;
-      form.classList.add('submitted');
-      form.querySelector('.review').textContent = 'Submitted to demo portal';
-      form.querySelector('button').textContent = 'Submitted';
+      document.getElementById('review-stage').classList.add('submitted');
+      document.querySelector('[data-agent-submit="true"]').textContent = 'Request sent';
+      document.querySelector('[data-agent-submit="true"]').classList.add('success');
     }
   </script>
 </head>
 <body>
-  <div class="banner">DEMO PORTAL - not the real California WIC site. Submitting here has no government side effect.</div>
+  <div class="demo">DEMO PORTAL - not the real WIC site. Submitting here has no government side effect.</div>
+  <div class="social">Facebook Instagram TikTok Twitter <span>En Espanol</span></div>
   <header>
-    <span class="logo">California WIC</span>
-    <span class="tag">Appointment / Application Request</span>
+    <div class="logo">wic</div>
+    <nav>
+      <span>Learn About WIC</span>
+      <span>Find A Clinic</span>
+      <span>Resources</span>
+      <span class="get-started">Get Started</span>
+    </nav>
   </header>
-  <div class="wrap">
-    <h1>Request a WIC Appointment</h1>
-    <p class="sub">WIC staff verify final eligibility. Fields below are filled by your assistant for your review.</p>
-    <form id="wic-form" onsubmit="submitDemo(event);">
-      <fieldset>
-        <legend>Contact</legend>
-        <div class="row">
-          <div class="field"><label>First name</label><input name="firstName" /></div>
-          <div class="field"><label>Last name</label><input name="lastName" /></div>
+  <section class="hero">
+    <div>
+      <h1>See how WIC can help you and your family</h1>
+      <p>See what benefits you and your family could be eligible for and start the application process today.</p>
+    </div>
+    <div class="photo" aria-label="Family WIC photo"></div>
+    <div class="shape red"></div>
+    <div class="shape green"></div>
+    <div class="shape purple"></div>
+  </section>
+  <main>
+    <div class="layout">
+      <aside class="side">
+        <h2>Get started</h2>
+        <div data-step="assessment-stage" class="active">1. Take assessment</div>
+        <div data-step="clinic-stage">2. Find a clinic</div>
+        <div data-step="request-stage">3. Request appointment</div>
+        <div data-step="review-stage">4. Review and send</div>
+      </aside>
+      <section class="panel">
+        <div id="assessment-stage" class="stage active">
+          <h2>WIC eligibility assessment</h2>
+          <p class="hint">WIC serves pregnant people, postpartum parents, infants, and children under 5 who live in California and meet income or adjunctive benefit guidelines.</p>
+          <div class="row">
+            <div class="field"><label>ZIP code</label><input name="zip" oninput="mirrorReview()" /></div>
+            <div class="field"><label>County</label><input name="county" oninput="mirrorReview()" /></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>Participant category</label><input name="category" oninput="mirrorReview()" /></div>
+            <div class="field"><label>Household size</label><input name="householdSize" oninput="mirrorReview()" /></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>Gross monthly income</label><input name="monthlyIncome" oninput="mirrorReview()" /></div>
+            <div class="field"><label>On Medi-Cal / CalFresh / CalWORKs?</label><input name="adjunctive" oninput="mirrorReview()" /></div>
+          </div>
+          <div class="callout">Your answers suggest you may qualify. Only local WIC staff can confirm final eligibility.</div>
+          <div class="actions">
+            <span></span>
+            <button type="button" data-agent-start-assessment="true" onclick="showStage('clinic-stage')">Find a clinic</button>
+          </div>
         </div>
-        <div class="row">
-          <div class="field"><label>Phone</label><input name="phone" /></div>
-          <div class="field"><label>Email</label><input name="email" /></div>
+
+        <div id="clinic-stage" class="stage">
+          <h2>Find your WIC office</h2>
+          <p class="hint">Set up an appointment at an office near you.</p>
+          <div class="office active">
+            <strong>Alameda County WIC - Berkeley Public Health Center</strong>
+            830 University Ave, Berkeley, CA 94710<br />
+            Phone appointments available Monday to Friday, 8 a.m. to 5 p.m.
+          </div>
+          <div class="office">
+            <strong>Alameda County WIC - Oakland Eastmont</strong>
+            7200 Bancroft Ave, Oakland, CA 94605
+          </div>
+          <div class="actions">
+            <button class="secondary" type="button" onclick="showStage('assessment-stage')">Back</button>
+            <button type="button" data-agent-choose-office="true" onclick="showStage('request-stage')">Choose this office</button>
+          </div>
         </div>
-        <div class="row">
-          <div class="field"><label>Best contact method</label><input name="contactMethod" /></div>
-          <div class="field"><label>Preferred language</label><input name="language" /></div>
-        </div>
-      </fieldset>
-      <fieldset>
-        <legend>Location</legend>
-        <div class="row">
-          <div class="field" style="flex:2 1 320px"><label>Address</label><input name="address" /></div>
-        </div>
-        <div class="row">
-          <div class="field"><label>City</label><input name="city" /></div>
-          <div class="field"><label>ZIP</label><input name="zip" /></div>
-          <div class="field"><label>County</label><input name="county" /></div>
-        </div>
-      </fieldset>
-      <fieldset>
-        <legend>Eligibility</legend>
-        <div class="row">
-          <div class="field"><label>Participant category</label><input name="category" /></div>
-          <div class="field"><label>Expected due date</label><input name="dueDate" /></div>
-        </div>
-        <div class="row">
-          <div class="field"><label>Household size</label><input name="householdSize" /></div>
-          <div class="field"><label>Gross monthly income</label><input name="monthlyIncome" /></div>
-        </div>
-        <div class="row">
-          <div class="field"><label>On Medi-Cal / CalFresh / CalWORKs?</label><input name="adjunctive" /></div>
-        </div>
-      </fieldset>
-      <div class="actions">
-        <span class="review">● Draft saved — ready for your review</span>
-        <button type="submit" data-agent-submit="true">Request Appointment</button>
-      </div>
-      <div id="confirmation" class="confirmation">WIC appointment request submitted. Confirmation #WIC-DEMO-2048</div>
-    </form>
-  </div>
+
+        <form id="wic-form" onsubmit="submitDemo(event);">
+          <div id="request-stage" class="stage">
+            <h2>Request a WIC appointment</h2>
+            <p class="hint">A WIC representative may contact you by phone, text, or email to finish enrollment.</p>
+            <div class="row">
+              <div class="field"><label>First name</label><input name="firstName" oninput="mirrorReview()" /></div>
+              <div class="field"><label>Last name</label><input name="lastName" oninput="mirrorReview()" /></div>
+            </div>
+            <div class="row">
+              <div class="field"><label>Phone</label><input name="phone" oninput="mirrorReview()" /></div>
+              <div class="field"><label>Email</label><input name="email" oninput="mirrorReview()" /></div>
+            </div>
+            <div class="row">
+              <div class="field"><label>Best contact method</label><input name="contactMethod" oninput="mirrorReview()" /></div>
+              <div class="field"><label>Preferred language</label><input name="language" oninput="mirrorReview()" /></div>
+            </div>
+            <div class="row">
+              <div class="field wide"><label>Address</label><input name="address" oninput="mirrorReview()" /></div>
+            </div>
+            <div class="row">
+              <div class="field"><label>City</label><input name="city" oninput="mirrorReview()" /></div>
+              <div class="field"><label>Expected due date</label><input name="dueDate" oninput="mirrorReview()" /></div>
+            </div>
+            <div class="actions">
+              <button class="secondary" type="button" onclick="showStage('clinic-stage')">Back</button>
+              <button type="button" data-agent-review="true" onclick="mirrorReview(); showStage('review-stage')">Review request</button>
+            </div>
+          </div>
+
+          <div id="review-stage" class="stage">
+            <h2>Review your WIC request</h2>
+            <p class="hint">This sends an appointment request to the selected local WIC office in the demo.</p>
+            <div class="summary">
+              <dl>
+                <dt>Name</dt><dd><span data-review="firstName">-</span> <span data-review="lastName">-</span></dd>
+                <dt>Contact</dt><dd><span data-review="phone">-</span> / <span data-review="email">-</span></dd>
+                <dt>Preference</dt><dd><span data-review="contactMethod">-</span>, <span data-review="language">-</span></dd>
+                <dt>Address</dt><dd><span data-review="address">-</span>, <span data-review="city">-</span>, CA <span data-review="zip">-</span></dd>
+                <dt>County</dt><dd data-review="county">-</dd>
+                <dt>Category</dt><dd data-review="category">-</dd>
+                <dt>Due date</dt><dd data-review="dueDate">-</dd>
+                <dt>Household</dt><dd><span data-review="householdSize">-</span>, income <span data-review="monthlyIncome">-</span></dd>
+                <dt>Other benefits</dt><dd data-review="adjunctive">-</dd>
+              </dl>
+            </div>
+            <div class="actions">
+              <button class="secondary" type="button" onclick="showStage('request-stage')">Edit answers</button>
+              <button type="submit" data-agent-submit="true">Send WIC appointment request</button>
+            </div>
+            <div id="confirmation" class="confirmation">WIC appointment request submitted. Confirmation #WIC-DEMO-2048</div>
+          </div>
+        </form>
+      </section>
+    </div>
+  </main>
+  <footer>California WIC Program - demo request workflow - local office confirms eligibility.</footer>
 </body>
 </html>
