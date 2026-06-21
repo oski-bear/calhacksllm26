@@ -93,6 +93,9 @@ def auto_apply(page, card_text, confirmation, portal_url):
     expect(page.get_by_text(portal_url)).to_be_visible(timeout=60000)
     expect(page.get_by_role("link", name="Open live browser")).to_be_visible(timeout=15000)
     expect(page.get_by_text("Browserbase cloud browser")).to_be_visible(timeout=15000)
+    expect(page.get_by_text(re.compile(r"\d+ fields verified"))).to_be_visible(timeout=15000)
+    expect(page.get_by_text(re.compile(r"\d+ controls clicked"))).to_be_visible(timeout=15000)
+    expect(page.get_by_text("Portal confirmation verified")).to_be_visible(timeout=15000)
     expect(page.get_by_text(confirmation)).to_be_visible(timeout=60000)
     expect(page.get_by_alt_text("Submitted portal screenshot")).to_be_visible(timeout=15000)
 

@@ -196,6 +196,9 @@ function SubmittedScreenshot({ result }) {
 }
 
 function AutomationEvidence({ result }) {
+  const evidence = result.automationEvidence || {}
+  const fieldCount = evidence.filledFields?.length || 0
+  const clickCount = evidence.clickedControls?.length || 0
   return (
     <Box sx={{ p: 2, bgcolor: 'white' }}>
       <Stack
@@ -205,8 +208,14 @@ function AutomationEvidence({ result }) {
       >
         <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', rowGap: 1 }}>
           <Chip size="small" color="success" label="Browserbase cloud browser" />
-          <Chip size="small" variant="outlined" label="Routed portal URL" />
-          <Chip size="small" variant="outlined" label="Confirmation captured" />
+          <Chip size="small" variant="outlined" label={`${fieldCount} fields verified`} />
+          <Chip size="small" variant="outlined" label={`${clickCount} controls clicked`} />
+          <Chip
+            size="small"
+            variant="outlined"
+            color={evidence.confirmationVerified ? 'success' : 'default'}
+            label={evidence.confirmationVerified ? 'Portal confirmation verified' : 'Confirmation captured'}
+          />
         </Stack>
         <Button
           component="a"
@@ -221,7 +230,8 @@ function AutomationEvidence({ result }) {
         </Button>
       </Stack>
       <Typography variant="caption" color="text.secondary">
-        Session {result.sessionId || 'created'} stayed in Browserbase after the agent filled the routed demo portal.
+        Session {result.sessionId || 'created'} stayed in Browserbase after the agent filled
+        {' '}the routed portal URL and verified the submitted portal state.
       </Typography>
     </Box>
   )
