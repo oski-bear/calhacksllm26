@@ -1,333 +1,150 @@
-# Project Ideas Ranked for UC Berkeley AI Hackathon 2026
+# Project Ideas Ranked After Benefits Pivot
 
-This list is based on the team brainstorm plus patterns from the 2025 AI Hackathon and Cal Hacks 12.0 winners. Teammate names/contact info intentionally omitted.
+These are the active ideas after the team narrowed toward a benefits-navigation project. Ranking is based on winner fit, usefulness, demo clarity, build feasibility, sponsor fit, and whether the idea has enough differentiation from existing products.
 
-## Ranking Criteria
+## Current Ranking
 
-- Prize fit: aligns with 2026 tracks or sponsor prizes.
-- Demoability: can show a complete loop in under 5 minutes.
-- Technical depth: has a real engineering challenge, not just prompt wrapping.
-- Feasibility: buildable in 24 hours by a small team.
-- Distinctiveness: not obviously a clone of last year's winners.
-- Risk: legal/privacy/scraping/hallucination risks.
+| Rank | Idea | Short Verdict | Why It Can Win | Main Risk |
+|---:|---|---|---|---|
+| 1 | BridgeBenefits | Best flagship idea | Clear social impact, hard eligibility logic, real action loop, strong Anthropic/Browserbase/Redis fit | Must avoid unsafe eligibility claims and accidental submission |
+| 2 | CivicTrust | Strong fallback social-impact idea | Public-good story, live demo potential, agentic workflow, strong UI opportunity | Needs narrow scope to avoid becoming a generic fact-checker |
+| 3 | TrustLayer for Agents | Strong technical/infrastructure idea | Fits AI-native hackathon themes, can show agent evaluation and trust receipts | Harder for judges to emotionally grasp without a concrete demo |
+| 4 | MemoryVault MCP | Useful, buildable component | Practical for AI builders, easy to demo, could become part of another idea | Existing memory products are strong, so standalone novelty is weaker |
+| 5 | CartPilot / ErrandOps | Useful consumer agent | Clear everyday pain and demoable optimization | Price and inventory data is messy; similar grocery-price products exist |
+| 6 | SongForge | Fun and demo-friendly | Great live demo if polished, strong UX surface | Music training apps already exist; scoring needs to feel accurate |
+| 7 | TrustRank Browser | Interesting but broad | Strong societal angle, networked trust graph is compelling | Search/browser products are crowded and hard to make convincing in 24 hours |
 
-## 1. Agent Trust / "Yelp for AI Agents"
+## 1. BridgeBenefits
 
-Working title: TrustLayer for Agents
+**Concept:** A trust-first benefits co-pilot for low-income families. It takes a household situation, screens for relevant government/local assistance programs, cites exact eligibility rules, builds a document checklist, and drafts applications for human review.
 
-One-liner:
-Agents call other agents all the time, but they do not know who to trust. TrustLayer records task outcomes, tool reliability, citations, cost, latency, and user ratings so agents can choose safer collaborators.
+**Winning version:** Do not build a broad benefits chatbot. Build a focused California/Alameda County demo for one family persona across CalFresh, WIC, Medi-Cal/CHIP, a utility/local assistance program, and one local referral. The core artifact is an auditable eligibility and application packet.
 
-Why it could win:
+**Why it is strong:** The pain is real, the user is specific, the stakes are high, and the demo produces a concrete outcome. It also maps cleanly to Ddoski's World, Anthropic economic opportunity, Browserbase web agents, Redis rules/memory/RAG, and Best UI/UX.
 
-- Strong fit for Ddoski's Toolbox.
-- Strong fit for Fetch.ai / Agentverse if implemented as a discoverable ASI:One agent that can evaluate or route to other agents.
-- Fits Redis if you use memory/vector retrieval for reputation and historical task outcomes.
-- Fits Sentry/Arize if you instrument failures, traces, evals, and error recovery.
-- Concrete current-event angle: "Agentverse needs trust infrastructure."
+**Must-have demo pieces:**
 
-Demo:
+- Mobile-first guided intake.
+- Rule-cited eligibility results.
+- Program cards: likely eligible, maybe eligible, missing information, likely not eligible.
+- Document checklist.
+- Draft application packet.
+- Browserbase fills a demo portal or staging form and stops before submission.
+- Human review and audit trail.
 
-1. User asks the TrustLayer agent to complete a task, such as "book a coffee meeting plan near Berkeley" or "find a reliable summarizer for this article."
-2. The agent queries 3 candidate tools/agents.
-3. It scores them using past reviews, live test calls, latency, cost, citation quality, and error rate.
-4. It chooses one, completes the task, logs the outcome, and emits a public trust receipt.
-5. Another agent can query that receipt later.
+**Modification to win:** Make trust the spine of the product. Every recommendation should show the user facts used, the rule cited, confidence/uncertainty, and the next safe action.
 
-MVP:
+See [benefits_navigator_win_spec.md](benefits_navigator_win_spec.md) for the full build plan.
 
-- A small registry of 5-8 mock/real agents.
-- One ASI:One/Agentverse-compatible agent.
-- One scoring model with transparent dimensions.
-- One UI showing reputation graph, failure traces, and "why this agent was selected."
-- GitHub repo and demo video.
+## 2. CivicTrust
 
-Risks:
+**Concept:** A live civic accountability system that tracks public officials, their responsibilities, voting records, statements, donors, legislation, and debate/news claims, then produces live fact-checks and consistency scores with citations.
 
-- "Marketplace" ideas can feel empty unless the demo has real agent calls.
-- Similar-ish Cal Hacks projects existed: Agora and TrustBuddy. Differentiate with live task evaluation, reliability traces, and ASI-first workflow.
+**Winning version:** Do not build "a fact-checking app." Build a civic command center for one specific live scenario: a mayoral debate, city council meeting, congressional hearing, or campaign interview. The demo should show transcript in, claims extracted, sources retrieved, past positions compared, and a judge-friendly "truth and consistency receipt" generated.
 
-Verdict:
-Best overall strategic idea from the brainstorm. Build it as infrastructure, not as a consumer ratings website.
+**Why it is strong:** The audience is obvious, the value proposition is legible, and the demo can be dramatic. It combines RAG, live transcription, citation quality, structured public data, and a polished dashboard.
 
-## 2. Civic Live Fact-Checking / Elected Official Accountability
+**Must-have demo pieces:**
 
-Working title: CivicLedger Live
+- Live or simulated transcript feed.
+- Claim extraction with severity/importance ranking.
+- Citation-backed verification.
+- Past-position consistency check.
+- Official profile page with votes, bills, statements, donors, and contact info.
+- Shareable "claim receipt" for each verdict.
 
-One-liner:
-A live fact-checking and accountability system that listens to political speech, extracts claims, checks them against trusted sources and the speaker's voting/history graph, then shows a sourced evidence trail.
+**Modification to win:** Make the experience feel like a live control room. Judges should understand in 20 seconds: "This catches political claims as they happen and shows the receipts."
 
-Why it could win:
+## 3. TrustLayer for Agents
 
-- Strong fit for Ddoski's World.
-- Project No Cap won 3rd overall at Cal Hacks 12.0, which proves judges like real-time misinformation verification.
-- Your twist can be narrower and deeper: elected officials, prior statements, legislation, jurisdiction, responsibilities, and contact info.
-- Strong UI/UX potential: timeline, claim cards, evidence map, consistency score.
+**Concept:** A ratings, trust, and audit layer for AI agents and tools. Every time an agent calls another agent/tool, the system records success, failure, latency, cost, hallucination risk, data access, and user feedback.
 
-Demo:
+**Winning version:** Build an "agent trust receipt" protocol and dashboard. Show two agents using tools, one good and one unreliable. The dashboard should expose traces, ratings, and whether another agent should trust that tool in the future.
 
-1. Play a 60-second clip or live transcript from a public debate/hearing.
-2. System extracts 4-6 declarative claims.
-3. It retrieves source evidence from curated official/public sources.
-4. It compares the claim against the official's prior votes/statements.
-5. It outputs "supported / contradicted / unverifiable" with citations and a confidence score.
+**Why it is strong:** It is highly AI-native and sponsor-friendly. It maps well to MCP/tool ecosystems and current concerns around agent reliability.
 
-MVP:
+**Must-have demo pieces:**
 
-- Focus on 2-3 public officials and one issue area, such as housing, climate, policing, or transit.
-- Preload official sources and public datasets before the demo, but implement the app during hacking.
-- Use Deepgram for speech-to-text if targeting voice.
-- Use Browserbase or search/fetch tools for source retrieval.
-- Use a strict claim/evidence schema to avoid hallucinated fact-checking.
+- MCP/tool registry with trust scores.
+- Automatic score updates from task outcomes.
+- Trace viewer for tool calls.
+- Safety labels such as "handles private data," "often times out," "citation quality low."
+- A simple API or SDK wrapper.
 
-Risks:
+**Modification to win:** Anchor it in a concrete workflow, such as a research agent choosing between web search, citation, calendar, and database tools. A pure marketplace is too abstract; trust receipts make it memorable.
 
-- Fact-checking is credibility-sensitive. Bad citations or overconfident ratings will hurt.
-- Last year's NoCap already won; you need a sharper civic-accountability angle.
+## 4. MemoryVault MCP
 
-Verdict:
-High upside if you keep the scope narrow and make the evidence trail excellent.
+**Concept:** A local-first data and memory manager for LLMs that lets users control what memories agents can save, search, delete, export, or share across apps.
 
-## 3. Physical AI Build Assistant
+**Winning version:** Do not pitch it as generic memory. Pitch it as "private memory permissions for agents." The demo should show an assistant remembering useful preferences while blocking or redacting sensitive data.
 
-Working title: BenchBuddy
+**Why it is strong:** It is feasible, relevant to agent builders, and can be implemented as a small MCP server plus polished UI.
 
-One-liner:
-An AI assistant that watches your physical workbench through a webcam/phone camera, identifies parts and mistakes, and talks you through building or debugging something in real time.
+**Must-have demo pieces:**
 
-Why it could win:
+- Local memory store.
+- Memory permissions by app or agent.
+- Search and recall interface.
+- Delete/export controls.
+- Sensitive-data detection and redaction.
 
-- Strong fit for Ddoski's Lab, Most Technical Hack, Best Physical AI, Deepgram, QNX/embedded if used, and possibly Best UI/UX.
-- Winner pattern is very strong: pFOG, ICU, Bob, Hardware Context Protocol, Ted.AI, MIRAI, MARC, Wingman.
-- Physical demos feel memorable at a table.
+**Modification to win:** Use it as an enabling layer inside CivicTrust or TrustLayer if the team wants a stronger overall story. As a standalone project it needs a crisp privacy angle to beat existing memory infrastructure.
 
-Demo:
+## 5. CartPilot / ErrandOps
 
-1. Point camera at a simple breadboard, resistor set, circuit diagram, LEGO mechanism, or hackathon hardware kit.
-2. Ask: "What is wrong with this build?"
-3. System detects components/positions, compares to a desired schematic, and speaks corrective steps.
-4. Optional: turn on an LED/servo or produce a "pass/fail build receipt."
+**Concept:** A shopping and errand agent. The user enters what they need, location, transportation mode, time constraints, and store preferences. The app proposes a route optimized for price, distance, item availability, and time.
 
-MVP:
+**Winning version:** Narrow to one domain such as groceries near Berkeley. Show a route that saves money and time compared with naive shopping.
 
-- Webcam stream.
-- One object/component detector, even if constrained to a few known parts.
-- Voice interface with Deepgram/Vapi.
-- Visual overlay with bounding boxes and next-step instructions.
-- Optional Arduino/ESP32 for final physical feedback.
+**Why it is strong:** It solves an everyday pain and is easy to explain. The agentic planning angle is real.
 
-Risks:
+**Must-have demo pieces:**
 
-- Hardware can eat time.
-- Requires someone on the team comfortable debugging sensors/camera/serial.
+- Natural-language shopping list input.
+- Store/item matching.
+- Route optimization.
+- Price/time tradeoff view.
+- Map or itinerary.
 
-Verdict:
-Probably the highest table-demo charisma if the team can handle hardware.
+**Modification to win:** Fake less and constrain more. If live inventory data is unavailable, use a seeded Berkeley store dataset and be transparent that the agent can plug into APIs later. The hackathon demo must work smoothly.
 
-## 4. Automatic Shopping Route Optimizer
+## 6. SongForge
 
-Working title: CartPilot
+**Concept:** LeetCode for music. Users recreate melodies, rhythms, chord progressions, or songs and receive scoring, levels, feedback, and challenges.
 
-One-liner:
-Tell it what you need, where you are, your transport options, and constraints; it finds nearby stores, prices, inventory signals, and returns the cheapest/fastest shopping route.
+**Winning version:** Make it a tight musical challenge game, not a broad learning platform. For example: hear a melody, recreate it with keyboard/mic/MIDI, get pitch/rhythm/structure scoring, then climb a leaderboard.
 
-Why it could win:
+**Why it is strong:** It is fun, visual, and demo-friendly. A polished UI and satisfying scoring loop could get attention.
 
-- Strong real-world utility.
-- Good Fetch.ai fit if the agent does multi-step planning and tool execution.
-- Good Browserbase fit if it uses the web to fetch store pages.
-- Good business-case story.
+**Must-have demo pieces:**
 
-Demo:
+- Audio prompt playback.
+- User performance capture.
+- Pitch/rhythm similarity scoring.
+- Progression of levels.
+- Leaderboard or challenge mode.
 
-1. User asks for "cheap dinner groceries plus a phone charger within 45 minutes by walking/BART."
-2. Agent searches stores, prices, hours, and transit/walking route.
-3. It returns a ranked itinerary and lets user swap constraints.
+**Modification to win:** Make the scoring feel magical. If it just looks like a toy piano, it will not place. If it gives precise feedback with a beautiful UI, it can become a crowd favorite.
 
-MVP:
+## 7. TrustRank Browser
 
-- Limit to Berkeley/Southside stores.
-- Use Google Places / maps, public store pages, and a small cached catalog.
-- Focus on 3-5 item baskets.
+**Concept:** A social trust layer for websites and search results. Users subscribe to experts or communities, and their ratings influence what sites are boosted, downranked, labeled, or filtered.
 
-Risks:
+**Winning version:** Build a browser/search overlay for one high-stakes domain, such as climate misinformation, health misinformation, or local politics. Show how an expert network changes the ranking and labels sources.
 
-- Store inventory and prices are messy.
-- If it only makes recommendations and does not execute anything, it can feel like a normal planner.
+**Why it is interesting:** It blends community moderation, search personalization, and information credibility.
 
-Verdict:
-Feasible and useful, but needs a sharp demo and good data workaround.
+**Main concern:** It is hard to build and hard to prove in a short hackathon. Existing search engines, browser extensions, and moderation systems already cover pieces of this.
 
-## 5. Local LLM Memory Manager
+**Modification to win:** Do not build a general search engine. Build a credibility lens that can run on top of Google/Kagi/Brave-style results or a provided search API. The win condition is trust labeling, not search itself.
 
-Working title: MemoryVault MCP
+## Best Combined Strategy
 
-One-liner:
-A local-first memory layer for LLMs that lets users inspect, edit, approve, revoke, and export what AI systems remember about them.
+The strongest path is now:
 
-Why it could win:
+1. Build **BridgeBenefits** as the main project.
+2. Use **TrustLayer** concepts internally as "eligibility receipts" and application audit trails.
+3. Use **MemoryVault** concepts only if they help store case state, program rules, and user-controlled draft packets.
 
-- Strong Ddoski's Toolbox fit.
-- Strong Redis/memory/vector search angle.
-- Good privacy and local-data story.
-- Could be packaged as an MCP server, which fits current agent tooling.
-
-Demo:
-
-1. Multiple agents write memories during a task.
-2. User opens the dashboard and sees "what the AI thinks it knows."
-3. User edits/deletes a memory.
-4. A later agent response changes because of the memory permission.
-
-MVP:
-
-- Local SQLite/JSON + vector store.
-- MCP endpoint for read/write/query memory.
-- Consent UI with memory diff.
-- Chrome/desktop demo showing two AI sessions sharing controlled memory.
-
-Risks:
-
-- Devtool memory projects are common.
-- Must show a real workflow, not just CRUD for notes.
-
-Verdict:
-Good fallback if hardware/civic scope feels too risky.
-
-## 6. LeetCode for Music
-
-Working title: SongForge
-
-One-liner:
-A game where users recreate short musical phrases and get scored automatically on pitch, rhythm, timbre, and arrangement accuracy.
-
-Why it could win:
-
-- Strong Ddoski's Playground fit.
-- Potentially excellent UI/UX.
-- Deepgram/audio/speech adjacent, maybe Pika/Midjourney if paired with creative generation.
-
-Demo:
-
-1. User hears a short riff.
-2. User records or composes an attempt.
-3. System scores timing/pitch similarity and shows a replayable breakdown.
-4. Leaderboard and streaks.
-
-MVP:
-
-- Use public-domain melodies or generated riffs, not copyrighted songs.
-- Score MIDI/audio with pitch and beat extraction.
-- Make the UI feel like a game immediately.
-
-Risks:
-
-- Audio scoring is nontrivial.
-- "Recreate songs" can create copyright headaches.
-- Less aligned with the strongest observed winner patterns unless the UI is exceptional.
-
-Verdict:
-Fun and demoable, but not the most strategic for grand prizes.
-
-## 7. Social Media / Search Ranking by Trusted Networks
-
-Working title: TrustRank Browser
-
-One-liner:
-A browser/search layer where users subscribe to trusted experts or communities, and those ratings influence which sites or claims appear higher/lower.
-
-Why it could win:
-
-- Strong social impact angle if focused on misinformation.
-- Can merge with the civic fact-checking idea.
-
-Demo:
-
-1. Search a controversial topic.
-2. See normal results.
-3. Toggle a trusted expert/community lens.
-4. Results reorder with explanations and source ratings.
-
-Risks:
-
-- Network effects are hard in a hackathon.
-- "Ratings platform" without seeded experts feels fake.
-- Could be confused with existing browser extensions/search filters.
-
-Verdict:
-Better as a feature inside CivicLedger than as the whole project.
-
-## 8. Jerkbot 9000
-
-One-liner:
-A deliberately rude/funny AI coach or assistant.
-
-Why it could win:
-
-- Could compete for Most Questionable Use of 24 Hours or Playground if hilarious and polished.
-
-Risks:
-
-- Very unlikely to win main prizes.
-- Easy to become just a prompt personality.
-
-Verdict:
-Only build if the team wants a comedic side quest, not a serious win attempt.
-
-## 9. Canvas / Course Content Archive
-
-Original shape:
-Access material/content from other people's classes.
-
-Do not build that version.
-
-Why:
-
-- Likely violates school policies, copyright/IP norms, and privacy expectations.
-- Could be disqualifying or just make judges uncomfortable.
-
-Safer pivot:
-
-Consent-based personal Canvas/RAG assistant for your own enrolled courses, or a study tool that summarizes publicly shared syllabi/readings. Still probably less prizeable than the top ideas.
-
-## Recommended Final Choice
-
-Best odds:
-Build TrustLayer for Agents and aim at Ddoski's Toolbox plus Fetch.ai, Redis, Sentry/Arize, and maybe Best UI/UX.
-
-Best spectacle:
-Build BenchBuddy and aim at Ddoski's Lab plus Physical AI, Deepgram, Most Technical, and Best UI/UX.
-
-Best social-impact story:
-Build CivicLedger Live and aim at Ddoski's World plus Browserbase/Deepgram/Fetch.ai/Anthropic, but only if you make citations and uncertainty rock-solid.
-
-## If You Choose TrustLayer: Concrete Build Spec
-
-Core objects:
-
-- Agent profile: name, capabilities, endpoint, owner, cost, required permissions.
-- Task receipt: requested task, agent called, tools used, outcome, latency, errors, citations, user rating.
-- Trust score: reliability, accuracy, citation quality, safety, cost, latency.
-- Dispute/failure log: what failed and how the system recovered.
-
-Minimum stack:
-
-- Next.js/React frontend.
-- FastAPI or Next API backend.
-- SQLite/Postgres/Supabase for receipts.
-- Redis or Chroma for memory/retrieval.
-- Fetch.ai Agentverse/ASI:One integration for sponsor eligibility.
-- Sentry for reliability traces if targeting that prize.
-
-Demo script:
-
-1. "I need an agent to summarize and verify this article."
-2. TrustLayer queries three candidate agents.
-3. One agent hallucinates a source, one is slow, one returns cited output.
-4. TrustLayer selects the reliable agent and explains why.
-5. User accepts the output; TrustLayer writes a trust receipt.
-6. A second task uses the updated reputation to make a better choice.
-
-Devpost pitch:
-
-"As AI agents become marketplaces, users and agents need a way to know who to trust. TrustLayer is a reputation and reliability protocol for agent-to-agent work: it measures task success, citations, latency, cost, and failure recovery, then exposes those scores to agents through ASI:One so they can choose collaborators that actually complete work."
+This gives the project a social-impact narrative, technical depth, working action loop, good UI surface, and a memorable judge pitch.
