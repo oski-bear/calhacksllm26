@@ -1,5 +1,8 @@
-// Talks to the Flask backend. One place to change the URL if it moves.
-const API_BASE = 'http://127.0.0.1:5001'
+// Talks to the Flask backend. Same-origin by default (Flask serves the built
+// frontend in production), so relative URLs "just work". In dev, Vite proxies
+// /api to the Flask server (see vite.config.js), so relative URLs work there too.
+// Override with VITE_API_BASE if you ever host the API on a different origin.
+const API_BASE = import.meta.env.VITE_API_BASE ?? ''
 
 // Send the user's info to the eligibility engine and get back the program list.
 export async function fetchEligibility(userInfo) {

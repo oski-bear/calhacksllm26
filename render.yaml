@@ -1,0 +1,26 @@
+# Render blueprint — single-origin deploy (Flask serves the built frontend + API).
+# After connecting the repo in Render, set the three secret env vars in the
+# dashboard (they are sync:false so they are NOT read from this file).
+services:
+  - type: web
+    name: benefits-finder
+    runtime: python
+    plan: free
+    # Build the frontend (Render's build image includes Node) and install Python deps.
+    buildCommand: "pip install -r backend/requirements.txt && npm --prefix frontend install && npm --prefix frontend run build"
+    # ONE worker is required: the agent keeps job state in memory and runs a
+    # background thread, so all /agent/start + /agent/status calls must hit the
+    # same process. Threads give concurrency within it.
+    startCommand: "gunicorn --chdir backend --workers 1 --threads 8 --timeout 120 --bind 0.0.0.0:$PORT app:app"
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "22.12.0"
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: BROWSERBASE_API_KEY
+        sync: false
+      - key: BROWSERBASE_PROJECT_ID
+        sync: false

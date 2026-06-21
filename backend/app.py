@@ -296,5 +296,28 @@ def mock_portal(filename):
     return send_from_directory(MOCK_DIR, filename)
 
 
+# --- Serve the built frontend (single-origin deploy) -----------------------
+# In production the Vite build lives in frontend/dist and Flask serves it, so
+# the whole app is one URL with no CORS. The explicit /api and /mock routes
+# above are more specific, so they win over this catch-all.
+DIST_DIR = os.path.join(BASE_DIR, "..", "frontend", "dist")
+
+
+@app.get("/")
+def spa_root():
+    return send_from_directory(DIST_DIR, "index.html")
+
+
+@app.get("/<path:path>")
+def spa_catch_all(path):
+    candidate = os.path.join(DIST_DIR, path)
+    if os.path.isfile(candidate):
+        return send_from_directory(DIST_DIR, path)
+    # SPA fallback: unknown client-side routes get index.html.
+    return send_from_directory(DIST_DIR, "index.html")
+
+
 if __name__ == "__main__":
-    app.run(port=5001, debug=True, threaded=True)
+    # Local dev convenience; production uses gunicorn (see render.yaml).
+    port = int(os.environ.get("PORT", 5001))
+    app.run(host="0.0.0.0", port=port, debug=True, threaded=True)
