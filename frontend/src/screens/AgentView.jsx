@@ -33,6 +33,9 @@ const PENDING_STEPS = {
 
 // Pretty labels for the mapped portal fields.
 const LABELS = {
+  accountEmail: 'Account email',
+  accountPassword: 'Account password',
+  accountPhone: 'Account phone',
   firstName: 'First name', lastName: 'Last name', dob: 'Date of birth',
   ssn: 'SSN', phone: 'Phone', email: 'Email', address: 'Address', city: 'City',
   zip: 'ZIP', county: 'County', householdSize: 'Household size',
@@ -41,6 +44,9 @@ const LABELS = {
   contactMethod: 'Best contact method', language: 'Preferred language',
   category: 'Participant category', dueDate: 'Expected due date',
   adjunctive: 'On Medi-Cal / CalFresh / CalWORKs?',
+  signatureFirstName: 'Signature first name',
+  signatureLastName: 'Signature last name',
+  signatureDate: 'Signature date',
 }
 
 export default function AgentView({ program, userInfo, onApplied, onBack }) {
@@ -298,8 +304,12 @@ function SubmittedScreenshot({ result }) {
 
 function AutomationEvidence({ result }) {
   const evidence = result.automationEvidence || {}
-  const fieldCount = evidence.filledFields?.length || 0
-  const clickCount = evidence.clickedControls?.length || 0
+  const filledFields = evidence.filledFields || []
+  const clickedControls = evidence.clickedControls || []
+  const checkedFields = evidence.checkedFields || []
+  const fieldCount = filledFields.length
+  const clickCount = clickedControls.length
+  const verifiedActionCount = clickCount + checkedFields.length
   return (
     <Box sx={{ p: 2, bgcolor: 'white' }}>
       <Stack
@@ -310,7 +320,7 @@ function AutomationEvidence({ result }) {
         <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', rowGap: 1 }}>
           <Chip size="small" color="success" label="Browserbase cloud browser" />
           <Chip size="small" variant="outlined" label={`${fieldCount} fields verified`} />
-          <Chip size="small" variant="outlined" label={`${clickCount} controls clicked`} />
+          <Chip size="small" variant="outlined" label={`${verifiedActionCount} actions verified`} />
           <Chip
             size="small"
             variant="outlined"
@@ -334,6 +344,32 @@ function AutomationEvidence({ result }) {
         Session {result.sessionId || 'created'} stayed in Browserbase after the agent filled
         {' '}the routed portal URL and verified the submitted portal state.
       </Typography>
+      <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+        <Typography variant="subtitle2" sx={{ mb: 1 }}>
+          Verification trail
+        </Typography>
+        <EvidenceList
+          title="Verified form fields"
+          items={filledFields.map((field) => LABELS[field] || field)}
+        />
+        <EvidenceList title="Verified portal actions" items={[...clickedControls, ...checkedFields]} />
+      </Box>
+    </Box>
+  )
+}
+
+function EvidenceList({ title, items }) {
+  if (!items.length) return null
+  return (
+    <Box sx={{ mb: 1.5 }}>
+      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.75 }}>
+        {title}
+      </Typography>
+      <Stack direction="row" spacing={0.75} sx={{ flexWrap: 'wrap', rowGap: 0.75 }}>
+        {items.map((item) => (
+          <Chip key={item} size="small" variant="outlined" label={item} />
+        ))}
+      </Stack>
     </Box>
   )
 }
