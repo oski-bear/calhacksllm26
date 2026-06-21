@@ -4,10 +4,10 @@ import {
   FormControl, IconButton, InputAdornment, InputLabel, LinearProgress,
   MenuItem, Radio, Select, Stack, TextField, Toolbar, Typography,
 } from '@mui/material'
-import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined'
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1'
+import PenguinLogo from '../components/PenguinLogo.jsx'
 import {
   RELATIONSHIP_OPTIONS, FREQUENCY_OPTIONS, INCOME_CATEGORIES, EXPENSE_OPTIONS,
   HEALTH_INSURANCE_OPTIONS, CONDITION_OPTIONS, BENEFIT_OPTIONS,
@@ -105,7 +105,7 @@ export default function BasicInfoForm({
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', bgcolor: '#f0f2f5' }}>
       <AppBar position="static" color="primary" elevation={0}>
         <Toolbar>
-          <VolunteerActivismIcon sx={{ mr: 1.5, fontSize: 26 }} />
+          <PenguinLogo size={38} sx={{ mr: 1.5 }} />
           <Typography variant="h6" fontWeight={700} letterSpacing="-0.01em">Benefits Finder</Typography>
         </Toolbar>
       </AppBar>

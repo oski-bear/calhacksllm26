@@ -17,6 +17,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutlineOutlined'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import { programMeta } from '../data/programMetadata.js'
+import PenguinLogo from '../components/PenguinLogo.jsx'
 
 const TEAL = '#0d7d6f'
 const DEMO_PROGRAM_IDS = new Set(['calfresh', 'wic'])
@@ -90,13 +91,20 @@ export default function Dashboard({
           <Button variant="outlined" onClick={onEditProfile}>Edit my info</Button>
         </Stack>
 
-        <Stack spacing={1} sx={{ mb: 4 }}>
-          <Typography variant="h4" color="primary">
-            Hi {firstName} - here's what you may qualify for
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            {introText}
-          </Typography>
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={1.5}
+          sx={{ mb: 4, alignItems: { xs: 'flex-start', sm: 'center' } }}
+        >
+          <PenguinLogo size={56} sx={{ borderColor: 'primary.light' }} />
+          <Box>
+            <Typography variant="h4" color="primary">
+              Hi {firstName} - here's what you may qualify for
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              {introText}
+            </Typography>
+          </Box>
         </Stack>
 
         {summary ? (
