@@ -13,7 +13,7 @@ import {
 // The per-program application screen (whiteboard: "In-Progress" / CalFresh
 // detail). Collects the info the program needs, then hands off to the agent
 // view to auto-fill the real portal.
-export default function ProgramDetail({ program, onStartAgent, onBack }) {
+export default function ProgramDetail({ program, onContinue, onBack }) {
   // One value per requirement, keyed by requirement id.
   // Text/SSN store the typed string; file inputs store the chosen file name.
   const [inputs, setInputs] = useState({})
@@ -101,9 +101,9 @@ export default function ProgramDetail({ program, onStartAgent, onBack }) {
               fullWidth
               sx={{ mt: 3 }}
               disabled={!allFilled}
-              onClick={() => onStartAgent(program.id)}
+              onClick={() => onContinue(program.id)}
             >
-              Submit & let the agent apply
+              Draft my application →
             </Button>
           </CardContent>
         </Card>

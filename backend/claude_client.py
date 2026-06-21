@@ -52,6 +52,18 @@ def _client():
     return anthropic.Anthropic(api_key=api_key)
 
 
+def _situation(user):
+    """The non-sensitive applicant details we share with Claude (no SSN, etc.)."""
+    return {
+        "name": user.get("name", ""),
+        "annual_income": user.get("income", ""),
+        "household_size": user.get("householdSize", ""),
+        "marital_status": user.get("maritalStatus", ""),
+        "state": user.get("state", ""),
+        "citizenship": user.get("citizenship", ""),
+    }
+
+
 def generate_explanations(user, programs):
     """Ask Claude for a friendly summary + per-program explanations.
 
@@ -59,13 +71,7 @@ def generate_explanations(user, programs):
     """
     client = _client()
 
-    situation = {
-        "name": user.get("name", ""),
-        "annual_income": user.get("income", ""),
-        "household_size": user.get("householdSize", ""),
-        "state": user.get("state", ""),
-        "citizenship": user.get("citizenship", ""),
-    }
+    situation = _situation(user)
     program_summaries = [
         {
             "id": p["id"],
@@ -102,3 +108,68 @@ def generate_explanations(user, programs):
     data = json.loads(text)
     explanations = {item["id"]: item["explanation"] for item in data["programs"]}
     return {"summary": data["summary"], "explanations": explanations}
+
+
+# --- Application drafting --------------------------------------------------
+
+DRAFT_SYSTEM_PROMPT = (
+    "You help people complete U.S. government assistance applications. Draft "
+    "clear, honest, first-person answers using ONLY the information provided. "
+    "Never invent facts. If something an answer needs is unknown, write a short "
+    "bracketed placeholder like '[please confirm]'. Keep answers concise and "
+    "ready to paste directly into the application."
+)
+
+DRAFT_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "statement": {"type": "string"},
+        "answers": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "question": {"type": "string"},
+                    "answer": {"type": "string"},
+                },
+                "required": ["question", "answer"],
+                "additionalProperties": False,
+            },
+        },
+    },
+    "required": ["statement", "answers"],
+    "additionalProperties": False,
+}
+
+
+def draft_application(user, program):
+    """Draft the application: a first-person situation statement + Q&A answers.
+
+    Returns {"statement": str, "answers": [{"question": str, "answer": str}]}.
+    """
+    client = _client()
+
+    user_message = (
+        f"Program: {program['name']}\n\n"
+        f"Applicant information:\n{json.dumps(_situation(user), indent=2)}\n\n"
+        "Draft a short first-person 'situation statement' for this application, "
+        "then draft answers to the questions this application commonly asks — "
+        "choose the relevant ones (e.g. household members, income sources, rent "
+        "and utility costs, and whether they need expedited help). Base every "
+        "answer on the applicant information; mark anything unknown with a "
+        "bracketed placeholder."
+    )
+
+    response = client.messages.create(
+        model=MODEL,
+        max_tokens=2000,
+        system=DRAFT_SYSTEM_PROMPT,
+        output_config={
+            "effort": "low",
+            "format": {"type": "json_schema", "schema": DRAFT_SCHEMA},
+        },
+        messages=[{"role": "user", "content": user_message}],
+    )
+
+    text = next(block.text for block in response.content if block.type == "text")
+    return json.loads(text)

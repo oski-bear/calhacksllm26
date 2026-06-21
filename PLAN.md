@@ -36,7 +36,10 @@ React (MUI) · Flask · SQLite + Redis · Anthropic · Browserbase · Deepgram
       `POST /api/explain`, claude-opus-4-8): warm per-program guidance + summary,
       merged into the dashboard as progressive enhancement. Needs
       `ANTHROPIC_API_KEY` in `backend/.env`; degrades gracefully without it.
-- [ ] Anthropic — drafting application answers (next)
+- [x] Anthropic — **application drafting** (`draft_application` + `POST /api/draft`):
+      a "Review your draft" screen (`DraftReview.jsx`) between the detail screen
+      and the agent — Claude drafts a situation statement + Q&A answers, the user
+      edits, then proceeds. Degrades gracefully without a key.
 - [ ] Browserbase — real portal auto-fill (currently a CSS animation)
 - [ ] Deepgram — voice agent calling county offices
 

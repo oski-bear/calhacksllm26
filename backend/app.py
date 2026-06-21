@@ -17,7 +17,7 @@ from werkzeug.utils import secure_filename
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 
 from eligibility import evaluate_all
-from claude_client import generate_explanations
+from claude_client import generate_explanations, draft_application
 import db
 from db import init_db, save_profile, get_profile
 
@@ -58,6 +58,26 @@ def explain():
         return jsonify({"error": str(err)}), 503
     except Exception as err:  # noqa: BLE001 - report any API failure to the client
         return jsonify({"error": "explanation failed", "detail": str(err)}), 502
+    return jsonify(result)
+
+
+@app.post("/api/draft")
+def draft():
+    """Claude-drafted application answers for one program (review before applying)."""
+    body = request.get_json(silent=True) or {}
+    user = body.get("userInfo") or {}
+    program_id = body.get("programId")
+    program = next(
+        (p for p in evaluate_all(user) if p["id"] == program_id), None
+    )
+    if program is None:
+        return jsonify({"error": "unknown program"}), 404
+    try:
+        result = draft_application(user, program)
+    except RuntimeError as err:
+        return jsonify({"error": str(err)}), 503
+    except Exception as err:  # noqa: BLE001 - report any API failure to the client
+        return jsonify({"error": "drafting failed", "detail": str(err)}), 502
     return jsonify(result)
 
 

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import BasicInfoForm from './screens/BasicInfoForm.jsx'
 import Dashboard from './screens/Dashboard.jsx'
 import ProgramDetail from './screens/ProgramDetail.jsx'
+import DraftReview from './screens/DraftReview.jsx'
 import AgentView from './screens/AgentView.jsx'
 import { LoadingScreen, ErrorScreen } from './screens/StatusScreens.jsx'
 import DocumentsSection from './screens/DocumentsSection.jsx'
@@ -78,9 +79,9 @@ export default function App() {
     setScreen('program')
   }
 
-  function handleStartAgent(programId) {
+  function handleContinueToDraft(programId) {
     setSelectedProgramId(programId)
-    setScreen('agent')
+    setScreen('draft')
   }
 
   const selectedProgram =
@@ -128,7 +129,18 @@ export default function App() {
     return (
       <ProgramDetail
         program={selectedProgram}
-        onStartAgent={handleStartAgent}
+        onContinue={handleContinueToDraft}
+        onBack={() => setScreen('dashboard')}
+      />
+    )
+  }
+
+  if (screen === 'draft') {
+    return (
+      <DraftReview
+        program={selectedProgram}
+        userInfo={userInfo}
+        onProceed={() => setScreen('agent')}
         onBack={() => setScreen('dashboard')}
       />
     )

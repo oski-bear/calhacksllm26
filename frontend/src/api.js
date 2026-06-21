@@ -29,6 +29,20 @@ export async function fetchExplanations(userInfo) {
   return res.json()
 }
 
+// Ask the backend (Claude) to draft the application for one program.
+// Returns { statement, answers: [{ question, answer }] }.
+export async function fetchDraft(userInfo, programId) {
+  const res = await fetch(`${API_BASE}/api/draft`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userInfo, programId }),
+  })
+  if (!res.ok) {
+    throw new Error(`Server responded with ${res.status}`)
+  }
+  return res.json()
+}
+
 // Save (or update) the user's profile, keyed by email. Returns the saved profile.
 export async function saveProfile(userInfo) {
   const res = await fetch(`${API_BASE}/api/profile`, {
