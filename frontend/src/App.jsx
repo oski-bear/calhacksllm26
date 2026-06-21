@@ -4,6 +4,7 @@ import Dashboard from './screens/Dashboard.jsx'
 import ProgramDetail from './screens/ProgramDetail.jsx'
 import DraftReview from './screens/DraftReview.jsx'
 import AgentView from './screens/AgentView.jsx'
+import ApplicationProofView from './screens/ApplicationProofView.jsx'
 import { LoadingScreen, ErrorScreen } from './screens/StatusScreens.jsx'
 import DocumentsSection from './screens/DocumentsSection.jsx'
 import { fetchEligibility, saveProfile, fetchExplanations, fetchApplications, getProfile } from './api.js'
@@ -93,6 +94,11 @@ export default function App() {
     setScreen('agent')
   }
 
+  function handleViewApplication(programId) {
+    setSelectedProgramId(programId)
+    setScreen('proof')
+  }
+
   function handleAgentApplied(programId, result) {
     const application = result.application || {
       program_id: programId,
@@ -133,6 +139,7 @@ export default function App() {
         applications={applications}
         onSelectProgram={handleSelectProgram}
         onStartAgent={handleStartAgent}
+        onViewApplication={handleViewApplication}
         onEditProfile={() => setScreen('profile')}
       />
     )
@@ -180,6 +187,16 @@ export default function App() {
         program={selectedProgram}
         userInfo={userInfo}
         onApplied={handleAgentApplied}
+        onBack={() => setScreen('dashboard')}
+      />
+    )
+  }
+
+  if (screen === 'proof') {
+    return (
+      <ApplicationProofView
+        program={selectedProgram}
+        application={applications[selectedProgramId]}
         onBack={() => setScreen('dashboard')}
       />
     )

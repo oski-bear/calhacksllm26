@@ -170,6 +170,7 @@ class FlaskRouteTests(unittest.TestCase):
         result = {
             "mode": "browserbase",
             "portalUrl": "https://benefitscal.com/Public/login",
+            "liveViewUrl": "https://browserbase.example/session-test",
             "sessionId": "session-test",
             "confirmation": "CF-DEMO-4821",
             "screenshot": "base64-png",
@@ -186,6 +187,7 @@ class FlaskRouteTests(unittest.TestCase):
         self.assertEqual(saved["confirmation"], "CF-DEMO-4821")
         self.assertEqual(rows[0]["program_id"], "calfresh")
         self.assertEqual(rows[0]["mode"], "browserbase")
+        self.assertEqual(rows[0]["live_view_url"], "https://browserbase.example/session-test")
         self.assertEqual(rows[0]["screenshot"], "base64-png")
         self.assertEqual(rows[0]["verified_field_count"], 2)
         self.assertEqual(rows[0]["verified_control_count"], 1)

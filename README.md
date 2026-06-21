@@ -16,11 +16,14 @@ application status to SQLite.
 - Rule-based eligibility results for California benefit programs
 - CalFresh and WIC prioritized in demo mode
 - Per-program document preflight checklists before auto-apply
+- Official apply/rules links and compact program branding on each benefit card
 - Claude-generated explanations/draft answers when `ANTHROPIC_API_KEY` exists
 - Browserbase live cloud browser for CalFresh and WIC auto-apply flows
 - Safe fallback animation when Browserbase credentials are missing
 - Submitted confirmations, Browserbase evidence, and portal screenshots saved
   back to the dashboard
+- Completed applications can be reopened from the dashboard with **View agent
+  proof**
 
 ## Stack
 

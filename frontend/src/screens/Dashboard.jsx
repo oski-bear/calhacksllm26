@@ -8,12 +8,15 @@ import {
   CircularProgress,
   Container,
   Divider,
+  IconButton,
   Stack,
+  Tooltip,
   Typography,
 } from '@mui/material'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutlineOutlined'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
+import { programMeta } from '../data/programMetadata.js'
 
 const TEAL = '#0d7d6f'
 const DEMO_PROGRAM_IDS = new Set(['calfresh', 'wic'])
@@ -57,6 +60,7 @@ export default function Dashboard({
   applications = {},
   onSelectProgram,
   onStartAgent,
+  onViewApplication,
   onEditProfile,
 }) {
   const order = { eligible: 0, maybe: 1 }
@@ -139,7 +143,7 @@ export default function Dashboard({
                   key={program.id}
                   program={program}
                   application={applications[program.id]}
-                  onAction={onSelectProgram}
+                  onAction={onViewApplication || onSelectProgram}
                 />
               ))}
             </Stack>
@@ -281,6 +285,7 @@ function formatMoney(value) {
 
 function ProgramCard({ program, featured, application, onAction }) {
   const isSubmitted = application?.status === 'submitted'
+  const meta = programMeta(program.id)
   const verifiedFieldCount = Number(application?.verified_field_count || 0)
   const verifiedControlCount = Number(application?.verified_control_count || 0)
   const hasBrowserbaseProof = application?.mode === 'browserbase' && application?.confirmation_verified
@@ -306,14 +311,20 @@ function ProgramCard({ program, featured, application, onAction }) {
           spacing={2}
           sx={{ justifyContent: 'space-between', alignItems: 'flex-start' }}
         >
-          <Box>
-            <Typography variant={featured ? 'h6' : 'subtitle1'} fontWeight={700}>
-              {program.name}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {program.category} - {program.agency}
-            </Typography>
-          </Box>
+          <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', minWidth: 0 }}>
+            <ProgramBrand program={program} meta={meta} />
+            <Box sx={{ minWidth: 0 }}>
+              <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
+                <Typography variant={featured ? 'h6' : 'subtitle1'} fontWeight={700}>
+                  {program.name}
+                </Typography>
+                <ProgramInfo program={program} meta={meta} />
+              </Stack>
+              <Typography variant="body2" color="text.secondary">
+                {program.category} - {program.agency}
+              </Typography>
+            </Box>
+          </Stack>
           <Chip icon={<StatusIcon />} label={style.label} color={style.color} size="small" />
         </Stack>
 
@@ -323,6 +334,7 @@ function ProgramCard({ program, featured, application, onAction }) {
         <Typography variant="body2" sx={{ mt: 0.5 }}>
           {program.description}
         </Typography>
+        <ProgramLinks meta={meta} />
 
         {isSubmitted && (
           <Box sx={{ mt: 1.5, p: 1.5, borderRadius: 1, bgcolor: '#e8f5e9' }}>
@@ -411,14 +423,93 @@ function ProgramCard({ program, featured, application, onAction }) {
         <Button
           variant={featured && !isSubmitted ? 'contained' : 'outlined'}
           color="primary"
-          startIcon={featured && !isSubmitted ? <AutoAwesomeIcon /> : null}
-          disabled={isSubmitted}
+          startIcon={isSubmitted ? <CheckCircleIcon /> : featured ? <AutoAwesomeIcon /> : null}
           onClick={() => onAction(program.id)}
         >
-          {isSubmitted ? 'Submitted' : featured ? 'Auto-apply with AI agent' : 'Start application'}
+          {isSubmitted ? 'View agent proof' : featured ? 'Auto-apply with AI agent' : 'Start application'}
         </Button>
       </CardActions>
     </Card>
+  )
+}
+
+function ProgramBrand({ program, meta }) {
+  const label = meta?.logoText || program.name.slice(0, 2)
+  return (
+    <Box
+      aria-hidden="true"
+      sx={{
+        width: 58,
+        height: 58,
+        borderRadius: 1,
+        bgcolor: meta?.brandBg || '#eef2f7',
+        border: '1px solid',
+        borderColor: 'divider',
+        color: meta?.brandColor || 'primary.main',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flex: '0 0 auto',
+      }}
+    >
+      <Typography variant="subtitle2" sx={{ fontWeight: 900, lineHeight: 1 }}>
+        {label}
+      </Typography>
+      {meta?.logoSubtext && (
+        <Typography variant="caption" sx={{ fontWeight: 800, letterSpacing: '0.08em' }}>
+          {meta.logoSubtext}
+        </Typography>
+      )}
+    </Box>
+  )
+}
+
+function ProgramInfo({ program, meta }) {
+  if (!meta?.info) return null
+  return (
+    <Tooltip
+      arrow
+      placement="top"
+      title={(
+        <Box sx={{ maxWidth: 280 }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{meta.infoTitle || program.name}</Typography>
+          <Typography variant="body2">{meta.info}</Typography>
+        </Box>
+      )}
+    >
+      <IconButton size="small" aria-label={`About ${program.name}`}>
+        <HelpOutlineIcon fontSize="small" />
+      </IconButton>
+    </Tooltip>
+  )
+}
+
+function ProgramLinks({ meta }) {
+  if (!meta) return null
+  return (
+    <Stack direction="row" spacing={1} sx={{ mt: 1.5, flexWrap: 'wrap', rowGap: 1 }}>
+      <Button
+        component="a"
+        href={meta.applyUrl}
+        target="_blank"
+        rel="noreferrer"
+        size="small"
+        variant="outlined"
+      >
+        {meta.applyLabel}
+      </Button>
+      <Button
+        component="a"
+        href={meta.rulesUrl}
+        target="_blank"
+        rel="noreferrer"
+        size="small"
+        variant="text"
+      >
+        {meta.rulesLabel}
+      </Button>
+    </Stack>
   )
 }
 

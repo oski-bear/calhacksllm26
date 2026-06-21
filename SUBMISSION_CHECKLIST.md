@@ -38,10 +38,12 @@ Screenshots: /tmp/benefits_frontend_e2e
    current benefits, and WIC signal.
 4. Point out the per-program document preflight: CalFresh county follow-up
    proofs and WIC appointment proofs.
-5. Auto-apply to CalFresh. Open the live Browserbase session if it appears early.
-6. Show verified fields/actions, confirmation `CF-DEMO-4821`, and saved proof.
-7. Go back to dashboard and repeat for WIC.
-8. End on the dashboard with both submissions saved and proof thumbnails.
+5. Point out each card's official apply link and eligibility/rules link.
+6. Auto-apply to CalFresh. Open the live Browserbase session if it appears early.
+7. Show verified fields/actions, confirmation `CF-DEMO-4821`, and saved proof.
+8. Go back to dashboard, click **View agent proof**, then return.
+9. Repeat for WIC.
+10. End on the dashboard with both submissions saved and proof thumbnails.
 
 ## Judge Talking Points
 
