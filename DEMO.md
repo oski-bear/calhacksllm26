@@ -59,6 +59,10 @@ PATH="/Users/study/.cache/codex-runtimes/codex-primary-runtime/dependencies/node
 venv/bin/python scripts/verify_agent_fallback.py
 ```
 
+The fallback check covers both the old synchronous agent route and the live
+Browserbase start/status route, and verifies simulated runs are not saved as
+submitted applications.
+
 With both servers running:
 
 ```sh

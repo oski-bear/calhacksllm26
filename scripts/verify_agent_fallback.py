@@ -1,6 +1,7 @@
 """Verify the agent's no-credentials fallback is explicit and safe."""
 
 import sys
+import time
 from copy import deepcopy
 from pathlib import Path
 from uuid import uuid4
@@ -57,6 +58,37 @@ def main():
         assert "application" not in body
 
         apps_res = client.get(f"/api/applications?email={email}")
+        assert apps_res.status_code == 200
+        assert apps_res.get_json()["applications"] == []
+
+    async_email = f"oski.fallback-async+{uuid4().hex}@example.com"
+    async_profile = deepcopy(PROFILE)
+    async_profile["email"] = async_email
+    with patch.dict("os.environ", {"BROWSERBASE_API_KEY": "", "BROWSERBASE_PROJECT_ID": ""}):
+        client = app.test_client()
+        start = client.post("/api/agent/start", json={"programId": "wic", "profile": async_profile})
+        assert start.status_code == 202
+        job = start.get_json()
+        assert job["jobId"]
+        assert job["status"] in ("running", "done")
+
+        for _ in range(40):
+            status = client.get(f"/api/agent/status/{job['jobId']}")
+            assert status.status_code == 200
+            job = status.get_json()
+            if job["status"] != "running":
+                break
+            time.sleep(0.05)
+
+        assert job["status"] == "done"
+        result = job["result"]
+        assert result["mode"] == "simulated"
+        assert result["fallbackReason"] == "missing_browserbase_credentials"
+        assert result["applicationPersisted"] is False
+        assert "application" not in result
+        assert job["liveViewUrl"] is None
+
+        apps_res = client.get(f"/api/applications?email={async_email}")
         assert apps_res.status_code == 200
         assert apps_res.get_json()["applications"] == []
     print("Agent fallback verification passed")
