@@ -41,3 +41,44 @@ export async function getProfile(email) {
   const data = await res.json()
   return data.profile
 }
+
+// --- Documents ---
+
+// List a user's uploaded documents.
+export async function listDocuments(email) {
+  const res = await fetch(`${API_BASE}/api/documents?email=${encodeURIComponent(email)}`)
+  if (!res.ok) {
+    throw new Error(`Server responded with ${res.status}`)
+  }
+  const data = await res.json()
+  return data.documents
+}
+
+// Upload a file (multipart) for a user. Returns the saved document record.
+export async function uploadDocument(email, label, file) {
+  const form = new FormData()
+  form.append('email', email)
+  form.append('label', label)
+  form.append('file', file)
+  // Note: don't set Content-Type; the browser adds the multipart boundary.
+  const res = await fetch(`${API_BASE}/api/documents`, { method: 'POST', body: form })
+  if (!res.ok) {
+    throw new Error(`Server responded with ${res.status}`)
+  }
+  const data = await res.json()
+  return data.document
+}
+
+// Delete a document by id.
+export async function deleteDocument(id) {
+  const res = await fetch(`${API_BASE}/api/documents/${id}`, { method: 'DELETE' })
+  if (!res.ok) {
+    throw new Error(`Server responded with ${res.status}`)
+  }
+  return true
+}
+
+// URL to view/download a document.
+export function documentDownloadUrl(id) {
+  return `${API_BASE}/api/documents/${id}/download`
+}

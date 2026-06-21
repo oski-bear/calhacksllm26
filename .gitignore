@@ -327,5 +327,8 @@ frontend/dist/
 # SQLite database (contains user PII — do not commit)
 backend/benefits.db
 
+# Uploaded documents (contain user PII — do not commit)
+backend/uploads/
+
 # Local Claude Code settings
 .claude/settings.local.json

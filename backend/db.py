@@ -52,6 +52,20 @@ def init_db():
         )
         """
     )
+    # Uploaded documents, linked to a user by email. The real file lives on
+    # disk (see app.py); here we only keep metadata.
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS documents (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          email TEXT NOT NULL,
+          label TEXT,
+          filename TEXT NOT NULL,
+          original_name TEXT,
+          uploaded_at TEXT
+        )
+        """
+    )
     conn.commit()
     conn.close()
 
@@ -97,3 +111,69 @@ def get_profile(email):
     profile = {field: row[field] for field in PROFILE_FIELDS}
     profile["currentBenefits"] = json.loads(row["currentBenefits"] or "[]")
     return profile
+
+
+# --- Documents -------------------------------------------------------------
+
+def _document_to_dict(row):
+    return {
+        "id": row["id"],
+        "label": row["label"],
+        "filename": row["filename"],
+        "original_name": row["original_name"],
+        "uploaded_at": row["uploaded_at"],
+    }
+
+
+def add_document(email, label, filename, original_name):
+    """Record an uploaded document. Returns the new row as a dict."""
+    conn = _connect()
+    cur = conn.execute(
+        "INSERT INTO documents (email, label, filename, original_name, uploaded_at) "
+        "VALUES (?, ?, ?, ?, ?)",
+        [
+            (email or "").strip(),
+            label,
+            filename,
+            original_name,
+            datetime.now(timezone.utc).isoformat(),
+        ],
+    )
+    conn.commit()
+    row = conn.execute(
+        "SELECT * FROM documents WHERE id = ?", [cur.lastrowid]
+    ).fetchone()
+    conn.close()
+    return _document_to_dict(row)
+
+
+def list_documents(email):
+    """All documents for a user, newest first."""
+    conn = _connect()
+    rows = conn.execute(
+        "SELECT * FROM documents WHERE email = ? ORDER BY id DESC",
+        [(email or "").strip()],
+    ).fetchall()
+    conn.close()
+    return [_document_to_dict(r) for r in rows]
+
+
+def get_document(doc_id):
+    """One document by id, or None."""
+    conn = _connect()
+    row = conn.execute("SELECT * FROM documents WHERE id = ?", [doc_id]).fetchone()
+    conn.close()
+    return _document_to_dict(row) if row else None
+
+
+def delete_document(doc_id):
+    """Delete a document row. Returns the deleted row (so the caller can remove
+    the file from disk), or None if it didn't exist."""
+    doc = get_document(doc_id)
+    if doc is None:
+        return None
+    conn = _connect()
+    conn.execute("DELETE FROM documents WHERE id = ?", [doc_id])
+    conn.commit()
+    conn.close()
+    return doc

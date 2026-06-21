@@ -24,7 +24,9 @@ React (MUI) · Flask · SQLite + Redis · Anthropic · Browserbase · Deepgram
       (same shape as the frontend's mock data)
 - [x] SQLite — **user profile** save/load by email (`backend/db.py`,
       `POST`/`GET /api/profile`); form persists on submit.
-      Documents + applications tables still to do.
+- [x] SQLite — **documents** table + file storage on disk
+      (`POST`/`GET`/`DELETE /api/documents`, download endpoint).
+      Applications/status table still to do.
 - [ ] Redis (agent memory + RAG over program rules)
 - [x] Wire frontend to the backend — form POSTs to `/api/eligibility`,
       Dashboard renders live results + reasons, with loading/error screens
@@ -37,8 +39,8 @@ React (MUI) · Flask · SQLite + Redis · Anthropic · Browserbase · Deepgram
 ## 🟡 Remaining frontend
 - [x] **Profile page (PII)** — view & edit saved info ("Edit my info" on the
       dashboard); saving persists to the DB and re-checks eligibility.
-- [ ] Document upload/management on the profile page (needs the documents
-      table + real file-upload endpoints).
+- [x] Document upload/management on the profile page — "Your documents"
+      section: upload, view/download, remove.
 - [ ] Voice-call + transcript panel on the agent page (Deepgram half)
 - [ ] Dashboard reflects per-program status (In progress / Submitted)
 - [ ] "Auto re-apply to programs" (noted on whiteboard)

@@ -62,6 +62,7 @@ export default function BasicInfoForm({
   subtitle = "Tell us a bit about your situation. We'll figure out which programs you're eligible for and help you apply.",
   submitLabel = 'Find my programs',
   onBack,
+  children,
 }) {
   const [values, setValues] = useState(initialValues)
 
@@ -282,6 +283,8 @@ export default function BasicInfoForm({
             </Grid>
           </form>
         </Paper>
+
+        {children}
 
         {onBack && (
           <Button onClick={onBack} sx={{ mt: 3 }}>

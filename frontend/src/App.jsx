@@ -4,6 +4,7 @@ import Dashboard from './screens/Dashboard.jsx'
 import ProgramDetail from './screens/ProgramDetail.jsx'
 import AgentView from './screens/AgentView.jsx'
 import { LoadingScreen, ErrorScreen } from './screens/StatusScreens.jsx'
+import DocumentsSection from './screens/DocumentsSection.jsx'
 import { fetchEligibility, saveProfile } from './api.js'
 
 // The whole app is a simple "wizard". `screen` decides which page shows,
@@ -90,7 +91,9 @@ export default function App() {
         subtitle="Update your details anytime. We'll save your changes and refresh the programs you qualify for."
         submitLabel="Save changes"
         onBack={() => setScreen('dashboard')}
-      />
+      >
+        <DocumentsSection email={userInfo.email} />
+      </BasicInfoForm>
     )
   }
 
