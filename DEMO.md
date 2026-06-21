@@ -55,13 +55,15 @@ Open `http://127.0.0.1:5173/`.
 Quick no-Browserbase fallback check:
 
 ```sh
+PYTHONPATH=backend venv/bin/python -m unittest discover -s tests
 PATH="/Users/study/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:$PATH" node scripts/verify_demo_profile.mjs
 venv/bin/python scripts/verify_agent_fallback.py
 ```
 
-The fallback check covers both the old synchronous agent route and the live
-Browserbase start/status route, and verifies simulated runs are not saved as
-submitted applications.
+The unit tests cover eligibility, agent field mapping, safe simulation fallback,
+and Flask route persistence boundaries. The fallback check covers both the old
+synchronous agent route and the live Browserbase start/status route, and
+verifies simulated runs are not saved as submitted applications.
 
 With both servers running:
 
