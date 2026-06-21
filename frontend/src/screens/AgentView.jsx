@@ -112,7 +112,7 @@ export default function AgentView({ program, userInfo, onApplied, onBack }) {
                   </Button>
                 </Stack>
               ) : (
-                'Simulated demo submission. Set BROWSERBASE_API_KEY + BROWSERBASE_PROJECT_ID to run a real browser live.'
+                <FallbackMessage result={result} />
               )}
             </Alert>
 
@@ -170,6 +170,29 @@ export default function AgentView({ program, userInfo, onApplied, onBack }) {
         <Button onClick={onBack} sx={{ mt: 3 }}>← Back to dashboard</Button>
       </Container>
     </Box>
+  )
+}
+
+function FallbackMessage({ result }) {
+  if (result.fallbackReason === 'browserbase_error') {
+    return (
+      <Stack spacing={0.5}>
+        <Typography variant="body2">
+          Browserbase attempted the live portal run, but the app is showing the safe simulated fallback.
+        </Typography>
+        {result.error && (
+          <Typography variant="caption" color="text.secondary">
+            Debug detail: {result.error}
+          </Typography>
+        )}
+      </Stack>
+    )
+  }
+
+  return (
+    <Typography variant="body2">
+      Simulated demo submission. Set BROWSERBASE_API_KEY and BROWSERBASE_PROJECT_ID to run a real browser live.
+    </Typography>
   )
 }
 

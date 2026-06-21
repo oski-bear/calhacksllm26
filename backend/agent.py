@@ -357,6 +357,7 @@ def run_application(program_id, profile):
             "liveViewUrl": None,
             "confirmation": _confirmation(program_id),
             "automationEvidence": evidence,
+            "fallbackReason": "missing_browserbase_credentials",
             "note": "Set BROWSERBASE_API_KEY and BROWSERBASE_PROJECT_ID to run a real browser.",
         }
 
@@ -427,5 +428,6 @@ def run_application(program_id, profile):
             "liveViewUrl": None,
             "confirmation": _confirmation(program_id),
             "automationEvidence": evidence,
+            "fallbackReason": "browserbase_error",
             "error": str(err),
         }

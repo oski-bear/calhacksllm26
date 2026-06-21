@@ -48,6 +48,12 @@ Open `http://127.0.0.1:5173/`.
 
 ## Verify Before Judging
 
+Quick no-Browserbase fallback check:
+
+```sh
+venv/bin/python scripts/verify_agent_fallback.py
+```
+
 With both servers running:
 
 ```sh
