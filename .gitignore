@@ -1,0 +1,18 @@
+# Python
+backend/venv/
+__pycache__/
+*.pyc
+
+# Database (contains user data — do not commit)
+backend/benefits.db
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Local Claude Code settings
+.claude/settings.local.json
+
+# Editor / OS
+.DS_Store
+Thumbs.db

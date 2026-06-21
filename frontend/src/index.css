@@ -1,0 +1,4 @@
+/* Minimal reset. MUI's CssBaseline + theme handle the rest. */
+body {
+  margin: 0;
+}
