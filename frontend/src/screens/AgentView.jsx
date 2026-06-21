@@ -1,251 +1,223 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
-  Alert,
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Chip,
-  CircularProgress,
-  Container,
-  Grid,
-  LinearProgress,
-  Stack,
-  Typography,
+  Alert, Box, Button, Card, CardContent, Chip, CircularProgress,
+  Container, Grid, LinearProgress, Stack, Typography,
 } from '@mui/material'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
+import { applyWithAgent } from '../api.js'
 
-// The agent/computer-use screen (whiteboard: agent fills the real portal).
-// A mock browser window auto-fills the application while an activity log
-// shows what the agent is doing. When it finishes, the status flips to
-// "Submitted".
+const STEP_MS = 1100
 
-// Each step the agent performs. `fills` lists which browser fields get
-// filled in when that step completes.
-const STEPS = [
-  { label: 'Opening application portal (benefitscal.com)…', fills: [] },
-  { label: 'Entering personal details…', fills: ['name', 'email'] },
-  { label: 'Entering household information…', fills: ['age', 'household'] },
-  { label: 'Entering income…', fills: ['income'] },
-  { label: 'Entering address & SSN…', fills: ['address', 'ssn'] },
-  { label: 'Uploading documents (W-2, pay stub)…', fills: [] },
-  { label: 'Reviewing & submitting application…', fills: [] },
-]
-
-const STEP_MS = 1400
+// Pretty labels for the mapped portal fields.
+const LABELS = {
+  firstName: 'First name', lastName: 'Last name', dob: 'Date of birth',
+  ssn: 'SSN', phone: 'Phone', email: 'Email', address: 'Address', city: 'City',
+  zip: 'ZIP', county: 'County', householdSize: 'Household size',
+  monthlyIncome: 'Gross monthly income', rent: 'Rent / mortgage', utilities: 'Utilities',
+  pregnant: 'Anyone pregnant?', childrenUnder18: 'Children under 18',
+  contactMethod: 'Best contact method', language: 'Preferred language',
+  category: 'Participant category', dueDate: 'Expected due date',
+  adjunctive: 'On Medi-Cal / CalFresh / CalWORKs?',
+}
 
 export default function AgentView({ program, userInfo, onBack }) {
-  // currentStep counts completed steps. When it reaches STEPS.length we're done.
-  const [currentStep, setCurrentStep] = useState(0)
-  const done = currentStep >= STEPS.length
+  const [result, setResult] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [step, setStep] = useState(0)
+  const startedRef = useRef(false)
 
-  // Advance one step on a timer until everything is done.
+  const programId = program?.id || 'calfresh'
+  const programName = program?.name || 'program'
+
+  // Kick off the agent once.
   useEffect(() => {
-    if (done) return
-    const timer = setTimeout(() => setCurrentStep((s) => s + 1), STEP_MS)
-    return () => clearTimeout(timer)
-  }, [currentStep, done])
+    if (startedRef.current) return
+    startedRef.current = true
+    applyWithAgent(programId, userInfo)
+      .then((res) => setResult(res))
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false))
+  }, [programId, userInfo])
 
-  // The values the agent "types" into the portal, pulled from what we collected.
-  const monthlyIncome = userInfo.income
-    ? `$${Math.round(Number(userInfo.income) / 12).toLocaleString()} / mo`
-    : '—'
-  const fields = [
-    { id: 'name', label: 'Full name', value: userInfo.name || '—' },
-    { id: 'email', label: 'Email', value: userInfo.email || '—' },
-    { id: 'age', label: 'Age', value: userInfo.age || '—' },
-    { id: 'household', label: 'Household size', value: userInfo.householdSize || '—' },
-    { id: 'income', label: 'Monthly income', value: monthlyIncome },
-    { id: 'address', label: 'Address', value: `1234 Telegraph Ave, Berkeley, ${userInfo.state}` },
-    { id: 'ssn', label: 'SSN', value: '•••-••-••••' },
-  ]
+  // Advance the step animation once we have a plan.
+  const steps = result?.steps || []
+  const done = result && step >= steps.length
+  useEffect(() => {
+    if (!result || done) return
+    const t = setTimeout(() => setStep((s) => s + 1), STEP_MS)
+    return () => clearTimeout(t)
+  }, [result, step, done])
 
-  // A field is filled once the step that fills it has completed.
-  const filledIds = STEPS.slice(0, currentStep).flatMap((step) => step.fills)
-  const progress = Math.round((currentStep / STEPS.length) * 100)
+  const values = result?.values || {}
+  const valueEntries = Object.entries(values)
+  const isLive = result?.mode === 'browserbase' && result?.liveViewUrl
+  // Reveal fields progressively in sync with the steps.
+  const revealCount = steps.length ? Math.round((step / steps.length) * valueEntries.length) : 0
+  const progress = steps.length ? Math.round((step / steps.length) * 100) : 0
 
   return (
-    <Box sx={{ minHeight: '100vh', py: 6 }}>
+    <Box sx={{ minHeight: '100vh', py: 6, bgcolor: 'background.default' }}>
       <Container maxWidth="lg">
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          sx={{ mb: 3 }}
-        >
-          <Typography variant="h4" color="primary">
-            Applying to {program ? program.name : 'program'}
-          </Typography>
+        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <AutoAwesomeIcon color="primary" />
+            <Typography variant="h4" color="primary">
+              AI agent applying to {programName}
+            </Typography>
+          </Stack>
           <Chip
             label={done ? 'Submitted' : 'Agent working…'}
             color={done ? 'success' : 'info'}
           />
         </Stack>
 
-        {done && (
-          <Alert severity="success" sx={{ mb: 3 }}>
-            Application submitted! Confirmation #CF-2026-04821. Status:{' '}
-            <strong>In progress</strong> with the county.
-          </Alert>
+        {loading && (
+          <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 3 }}>
+            <CircularProgress size={20} />
+            <Typography color="text.secondary">Starting the agent…</Typography>
+          </Stack>
         )}
 
-        <Grid container spacing={3}>
-          {/* Mock browser window showing the portal being auto-filled */}
-          <Grid size={{ xs: 12, md: 7 }}>
-            <BrowserWindow fields={fields} filledIds={filledIds} />
-          </Grid>
+        {error && <Alert severity="error" sx={{ mb: 3 }}>Couldn’t start the agent: {error}</Alert>}
 
-          {/* Live activity log */}
-          <Grid size={{ xs: 12, md: 5 }}>
-            <Card variant="outlined">
-              <CardContent>
-                <Typography variant="h6" sx={{ mb: 1 }}>
-                  Agent activity
-                </Typography>
-                {!done && (
-                  <LinearProgress
-                    variant="determinate"
-                    value={progress}
-                    sx={{ mb: 2 }}
-                  />
+        {result && (
+          <>
+            {done && (
+              <Alert severity="success" icon={<CheckCircleIcon />} sx={{ mb: 3 }}>
+                Demo application submitted. {result.confirmation || 'Confirmation captured.'}
+              </Alert>
+            )}
+
+            {/* Mode banner */}
+            <Alert severity={isLive ? 'info' : 'warning'} sx={{ mb: 3 }}>
+              {isLive
+                ? 'Browserbase cloud browser completed the demo submission. Final portal state below.'
+                : 'Simulated demo submission. Set BROWSERBASE_API_KEY + BROWSERBASE_PROJECT_ID to run a real browser live.'}
+            </Alert>
+
+            <Grid container spacing={3}>
+              {/* Portal: live iframe OR simulated mock browser */}
+              <Grid size={{ xs: 12, md: 7 }}>
+                {isLive ? (
+                  <BrowserChrome url={result.portalUrl}>
+                    <SubmittedScreenshot result={result} />
+                  </BrowserChrome>
+                ) : (
+                  <BrowserChrome url={result.portalUrl}>
+                    <Box sx={{ p: 3 }}>
+                      <Typography variant="h6" sx={{ mb: 2 }}>
+                        {programId === 'wic' ? 'WIC Appointment Request' : 'CalFresh Application'}
+                      </Typography>
+                      <Stack spacing={1.25}>
+                        {valueEntries.map(([key, val], i) => (
+                          <PortalField
+                            key={key}
+                            label={LABELS[key] || key}
+                            value={val}
+                            filled={i < revealCount}
+                          />
+                        ))}
+                      </Stack>
+                    </Box>
+                  </BrowserChrome>
                 )}
-                <Stack spacing={1.5}>
-                  {STEPS.map((step, i) => (
-                    <ActivityRow
-                      key={i}
-                      label={step.label}
-                      state={
-                        currentStep > i
-                          ? 'done'
-                          : currentStep === i
-                            ? 'active'
-                            : 'pending'
-                      }
-                    />
-                  ))}
-                </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
+              </Grid>
 
-        <Button onClick={onBack} sx={{ mt: 3 }}>
-          ← Back to dashboard
-        </Button>
+              {/* Activity log */}
+              <Grid size={{ xs: 12, md: 5 }}>
+                <Card variant="outlined">
+                  <CardContent>
+                    <Typography variant="h6" sx={{ mb: 1 }}>Agent activity</Typography>
+                    {!done && <LinearProgress variant="determinate" value={progress} sx={{ mb: 2 }} />}
+                    <Stack spacing={1.5}>
+                      {steps.map((label, i) => (
+                        <ActivityRow
+                          key={i}
+                          label={label}
+                          state={step > i ? 'done' : step === i ? 'active' : 'pending'}
+                        />
+                      ))}
+                    </Stack>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          </>
+        )}
+
+        <Button onClick={onBack} sx={{ mt: 3 }}>← Back to dashboard</Button>
       </Container>
     </Box>
   )
 }
 
-// One row in the activity log, styled by state.
+function SubmittedScreenshot({ result }) {
+  return (
+    <Box sx={{ p: 2, bgcolor: '#f8fafc' }}>
+      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+        Final submitted portal state{result.sessionId ? ` · Browserbase session ${result.sessionId}` : ''}
+      </Typography>
+      {result.screenshot ? (
+        <Box
+          component="img"
+          alt="Submitted portal screenshot"
+          src={`data:image/png;base64,${result.screenshot}`}
+          sx={{ display: 'block', width: '100%', border: '1px solid', borderColor: 'divider', borderRadius: 1 }}
+        />
+      ) : (
+        <Typography variant="body2" color="text.secondary">
+          Browserbase finished, but no screenshot was returned.
+        </Typography>
+      )}
+    </Box>
+  )
+}
+
 function ActivityRow({ label, state }) {
   let icon
-  if (state === 'done') {
-    icon = <CheckCircleIcon color="success" fontSize="small" />
-  } else if (state === 'active') {
-    icon = <CircularProgress size={16} />
-  } else {
-    icon = (
-      <Box
-        sx={{
-          width: 16,
-          height: 16,
-          borderRadius: '50%',
-          border: '2px solid',
-          borderColor: 'divider',
-        }}
-      />
-    )
-  }
+  if (state === 'done') icon = <CheckCircleIcon color="success" fontSize="small" />
+  else if (state === 'active') icon = <CircularProgress size={16} />
+  else icon = <Box sx={{ width: 16, height: 16, borderRadius: '50%', border: '2px solid', borderColor: 'divider' }} />
   return (
     <Stack direction="row" spacing={1.5} alignItems="center">
       {icon}
-      <Typography
-        variant="body2"
-        color={state === 'pending' ? 'text.disabled' : 'text.primary'}
-      >
+      <Typography variant="body2" color={state === 'pending' ? 'text.disabled' : 'text.primary'}>
         {label}
       </Typography>
     </Stack>
   )
 }
 
-// A faux browser chrome around the application form.
-function BrowserWindow({ fields, filledIds }) {
+function BrowserChrome({ url, children }) {
   return (
-    <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, overflow: 'hidden' }}>
-      {/* Chrome bar */}
-      <Stack
-        direction="row"
-        spacing={1.5}
-        alignItems="center"
-        sx={{ bgcolor: 'grey.100', px: 2, py: 1.25, borderBottom: '1px solid', borderColor: 'divider' }}
-      >
+    <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, overflow: 'hidden', bgcolor: 'white' }}>
+      <Stack direction="row" spacing={1.5} alignItems="center"
+        sx={{ bgcolor: 'grey.100', px: 2, py: 1.25, borderBottom: '1px solid', borderColor: 'divider' }}>
         <Stack direction="row" spacing={0.75}>
-          <Dot color="#ff5f56" />
-          <Dot color="#ffbd2e" />
-          <Dot color="#27c93f" />
+          <Dot color="#ff5f56" /><Dot color="#ffbd2e" /><Dot color="#27c93f" />
         </Stack>
-        <Box
-          sx={{
-            flex: 1,
-            bgcolor: 'background.paper',
-            border: '1px solid',
-            borderColor: 'divider',
-            borderRadius: 5,
-            px: 1.5,
-            py: 0.5,
-            fontSize: 13,
-            color: 'text.secondary',
-          }}
-        >
-          🔒 benefitscal.com/apply/calfresh
+        <Box sx={{ flex: 1, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider',
+          borderRadius: 5, px: 1.5, py: 0.5, fontSize: 13, color: 'text.secondary', overflow: 'hidden',
+          whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+          🔒 {url}
         </Box>
       </Stack>
-
-      {/* Portal "page" */}
-      <Box sx={{ p: 3 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          CalFresh Application
-        </Typography>
-        <Stack spacing={1.5}>
-          {fields.map((field) => (
-            <PortalField
-              key={field.id}
-              label={field.label}
-              value={field.value}
-              filled={filledIds.includes(field.id)}
-            />
-          ))}
-        </Stack>
-      </Box>
+      {children}
     </Box>
   )
 }
 
-// One field on the mock portal: empty until the agent fills it.
 function PortalField({ label, value, filled }) {
   return (
     <Box>
-      <Typography variant="caption" color="text.secondary">
-        {label}
-      </Typography>
-      <Box
-        sx={{
-          mt: 0.5,
-          px: 1.5,
-          py: 1,
-          minHeight: 38,
-          borderRadius: 1,
-          border: '1px solid',
-          borderColor: filled ? 'success.light' : 'divider',
-          bgcolor: filled ? '#e8f5e9' : 'grey.50',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          transition: 'all 0.3s ease',
-        }}
-      >
+      <Typography variant="caption" color="text.secondary">{label}</Typography>
+      <Box sx={{
+        mt: 0.5, px: 1.5, py: 1, minHeight: 38, borderRadius: 1, border: '1px solid',
+        borderColor: filled ? 'success.light' : 'divider', bgcolor: filled ? '#e8f5e9' : 'grey.50',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'all 0.3s ease',
+      }}>
         <Typography variant="body2" color={filled ? 'text.primary' : 'text.disabled'}>
           {filled ? value : ''}
         </Typography>

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>California WIC — Appointment Request (DEMO)</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, "Segoe UI", Roboto, sans-serif; background: #f3f0f7; color: #2a1a3c; }
+    .banner { background: #fff3cd; color: #664d03; text-align: center; padding: 6px; font-size: 13px; border-bottom: 1px solid #ffe69c; }
+    header { background: #6a2c91; color: #fff; padding: 14px 28px; display: flex; align-items: center; gap: 12px; }
+    header .logo { font-weight: 800; font-size: 20px; letter-spacing: -.5px; }
+    header .tag { font-size: 13px; opacity: .85; }
+    .wrap { max-width: 720px; margin: 24px auto; background: #fff; border: 1px solid #e0d7e6; border-radius: 8px; padding: 28px 32px; }
+    h1 { font-size: 22px; margin: 0 0 4px; }
+    .sub { color: #6b5a7b; margin: 0 0 24px; font-size: 14px; }
+    fieldset { border: none; border-top: 1px solid #ece4f0; padding: 18px 0 4px; margin: 0; }
+    legend { font-weight: 700; color: #6a2c91; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; padding: 0; }
+    .row { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px; }
+    .field { flex: 1 1 200px; display: flex; flex-direction: column; }
+    label { font-size: 13px; font-weight: 600; margin-bottom: 5px; color: #4a3b54; }
+    input, select { padding: 10px 12px; border: 1px solid #c9b9d4; border-radius: 6px; font-size: 15px; }
+    input:focus, select:focus { outline: 2px solid #6a2c91; border-color: #6a2c91; }
+    .actions { margin-top: 28px; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+    button { background: #6a2c91; color: #fff; border: none; padding: 12px 22px; border-radius: 6px; font-size: 15px; font-weight: 700; cursor: pointer; }
+    .review { color: #1c7c54; font-weight: 700; font-size: 14px; }
+    .confirmation { display: none; margin-top: 18px; padding: 16px; border-radius: 6px; background: #e8f5e9; border: 1px solid #8cc79a; color: #14532d; font-weight: 700; }
+    form.submitted .confirmation { display: block; }
+    form.submitted button { background: #1c7c54; }
+  </style>
+  <script>
+    function submitDemo(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      form.classList.add('submitted');
+      form.querySelector('.review').textContent = 'Submitted to demo portal';
+      form.querySelector('button').textContent = 'Submitted';
+    }
+  </script>
+</head>
+<body>
+  <div class="banner">DEMO PORTAL - not the real California WIC site. Submitting here has no government side effect.</div>
+  <header>
+    <span class="logo">California WIC</span>
+    <span class="tag">Appointment / Application Request</span>
+  </header>
+  <div class="wrap">
+    <h1>Request a WIC Appointment</h1>
+    <p class="sub">WIC staff verify final eligibility. Fields below are filled by your assistant for your review.</p>
+    <form id="wic-form" onsubmit="submitDemo(event);">
+      <fieldset>
+        <legend>Contact</legend>
+        <div class="row">
+          <div class="field"><label>First name</label><input name="firstName" /></div>
+          <div class="field"><label>Last name</label><input name="lastName" /></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Phone</label><input name="phone" /></div>
+          <div class="field"><label>Email</label><input name="email" /></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Best contact method</label><input name="contactMethod" /></div>
+          <div class="field"><label>Preferred language</label><input name="language" /></div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Location</legend>
+        <div class="row">
+          <div class="field" style="flex:2 1 320px"><label>Address</label><input name="address" /></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>City</label><input name="city" /></div>
+          <div class="field"><label>ZIP</label><input name="zip" /></div>
+          <div class="field"><label>County</label><input name="county" /></div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Eligibility</legend>
+        <div class="row">
+          <div class="field"><label>Participant category</label><input name="category" /></div>
+          <div class="field"><label>Expected due date</label><input name="dueDate" /></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Household size</label><input name="householdSize" /></div>
+          <div class="field"><label>Gross monthly income</label><input name="monthlyIncome" /></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>On Medi-Cal / CalFresh / CalWORKs?</label><input name="adjunctive" /></div>
+        </div>
+      </fieldset>
+      <div class="actions">
+        <span class="review">● Draft saved — ready for your review</span>
+        <button type="submit" data-agent-submit="true">Request Appointment</button>
+      </div>
+      <div id="confirmation" class="confirmation">WIC appointment request submitted. Confirmation #WIC-DEMO-2048</div>
+    </form>
+  </div>
+</body>
+</html>

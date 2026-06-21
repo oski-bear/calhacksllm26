@@ -32,8 +32,17 @@ export default function DocumentsSection({ email }) {
 
   // Load the user's documents when the section mounts (or the email changes).
   useEffect(() => {
-    refresh()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    let active = true
+    listDocuments(email)
+      .then((documents) => {
+        if (active) setDocs(documents)
+      })
+      .catch((err) => {
+        if (active) setError(err.message)
+      })
+    return () => {
+      active = false
+    }
   }, [email])
 
   async function handleUpload(e) {

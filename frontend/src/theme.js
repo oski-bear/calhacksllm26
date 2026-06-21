@@ -1,6 +1,5 @@
 import { createTheme } from '@mui/material/styles'
 
-// A calm, civic-feeling theme. Teal primary = "support / assistance".
 const theme = createTheme({
   palette: {
     mode: 'light',
@@ -13,6 +12,20 @@ const theme = createTheme({
     fontFamily: 'system-ui, "Segoe UI", Roboto, sans-serif',
     h4: { fontWeight: 600 },
     h5: { fontWeight: 600 },
+    button: { fontWeight: 700, letterSpacing: '0.06em' },
+  },
+  components: {
+    MuiLinearProgress: {
+      styleOverrides: {
+        root: { height: 8, borderRadius: 0, backgroundColor: '#dde8e7' },
+        bar: { backgroundColor: '#0d7d6f', borderRadius: 0 },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: { textTransform: 'uppercase', boxShadow: 'none', '&:hover': { boxShadow: 'none' } },
+      },
+    },
   },
 })
 

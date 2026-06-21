@@ -84,6 +84,11 @@ export default function App() {
     setScreen('draft')
   }
 
+  function handleStartAgent(programId) {
+    setSelectedProgramId(programId)
+    setScreen('agent')
+  }
+
   const selectedProgram =
     programs.find((p) => p.id === selectedProgramId) || null
 
@@ -103,13 +108,12 @@ export default function App() {
         summary={summary}
         explaining={explaining}
         onSelectProgram={handleSelectProgram}
+        onStartAgent={handleStartAgent}
         onEditProfile={() => setScreen('profile')}
       />
     )
   }
 
-  // The profile page reuses the form, pre-filled with the saved info.
-  // Saving runs the same path as the intake form (persist + re-check eligibility).
   if (screen === 'profile') {
     return (
       <BasicInfoForm

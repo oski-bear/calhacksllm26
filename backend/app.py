@@ -9,25 +9,30 @@ import os
 from uuid import uuid4
 
 from dotenv import load_dotenv
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_file, send_from_directory
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
+BASE_DIR = os.path.dirname(__file__)
+
 # Load backend/.env so ANTHROPIC_API_KEY is available (file is gitignored).
-load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 from eligibility import evaluate_all
 from claude_client import generate_explanations, draft_application
 import db
 from db import init_db, save_profile, get_profile
+from agent import run_application
 
 app = Flask(__name__)
 CORS(app)  # allow the React dev server to call us during development
 
+MOCK_DIR = os.path.join(BASE_DIR, "mock")
+
 init_db()  # make sure the database and tables exist on startup
 
 # Uploaded files live on disk here; the database only stores metadata.
-UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploads")
+UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
@@ -148,5 +153,21 @@ def delete_document_route(doc_id):
     return jsonify({"ok": True})
 
 
+@app.post("/api/agent/apply")
+def agent_apply():
+    """Have the AI agent draft an application by filling the mock portal."""
+    body = request.get_json(silent=True) or {}
+    program_id = body.get("programId", "calfresh")
+    profile = body.get("profile") or {}
+    result = run_application(program_id, profile)
+    return jsonify(result)
+
+
+@app.get("/mock/<path:filename>")
+def mock_portal(filename):
+    """Serve the demo (mock) benefits portals the agent fills."""
+    return send_from_directory(MOCK_DIR, filename)
+
+
 if __name__ == "__main__":
-    app.run(port=5000, debug=True)
+    app.run(port=5001, debug=True)

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BenefitsCal — CalFresh Application (DEMO)</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, "Segoe UI", Roboto, sans-serif; background: #eef1f4; color: #1a2b3c; }
+    .banner { background: #fff3cd; color: #664d03; text-align: center; padding: 6px; font-size: 13px; border-bottom: 1px solid #ffe69c; }
+    header { background: #14508c; color: #fff; padding: 14px 28px; display: flex; align-items: center; gap: 12px; }
+    header .logo { font-weight: 800; font-size: 20px; letter-spacing: -.5px; }
+    header .tag { font-size: 13px; opacity: .85; }
+    .wrap { max-width: 720px; margin: 24px auto; background: #fff; border: 1px solid #d7dee6; border-radius: 8px; padding: 28px 32px; }
+    h1 { font-size: 22px; margin: 0 0 4px; }
+    .sub { color: #5a6b7b; margin: 0 0 24px; font-size: 14px; }
+    fieldset { border: none; border-top: 1px solid #e4e9ee; padding: 18px 0 4px; margin: 0; }
+    legend { font-weight: 700; color: #14508c; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; padding: 0; }
+    .row { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px; }
+    .field { flex: 1 1 200px; display: flex; flex-direction: column; }
+    label { font-size: 13px; font-weight: 600; margin-bottom: 5px; color: #33444f; }
+    input, select { padding: 10px 12px; border: 1px solid #b9c4cf; border-radius: 6px; font-size: 15px; }
+    input:focus, select:focus { outline: 2px solid #14508c; border-color: #14508c; }
+    .actions { margin-top: 28px; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+    button { background: #14508c; color: #fff; border: none; padding: 12px 22px; border-radius: 6px; font-size: 15px; font-weight: 700; cursor: pointer; }
+    .review { color: #1c7c54; font-weight: 700; font-size: 14px; }
+    .confirmation { display: none; margin-top: 18px; padding: 16px; border-radius: 6px; background: #e8f5e9; border: 1px solid #8cc79a; color: #14532d; font-weight: 700; }
+    form.submitted .confirmation { display: block; }
+    form.submitted button { background: #1c7c54; }
+  </style>
+  <script>
+    function submitDemo(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      form.classList.add('submitted');
+      form.querySelector('.review').textContent = 'Submitted to demo portal';
+      form.querySelector('button').textContent = 'Submitted';
+    }
+  </script>
+</head>
+<body>
+  <div class="banner">DEMO PORTAL - not the real BenefitsCal. Submitting here has no government side effect.</div>
+  <header>
+    <span class="logo">BenefitsCal</span>
+    <span class="tag">California Department of Social Services</span>
+  </header>
+  <div class="wrap">
+    <h1>CalFresh (SNAP) Application</h1>
+    <p class="sub">Apply for food benefits. Fields marked are filled by your assistant for your review.</p>
+    <form id="cf-form" onsubmit="submitDemo(event);">
+      <fieldset>
+        <legend>Applicant</legend>
+        <div class="row">
+          <div class="field"><label>First name</label><input name="firstName" /></div>
+          <div class="field"><label>Last name</label><input name="lastName" /></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Date of birth</label><input name="dob" placeholder="MM/DD/YYYY" /></div>
+          <div class="field"><label>Social Security Number</label><input name="ssn" placeholder="XXX-XX-XXXX" /></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Phone</label><input name="phone" /></div>
+          <div class="field"><label>Email</label><input name="email" /></div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Residence</legend>
+        <div class="row">
+          <div class="field" style="flex:2 1 320px"><label>Home address</label><input name="address" /></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>City</label><input name="city" /></div>
+          <div class="field"><label>ZIP</label><input name="zip" /></div>
+          <div class="field"><label>County</label><input name="county" /></div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Household &amp; income</legend>
+        <div class="row">
+          <div class="field"><label>Household size</label><input name="householdSize" /></div>
+          <div class="field"><label>Gross monthly income</label><input name="monthlyIncome" /></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Monthly rent / mortgage</label><input name="rent" /></div>
+          <div class="field"><label>Monthly utilities</label><input name="utilities" /></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Anyone pregnant?</label><input name="pregnant" /></div>
+          <div class="field"><label>Children under 18</label><input name="childrenUnder18" /></div>
+        </div>
+      </fieldset>
+      <div class="actions">
+        <span class="review">● Draft saved — ready for your review</span>
+        <button type="submit" data-agent-submit="true">Review &amp; Submit</button>
+      </div>
+      <div id="confirmation" class="confirmation">CalFresh application submitted. Confirmation #CF-DEMO-4821</div>
+    </form>
+  </div>
+</body>
+</html>

@@ -1,297 +1,482 @@
 import { useState } from 'react'
 import {
-  Box,
-  Button,
-  Checkbox,
-  Container,
-  FormControl,
-  FormControlLabel,
-  FormGroup,
-  FormLabel,
-  Grid,
-  InputAdornment,
-  InputLabel,
-  MenuItem,
-  Paper,
-  Select,
-  Stack,
-  TextField,
-  Typography,
+  AppBar, Box, Button, Card, CardContent, Checkbox, Container, Divider,
+  FormControl, IconButton, InputAdornment, InputLabel, LinearProgress,
+  MenuItem, Radio, Select, Stack, TextField, Toolbar, Typography,
 } from '@mui/material'
+import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism'
+import AddIcon from '@mui/icons-material/Add'
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined'
+import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1'
+import {
+  RELATIONSHIP_OPTIONS, FREQUENCY_OPTIONS, INCOME_CATEGORIES, EXPENSE_OPTIONS,
+  HEALTH_INSURANCE_OPTIONS, CONDITION_OPTIONS, BENEFIT_OPTIONS,
+  IMMEDIATE_NEEDS_OPTIONS, MONTHS, CA_COUNTIES,
+} from '../data/screenerOptions.js'
+import { totalAnnualIncome } from '../data/income.js'
 
-// --- Option lists (kept here so the form is self-contained and easy to read) ---
-const STATES = [
-  'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
-  'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
-  'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
-  'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
-  'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY',
-]
+const TEAL = '#0d7d6f'
+const TEAL_LIGHT = '#e6f3f2'
 
-const MARITAL_STATUSES = ['Single', 'Married', 'Divorced', 'Separated', 'Widowed']
+let _id = 0
+const uid = () => `id${_id++}`
 
-const CITIZENSHIP_OPTIONS = [
-  'U.S. Citizen',
-  'Permanent Resident (Green Card)',
-  'Refugee / Asylee',
-  'Other / Undocumented',
-]
+const newMember = (isPrimary = false) => ({
+  id: uid(), isPrimary, relationship: isPrimary ? 'Self' : '',
+  birthMonth: '', birthYear: '',
+  incomeSources: [], healthInsurance: [], conditions: [], student: null,
+})
 
-const EDUCATION_LEVELS = [
-  'Less than high school',
-  'High school / GED',
-  'Some college',
-  "Associate's degree",
-  "Bachelor's degree",
-  'Graduate degree',
-]
+const newIncome = () => ({ id: uid(), category: '', type: '', frequency: '', hoursPerWeek: '', amount: '' })
+const newExpense = () => ({ id: uid(), type: '', amount: '', frequency: 'monthly' })
 
-const BENEFIT_OPTIONS = [
-  'CalFresh (SNAP)',
-  'Medi-Cal / Medicaid',
-  'SSI',
-  'CalWORKs / TANF',
-  'Unemployment',
-  'Section 8 Housing',
-]
+const CURRENT_YEAR = 2026
 
 export default function BasicInfoForm({
-  initialValues,
+  initialValues = {},
   onSubmit,
   title = 'Find the benefits you qualify for',
   subtitle = "Tell us a bit about your situation. We'll figure out which programs you're eligible for and help you apply.",
-  submitLabel = 'Find my programs',
+  submitLabel = 'Find my benefits →',
   onBack,
   children,
 }) {
-  const [values, setValues] = useState(initialValues)
+  const [data, setData] = useState(() => ({
+    name: '', email: '', zipcode: '', county: '', citizenship: '',
+    members: [newMember(true)],
+    expenses: [], assets: '', currentBenefits: [], immediateNeeds: [],
+    state: 'CA',
+    ...initialValues,
+  }))
 
-  // One generic handler for all the simple (single-value) fields.
-  function handleChange(field, value) {
-    setValues((prev) => ({ ...prev, [field]: value }))
-  }
+  const set = (field, val) => setData((d) => ({ ...d, [field]: val }))
 
-  // Checkboxes add/remove the benefit from the array.
-  function toggleBenefit(benefit) {
-    setValues((prev) => {
-      const has = prev.currentBenefits.includes(benefit)
-      return {
-        ...prev,
-        currentBenefits: has
-          ? prev.currentBenefits.filter((b) => b !== benefit)
-          : [...prev.currentBenefits, benefit],
-      }
-    })
-  }
+  // ── member helpers ──
+  const updateMember = (id, patch) =>
+    setData((d) => ({ ...d, members: d.members.map((m) => (m.id === id ? { ...m, ...patch } : m)) }))
+  const addMember = () => setData((d) => ({ ...d, members: [...d.members, newMember(false)] }))
+  const removeMember = (id) =>
+    setData((d) => ({ ...d, members: d.members.filter((m) => m.id !== id) }))
+
+  // ── derived (for backward-compatible eligibility engine) ──
+  const annualIncome = totalAnnualIncome(data.members)
+  const primary = data.members[0] || {}
+
+  const required = [data.name, data.email, data.zipcode, data.county, primary.birthYear]
+  const filled = required.filter((v) => String(v ?? '').trim() !== '').length
+  const progress = Math.round((filled / required.length) * 100)
+  const canSubmit =
+    data.name.trim() && data.email.trim() && data.zipcode.trim() && data.county.trim()
 
   function handleSubmit(e) {
     e.preventDefault()
-    onSubmit(values)
+    onSubmit({
+      ...data,
+      // normalize "Prefer not to say" to empty for the eligibility engine
+      citizenship: data.citizenship === 'Prefer not to say' ? '' : data.citizenship,
+      // derived flat fields the existing Flask engine consumes
+      householdSize: String(data.members.length),
+      income: String(Math.round(annualIncome)),
+      age: primary.birthYear ? String(CURRENT_YEAR - Number(primary.birthYear)) : '',
+    })
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', py: 6 }}>
-      <Container maxWidth="md">
-        <Stack spacing={1} sx={{ mb: 4, textAlign: 'center' }}>
-          <Typography variant="h4" color="primary">
-            {title}
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            {subtitle}
-          </Typography>
-        </Stack>
+    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', bgcolor: '#f0f2f5' }}>
+      <AppBar position="static" color="primary" elevation={0}>
+        <Toolbar>
+          <VolunteerActivismIcon sx={{ mr: 1.5, fontSize: 26 }} />
+          <Typography variant="h6" fontWeight={700} letterSpacing="-0.01em">Benefits Finder</Typography>
+        </Toolbar>
+      </AppBar>
 
-        <Paper elevation={2} sx={{ p: { xs: 3, sm: 4 } }}>
-          <form onSubmit={handleSubmit}>
-            <Grid container spacing={3}>
-              {/* --- Contact --- */}
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  label="Full name"
-                  fullWidth
-                  required
-                  value={values.name}
-                  onChange={(e) => handleChange('name', e.target.value)}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  label="Email"
-                  type="email"
-                  fullWidth
-                  required
-                  value={values.email}
-                  onChange={(e) => handleChange('email', e.target.value)}
-                />
-              </Grid>
+      <LinearProgress variant="determinate" value={progress} sx={{ height: 10 }} />
+      <Box sx={{ bgcolor: 'white', borderBottom: '1px solid #e2e8f0', px: 3, py: 1.25 }}>
+        <Typography variant="body2" fontWeight={600} color="text.secondary">
+          {progress === 100 ? '✓ All set — ready to check eligibility' : `${filled} of ${required.length} required fields filled`}
+        </Typography>
+      </Box>
 
-              {/* --- Household basics --- */}
-              <Grid size={{ xs: 6, sm: 3 }}>
-                <TextField
-                  label="Age"
-                  type="number"
-                  fullWidth
-                  value={values.age}
-                  onChange={(e) => handleChange('age', e.target.value)}
-                />
-              </Grid>
-              <Grid size={{ xs: 6, sm: 3 }}>
-                <TextField
-                  label="Household size"
-                  type="number"
-                  fullWidth
-                  helperText="People in your home"
-                  value={values.householdSize}
-                  onChange={(e) => handleChange('householdSize', e.target.value)}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  label="Annual income (from W-2)"
-                  type="number"
-                  fullWidth
-                  value={values.income}
-                  onChange={(e) => handleChange('income', e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">$</InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
+      <Box component="form" onSubmit={handleSubmit} sx={{ flex: 1, py: { xs: 3, md: 5 } }}>
+        <Container maxWidth="sm">
+          <Card variant="outlined" sx={{ borderRadius: 2, border: '1px solid #e2e8f0' }}>
+            <CardContent sx={{ p: { xs: 2.5, md: 4 } }}>
+              <Typography variant="h4" color="primary" sx={{ mb: 1 }}>
+                {title}
+              </Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+                {subtitle}
+              </Typography>
 
-              {/* --- Status dropdowns --- */}
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <FormControl fullWidth>
-                  <InputLabel>Marital status</InputLabel>
-                  <Select
-                    label="Marital status"
-                    value={values.maritalStatus}
-                    onChange={(e) =>
-                      handleChange('maritalStatus', e.target.value)
-                    }
-                  >
-                    {MARITAL_STATUSES.map((option) => (
-                      <MenuItem key={option} value={option}>
-                        {option}
-                      </MenuItem>
-                    ))}
+              {/* ══ CONTACT ══ */}
+              <SectionLabel>Let's get started!</SectionLabel>
+              <Question>How can we reach you?</Question>
+              <Stack spacing={1.5} sx={{ mb: 3 }}>
+                <TextField fullWidth required label="Full name"
+                  value={data.name} onChange={(e) => set('name', e.target.value)} />
+                <TextField fullWidth required type="email" label="Email address"
+                  value={data.email} onChange={(e) => set('email', e.target.value)}
+                  helperText="Used only to save your results" />
+              </Stack>
+
+              <Divider sx={{ my: 3 }} />
+
+              {/* ══ LOCATION ══ */}
+              <SectionLabel>Where you live</SectionLabel>
+              <Question>What is your zip code?</Question>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ mb: 3 }}>
+                <TextField label="Zip code" required sx={{ maxWidth: { sm: 180 } }}
+                  value={data.zipcode} onChange={(e) => set('zipcode', e.target.value)} />
+                <FormControl fullWidth required>
+                  <InputLabel>County</InputLabel>
+                  <Select label="County" value={data.county} onChange={(e) => set('county', e.target.value)}>
+                    {CA_COUNTIES.map((c) => <MenuItem key={c} value={c}>{c}</MenuItem>)}
                   </Select>
                 </FormControl>
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <FormControl fullWidth>
-                  <InputLabel>State</InputLabel>
-                  <Select
-                    label="State"
-                    value={values.state}
-                    onChange={(e) => handleChange('state', e.target.value)}
-                  >
-                    {STATES.map((option) => (
-                      <MenuItem key={option} value={option}>
-                        {option}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <FormControl fullWidth>
-                  <InputLabel>Citizenship status</InputLabel>
-                  <Select
-                    label="Citizenship status"
-                    value={values.citizenship}
-                    onChange={(e) => handleChange('citizenship', e.target.value)}
-                  >
-                    {CITIZENSHIP_OPTIONS.map((option) => (
-                      <MenuItem key={option} value={option}>
-                        {option}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <FormControl fullWidth>
-                  <InputLabel>Education</InputLabel>
-                  <Select
-                    label="Education"
-                    value={values.education}
-                    onChange={(e) => handleChange('education', e.target.value)}
-                  >
-                    {EDUCATION_LEVELS.map((option) => (
-                      <MenuItem key={option} value={option}>
-                        {option}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <FormControl fullWidth>
-                  <InputLabel>Filed a tax return last year?</InputLabel>
-                  <Select
-                    label="Filed a tax return last year?"
-                    value={values.filedTaxes}
-                    onChange={(e) => handleChange('filedTaxes', e.target.value)}
-                  >
-                    <MenuItem value="Yes">Yes</MenuItem>
-                    <MenuItem value="No">No</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
+              </Stack>
 
-              {/* --- Current benefits --- */}
-              <Grid size={12}>
-                <FormControl component="fieldset">
-                  <FormLabel component="legend" sx={{ mb: 1 }}>
-                    What benefits are you currently on?
-                  </FormLabel>
-                  <FormGroup>
-                    <Grid container>
-                      {BENEFIT_OPTIONS.map((benefit) => (
-                        <Grid size={{ xs: 12, sm: 6 }} key={benefit}>
-                          <FormControlLabel
-                            control={
-                              <Checkbox
-                                checked={values.currentBenefits.includes(
-                                  benefit,
-                                )}
-                                onChange={() => toggleBenefit(benefit)}
-                              />
-                            }
-                            label={benefit}
-                          />
-                        </Grid>
-                      ))}
-                    </Grid>
-                  </FormGroup>
-                </FormControl>
-              </Grid>
+              <Divider sx={{ my: 3 }} />
 
-              {/* --- Submit --- */}
-              <Grid size={12}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  size="large"
-                  fullWidth
-                >
-                  {submitLabel}
-                </Button>
-              </Grid>
-            </Grid>
-          </form>
-        </Paper>
+              {/* ══ HOUSEHOLD MEMBERS ══ */}
+              <SectionLabel>Your household</SectionLabel>
+              <Question>Who lives in your household?</Question>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                Add everyone you live with and share food or expenses with. Start with yourself.
+              </Typography>
 
-        {children}
+              <Stack spacing={2}>
+                {data.members.map((m, i) => (
+                  <MemberCard key={m.id} member={m} index={i}
+                    onChange={(patch) => updateMember(m.id, patch)}
+                    onRemove={() => removeMember(m.id)} />
+                ))}
+              </Stack>
 
-        {onBack && (
-          <Button onClick={onBack} sx={{ mt: 3 }}>
-            ← Back to dashboard
-          </Button>
-        )}
-      </Container>
+              <Button startIcon={<PersonAddAlt1Icon />} onClick={addMember}
+                sx={{ mt: 2, color: TEAL, fontWeight: 700 }}>
+                Add a household member
+              </Button>
+
+              <Divider sx={{ my: 3 }} />
+
+              {/* ══ EXPENSES ══ */}
+              <SectionLabel>Your expenses</SectionLabel>
+              <Question>Which of these expenses does your household have?</Question>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+                These can increase the benefits you qualify for. Estimate if you're unsure.
+              </Typography>
+              <Stack spacing={1} sx={{ mb: 1.5 }}>
+                {EXPENSE_OPTIONS.map((opt) => {
+                  const row = data.expenses.find((e) => e.type === opt)
+                  const checked = !!row
+                  return (
+                    <Box key={opt}>
+                      <Tile selected={checked} onClick={() => {
+                        set('expenses', checked
+                          ? data.expenses.filter((e) => e.type !== opt)
+                          : [...data.expenses, { ...newExpense(), type: opt }])
+                      }}>
+                        <Checkbox size="small" checked={checked}
+                          onClick={(e) => e.stopPropagation()}
+                          onChange={() => {
+                            set('expenses', checked
+                              ? data.expenses.filter((e) => e.type !== opt)
+                              : [...data.expenses, { ...newExpense(), type: opt }])
+                          }}
+                          sx={{ p: 0, color: checked ? TEAL : '#cbd5e0', '&.Mui-checked': { color: TEAL } }} />
+                        <Typography variant="body2" fontWeight={checked ? 600 : 400}>{opt}</Typography>
+                      </Tile>
+                      {checked && (
+                        <Stack direction="row" spacing={1} sx={{ mt: 1, mb: 0.5, pl: 1 }}>
+                          <TextField size="small" label="Amount" type="number" sx={{ maxWidth: 140 }}
+                            value={row.amount}
+                            onChange={(e) => set('expenses', data.expenses.map((x) =>
+                              x.type === opt ? { ...x, amount: e.target.value } : x))}
+                            slotProps={{ input: { startAdornment: <InputAdornment position="start">$</InputAdornment> } }} />
+                          <FormControl size="small" sx={{ minWidth: 150 }}>
+                            <InputLabel>Frequency</InputLabel>
+                            <Select label="Frequency" value={row.frequency}
+                              onChange={(e) => set('expenses', data.expenses.map((x) =>
+                                x.type === opt ? { ...x, frequency: e.target.value } : x))}>
+                              {FREQUENCY_OPTIONS.filter((f) => f.value !== 'hourly').map((f) =>
+                                <MenuItem key={f.value} value={f.value}>{f.label}</MenuItem>)}
+                            </Select>
+                          </FormControl>
+                        </Stack>
+                      )}
+                    </Box>
+                  )
+                })}
+              </Stack>
+
+              <Divider sx={{ my: 3 }} />
+
+              {/* ══ ASSETS ══ */}
+              <SectionLabel>Household assets</SectionLabel>
+              <Question>About how much does your household have in savings?</Question>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+                Cash, checking, savings, stocks, or bonds. Some programs have asset limits.
+              </Typography>
+              <TextField fullWidth type="number" label="Total amount"
+                value={data.assets} onChange={(e) => set('assets', e.target.value)}
+                slotProps={{ input: { startAdornment: <InputAdornment position="start">$</InputAdornment> } }} />
+
+              <Divider sx={{ my: 3 }} />
+
+              {/* ══ BACKGROUND ══ */}
+              <SectionLabel>Your background</SectionLabel>
+              <Question>What is your immigration or citizenship status?</Question>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+                Private — only used to check program eligibility.
+              </Typography>
+              <TileStack
+                options={['U.S. Citizen', 'Permanent Resident', 'Visa Holder', 'Other / Undocumented', 'Prefer not to say']}
+                value={data.citizenship}
+                onChange={(v) => set('citizenship', v)}
+              />
+
+              <Divider sx={{ my: 3 }} />
+
+              {/* ══ CURRENT BENEFITS ══ */}
+              <SectionLabel>Current benefits</SectionLabel>
+              <Question>Does anyone in your household already receive these?</Question>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+                Select all that apply. Leave blank if none.
+              </Typography>
+              <MultiTile options={BENEFIT_OPTIONS} values={data.currentBenefits}
+                exclusive="None of the above"
+                onChange={(v) => set('currentBenefits', v)} sx={{ mb: 1 }} />
+
+              <Divider sx={{ my: 3 }} />
+
+              {/* ══ IMMEDIATE NEEDS ══ */}
+              <SectionLabel>Immediate needs</SectionLabel>
+              <Question>Do you want information on any of these resources?</Question>
+              <MultiTile options={IMMEDIATE_NEEDS_OPTIONS} values={data.immediateNeeds}
+                onChange={(v) => set('immediateNeeds', v)} sx={{ mb: 4 }} />
+
+              <Button type="submit" variant="contained" color="primary" size="large" fullWidth
+                disabled={!canSubmit}
+                sx={{ py: 1.5, fontSize: '1rem', fontWeight: 700, borderRadius: 2 }}>
+                {submitLabel}
+              </Button>
+
+            </CardContent>
+          </Card>
+
+          {children}
+
+          {onBack && (
+            <Button onClick={onBack} sx={{ mt: 3 }}>
+              ← Back to dashboard
+            </Button>
+          )}
+        </Container>
+      </Box>
     </Box>
+  )
+}
+
+// ════════════════════════════════════════════════════════════════════
+// Household member card
+// ════════════════════════════════════════════════════════════════════
+function MemberCard({ member, index, onChange, onRemove }) {
+  const subject = member.isPrimary ? 'you' : 'this person'
+  const addIncome = () =>
+    onChange({ incomeSources: [...member.incomeSources, newIncome()] })
+  const updateIncome = (id, patch) =>
+    onChange({ incomeSources: member.incomeSources.map((s) => (s.id === id ? { ...s, ...patch } : s)) })
+  const removeIncome = (id) =>
+    onChange({ incomeSources: member.incomeSources.filter((s) => s.id !== id) })
+
+  return (
+    <Box sx={{ border: '1px solid #d8dee6', borderRadius: 2, p: 2, bgcolor: '#fafbfc' }}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
+        <Typography variant="subtitle1" fontWeight={700} color={TEAL}>
+          {member.isPrimary ? 'You' : `Household member ${index + 1}`}
+        </Typography>
+        {!member.isPrimary && (
+          <IconButton size="small" onClick={onRemove} aria-label="remove member">
+            <DeleteOutlineIcon fontSize="small" />
+          </IconButton>
+        )}
+      </Stack>
+
+      {/* relationship (non-primary) */}
+      {!member.isPrimary && (
+        <FormControl fullWidth size="small" sx={{ mb: 1.5 }}>
+          <InputLabel>Relationship to you</InputLabel>
+          <Select label="Relationship to you" value={member.relationship}
+            onChange={(e) => onChange({ relationship: e.target.value })}>
+            {RELATIONSHIP_OPTIONS.map((r) => <MenuItem key={r} value={r}>{r}</MenuItem>)}
+          </Select>
+        </FormControl>
+      )}
+
+      {/* birth month + year */}
+      <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+        <FormControl size="small" sx={{ minWidth: 130 }}>
+          <InputLabel>Birth month</InputLabel>
+          <Select label="Birth month" value={member.birthMonth}
+            onChange={(e) => onChange({ birthMonth: e.target.value })}>
+            {MONTHS.map((mo, i) => <MenuItem key={mo} value={i + 1}>{mo}</MenuItem>)}
+          </Select>
+        </FormControl>
+        <TextField size="small" label="Birth year" type="number" placeholder="YYYY" sx={{ maxWidth: 120 }}
+          value={member.birthYear} onChange={(e) => onChange({ birthYear: e.target.value })} />
+      </Stack>
+
+      {/* income */}
+      <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
+        Income sources
+      </Typography>
+      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+        Wages, benefits, child support, or any regular payments {subject} receive{member.isPrimary ? '' : 's'}.
+      </Typography>
+      <Stack spacing={1.5} sx={{ mb: 1 }}>
+        {member.incomeSources.map((src) => (
+          <IncomeRow key={src.id} src={src}
+            onChange={(patch) => updateIncome(src.id, patch)}
+            onRemove={() => removeIncome(src.id)} />
+        ))}
+      </Stack>
+      <Button size="small" startIcon={<AddIcon />} onClick={addIncome}
+        sx={{ color: TEAL, fontWeight: 700, mb: 2 }}>
+        Add an income source
+      </Button>
+
+      {/* health insurance */}
+      <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>Health insurance</Typography>
+      <MultiTile dense options={HEALTH_INSURANCE_OPTIONS} values={member.healthInsurance}
+        exclusive="None / uninsured"
+        onChange={(v) => onChange({ healthInsurance: v })} sx={{ mb: 2 }} />
+
+      {/* conditions */}
+      <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>
+        Special circumstances <Typography component="span" variant="caption" color="text.secondary">(optional)</Typography>
+      </Typography>
+      <MultiTile dense options={CONDITION_OPTIONS} values={member.conditions}
+        onChange={(v) => onChange({ conditions: v })} />
+    </Box>
+  )
+}
+
+// One income source row
+function IncomeRow({ src, onChange, onRemove }) {
+  const cat = INCOME_CATEGORIES.find((c) => c.value === src.category)
+  const isHourly = src.frequency === 'hourly'
+  return (
+    <Box sx={{ border: '1px solid #e2e8f0', borderRadius: 1.5, p: 1.5, bgcolor: 'white' }}>
+      <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+        <FormControl size="small" fullWidth>
+          <InputLabel>Category</InputLabel>
+          <Select label="Category" value={src.category}
+            onChange={(e) => onChange({ category: e.target.value, type: '' })}>
+            {INCOME_CATEGORIES.map((c) => <MenuItem key={c.value} value={c.value}>{c.label}</MenuItem>)}
+          </Select>
+        </FormControl>
+        <IconButton size="small" onClick={onRemove} aria-label="remove income"><DeleteOutlineIcon fontSize="small" /></IconButton>
+      </Stack>
+      {cat && (
+        <FormControl size="small" fullWidth sx={{ mb: 1 }}>
+          <InputLabel>Source</InputLabel>
+          <Select label="Source" value={src.type} onChange={(e) => onChange({ type: e.target.value })}>
+            {cat.types.map((t) => <MenuItem key={t} value={t}>{t}</MenuItem>)}
+          </Select>
+        </FormControl>
+      )}
+      <Stack direction="row" spacing={1}>
+        <FormControl size="small" sx={{ minWidth: 130 }}>
+          <InputLabel>Frequency</InputLabel>
+          <Select label="Frequency" value={src.frequency}
+            onChange={(e) => onChange({ frequency: e.target.value })}>
+            {FREQUENCY_OPTIONS.map((f) => <MenuItem key={f.value} value={f.value}>{f.label}</MenuItem>)}
+          </Select>
+        </FormControl>
+        {isHourly && (
+          <TextField size="small" label="Hrs/week" type="number" sx={{ maxWidth: 90 }}
+            value={src.hoursPerWeek} onChange={(e) => onChange({ hoursPerWeek: e.target.value })} />
+        )}
+        <TextField size="small" label="Amount" type="number" fullWidth
+          value={src.amount} onChange={(e) => onChange({ amount: e.target.value })}
+          slotProps={{ input: { startAdornment: <InputAdornment position="start">$</InputAdornment> } }} />
+      </Stack>
+    </Box>
+  )
+}
+
+// ════════════════════════════════════════════════════════════════════
+// Shared primitives
+// ════════════════════════════════════════════════════════════════════
+function SectionLabel({ children }) {
+  return (
+    <Typography variant="overline"
+      sx={{ color: TEAL, fontWeight: 700, letterSpacing: '0.12em', display: 'block', mb: 0.5 }}>
+      {children}
+    </Typography>
+  )
+}
+
+function Question({ children }) {
+  return <Typography variant="h6" fontWeight={600} sx={{ mb: 1, lineHeight: 1.3 }}>{children}</Typography>
+}
+
+function Tile({ selected, onClick, children, dense, sx }) {
+  return (
+    <Box onClick={onClick} sx={{
+      border: '2px solid', borderColor: selected ? TEAL : '#e2e8f0', borderRadius: 2,
+      px: dense ? 1.5 : 2, py: dense ? 1 : 1.5, cursor: 'pointer',
+      bgcolor: selected ? TEAL_LIGHT : 'white',
+      transition: 'border-color 0.12s, background-color 0.12s',
+      display: 'flex', alignItems: 'center', gap: 1.5, userSelect: 'none', ...sx,
+    }}>
+      {children}
+    </Box>
+  )
+}
+
+// Multi-select set of checkbox tiles, with optional exclusive option.
+function MultiTile({ options, values, onChange, exclusive, dense, sx }) {
+  const toggle = (opt) => {
+    if (exclusive && opt === exclusive) {
+      onChange(values.includes(opt) ? [] : [opt])
+    } else {
+      const cleaned = exclusive ? values.filter((v) => v !== exclusive) : values
+      onChange(cleaned.includes(opt) ? cleaned.filter((v) => v !== opt) : [...cleaned, opt])
+    }
+  }
+  return (
+    <Stack spacing={1} sx={sx}>
+      {options.map((opt) => {
+        const checked = values.includes(opt)
+        return (
+          <Tile key={opt} dense={dense} selected={checked} onClick={() => toggle(opt)}>
+            <Checkbox size="small" checked={checked} onClick={(e) => e.stopPropagation()}
+              onChange={() => toggle(opt)}
+              sx={{ p: 0, color: checked ? TEAL : '#cbd5e0', '&.Mui-checked': { color: TEAL } }} />
+            <Typography variant="body2" fontWeight={checked ? 600 : 400}>{opt}</Typography>
+          </Tile>
+        )
+      })}
+    </Stack>
+  )
+}
+
+// Single-select radio tiles (vertical).
+function TileStack({ options, value, onChange }) {
+  return (
+    <Stack spacing={1}>
+      {options.map((opt) => {
+        const selected = value === opt
+        return (
+          <Tile key={opt} selected={selected} onClick={() => onChange(opt)}>
+            <Radio size="small" checked={selected} onClick={(e) => e.stopPropagation()}
+              onChange={() => onChange(opt)}
+              sx={{ p: 0, color: selected ? TEAL : '#cbd5e0', '&.Mui-checked': { color: TEAL } }} />
+            <Typography variant="body2" fontWeight={selected ? 600 : 400}>{opt}</Typography>
+          </Tile>
+        )
+      })}
+    </Stack>
   )
 }

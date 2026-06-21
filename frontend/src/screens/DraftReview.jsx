@@ -24,8 +24,6 @@ export default function DraftReview({ program, userInfo, onProceed, onBack }) {
 
   useEffect(() => {
     let active = true
-    setLoading(true)
-    setError(null)
     fetchDraft(userInfo, program.id)
       .then((data) => {
         if (!active) return

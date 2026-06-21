@@ -19,7 +19,8 @@ PROGRAMS = [
         "name": "CalFresh (SNAP)",
         "agency": "CA Dept. of Social Services",
         "category": "Food",
-        "estimate": "Up to $291 / month",
+        "estimate": "Up to $298 / month (1 person)",
+        "auto_apply": True,
         "description": "Monthly money on an EBT card to buy groceries.",
         "requirements": [
             {"id": "ssn", "label": "Social Security Number", "type": "ssn"},
@@ -28,10 +29,82 @@ PROGRAMS = [
             {"id": "paystub", "label": "Recent pay stub", "type": "file"},
         ],
         "rules": {
-            "income_limit_pct_fpl": 200,
+            # Accurate CA broad-based categorical eligibility (MCE) 200% FPL
+            # GROSS MONTHLY income limits, effective 2025-10-01 to 2026-09-30.
+            "income_limit_monthly": {
+                1: 2610, 2: 3526, 3: 4442, 4: 5360,
+                5: 6276, 6: 7192, 7: 8110, 8: 9026,
+            },
+            "income_limit_monthly_extra": 918,  # per person beyond 8
+            # Receiving these makes the household categorically eligible.
+            "adjunctive_programs": ["CalWORKs", "SSI / SSDI", "CalFresh / SNAP"],
             "citizenship_required": True,
             "requires_dependents": False,
             "waitlist": False,
+            # CA CalFresh deducts shelter/utility/medical costs from countable
+            # income, so high expenses can pull someone over the gross limit
+            # back into eligibility on the net-income test.
+            "uses_shelter_deduction": True,
+            "source": "Santa Clara County CalFresh Income Eligibility chart, "
+            "2025-10-01 to 2026-09-30 (200% FPL CA MCE gross monthly).",
+        },
+    },
+    {
+        "id": "wic",
+        "name": "WIC",
+        "agency": "CA Dept. of Public Health",
+        "category": "Food",
+        "estimate": "Monthly food benefits + nutrition support",
+        "auto_apply": True,
+        "description": (
+            "Food, nutrition counseling, and breastfeeding support for pregnant "
+            "people, new parents, and children under 5."
+        ),
+        "requirements": [
+            {"id": "address", "label": "Home address", "type": "text"},
+            {"id": "proof", "label": "Proof of pregnancy or child's age", "type": "file"},
+        ],
+        "rules": {
+            # Accurate WIC 185% FPL GROSS MONTHLY income limits,
+            # effective 2026-05-01 to 2027-06-30 (California WIC).
+            "income_limit_monthly": {
+                1: 2461, 2: 3337, 3: 4212, 4: 5088,
+                5: 5964, 6: 6839, 7: 7715, 8: 8591, 9: 9467,
+            },
+            "income_limit_monthly_extra": 876,  # per person beyond 9
+            # Adjunctive (automatic) income eligibility if on any of these.
+            "adjunctive_programs": ["Medi-Cal", "CalFresh / SNAP", "CalWORKs"],
+            "citizenship_required": False,  # WIC never asks immigration status
+            "requires_dependents": False,
+            "waitlist": False,
+            # Categorical: must be pregnant or have a child under 5.
+            "requires_condition": "pregnant_or_child_under_5",
+            "source": "California WIC income guidelines, 2026-05-01 to 2027-06-30 "
+            "(185% FPL); adjunctive eligibility via Medi-Cal/CalFresh/CalWORKs.",
+        },
+    },
+    {
+        "id": "ssi",
+        "name": "SSI (Supplemental Security Income)",
+        "agency": "Social Security Administration",
+        "category": "Cash Aid",
+        "estimate": "Up to ~$1,182 / month (CA)",
+        "description": (
+            "Monthly cash for people who are disabled, blind, or 65+ with very "
+            "low income and limited assets."
+        ),
+        "requirements": [
+            {"id": "ssn", "label": "Social Security Number", "type": "ssn"},
+            {"id": "income", "label": "Proof of income", "type": "file"},
+        ],
+        "rules": {
+            "income_limit_pct_fpl": 100,
+            "citizenship_required": True,
+            "requires_dependents": False,
+            "waitlist": False,
+            # Must be disabled, blind, or 65+, AND under the asset limit.
+            "requires_condition": "disabled_blind_or_senior",
+            "asset_limit": 2000,  # individual; +1000 for 2+ household
         },
     },
     {

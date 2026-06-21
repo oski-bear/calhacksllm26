@@ -1,5 +1,5 @@
 // Talks to the Flask backend. One place to change the URL if it moves.
-const API_BASE = 'http://localhost:5000'
+const API_BASE = 'http://localhost:5001'
 
 // Send the user's info to the eligibility engine and get back the program list.
 export async function fetchEligibility(userInfo) {
@@ -55,6 +55,20 @@ export async function saveProfile(userInfo) {
   }
   const data = await res.json()
   return data.profile
+}
+
+// Ask the AI agent to draft an application by filling the portal.
+// Returns { mode, steps, values, liveViewUrl, portalUrl, ... }.
+export async function applyWithAgent(programId, profile) {
+  const res = await fetch(`${API_BASE}/api/agent/apply`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ programId, profile }),
+  })
+  if (!res.ok) {
+    throw new Error(`Server responded with ${res.status}`)
+  }
+  return res.json()
 }
 
 // Load a saved profile by email, or null if we haven't seen this email.
