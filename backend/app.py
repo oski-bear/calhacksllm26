@@ -6,6 +6,7 @@ Endpoints:
 """
 
 import os
+import threading
 from uuid import uuid4
 
 from dotenv import load_dotenv
@@ -34,6 +35,11 @@ init_db()  # make sure the database and tables exist on startup
 # Uploaded files live on disk here; the database only stores metadata.
 UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+# In-memory job state for the demo's live Browserbase runs. The persisted source
+# of truth remains SQLite after a verified submission.
+AGENT_JOBS = {}
+AGENT_JOBS_LOCK = threading.Lock()
 
 
 @app.get("/api/health")
@@ -168,13 +174,95 @@ def agent_apply():
     program_id = body.get("programId", "calfresh")
     profile = body.get("profile") or {}
     result = run_application(program_id, profile)
+    _persist_agent_result(program_id, profile, result)
+    return jsonify(result)
+
+
+@app.post("/api/agent/start")
+def agent_start():
+    """Start a browser agent job and return immediately so the frontend can
+    show the Browserbase live-view link while the run is still happening."""
+    body = request.get_json(silent=True) or {}
+    program_id = body.get("programId", "calfresh")
+    profile = body.get("profile") or {}
+    job_id = uuid4().hex
+    job = {
+        "jobId": job_id,
+        "status": "running",
+        "program": program_id,
+        "portalUrl": None,
+        "liveViewUrl": None,
+        "sessionId": None,
+        "result": None,
+        "error": None,
+    }
+    with AGENT_JOBS_LOCK:
+        AGENT_JOBS[job_id] = job
+
+    thread = threading.Thread(
+        target=_run_agent_job,
+        args=(job_id, program_id, profile),
+        daemon=True,
+    )
+    thread.start()
+    return jsonify(_agent_job_snapshot(job_id)), 202
+
+
+@app.get("/api/agent/status/<job_id>")
+def agent_status(job_id):
+    snapshot = _agent_job_snapshot(job_id)
+    if snapshot is None:
+        return jsonify({"error": "unknown job"}), 404
+    return jsonify(snapshot)
+
+
+def _run_agent_job(job_id, program_id, profile):
+    def publish_session(update):
+        with AGENT_JOBS_LOCK:
+            job = AGENT_JOBS.get(job_id)
+            if not job:
+                return
+            job.update({
+                "portalUrl": update.get("portalUrl") or job.get("portalUrl"),
+                "liveViewUrl": update.get("liveViewUrl") or job.get("liveViewUrl"),
+                "sessionId": update.get("sessionId") or job.get("sessionId"),
+            })
+
+    try:
+        result = run_application(program_id, profile, on_session=publish_session)
+        _persist_agent_result(program_id, profile, result)
+        with AGENT_JOBS_LOCK:
+            job = AGENT_JOBS.get(job_id)
+            if job:
+                job.update({
+                    "status": "done",
+                    "portalUrl": result.get("portalUrl") or job.get("portalUrl"),
+                    "liveViewUrl": result.get("liveViewUrl") or job.get("liveViewUrl"),
+                    "sessionId": result.get("sessionId") or job.get("sessionId"),
+                    "result": result,
+                    "error": None,
+                })
+    except Exception as err:  # noqa: BLE001 - keep job failures visible to the UI
+        with AGENT_JOBS_LOCK:
+            job = AGENT_JOBS.get(job_id)
+            if job:
+                job.update({"status": "error", "error": str(err)})
+
+
+def _agent_job_snapshot(job_id):
+    with AGENT_JOBS_LOCK:
+        job = AGENT_JOBS.get(job_id)
+        return dict(job) if job else None
+
+
+def _persist_agent_result(program_id, profile, result):
     email = (profile.get("email") or "").strip()
     if email and _is_verified_browserbase_submission(result):
         result["application"] = db.save_application(email, program_id, result)
         result["applicationPersisted"] = True
     else:
         result["applicationPersisted"] = False
-    return jsonify(result)
+    return result
 
 
 def _is_verified_browserbase_submission(result):
@@ -193,4 +281,4 @@ def mock_portal(filename):
 
 
 if __name__ == "__main__":
-    app.run(port=5001, debug=True)
+    app.run(port=5001, debug=True, threaded=True)

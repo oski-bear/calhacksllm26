@@ -334,7 +334,7 @@ def _drive_portal(page, program_id, values, profile):
     return evidence, confirmation
 
 
-def run_application(program_id, profile):
+def run_application(program_id, profile, on_session=None):
     """Fill the mock portal. Returns mode, steps, mapped values, and (if
     Browserbase is configured) a live-view URL + final screenshot."""
     steps = STEPS.get(program_id, STEPS["calfresh"])
@@ -378,6 +378,14 @@ def run_application(program_id, profile):
             )
         except Exception:
             pass
+        if callable(on_session):
+            on_session({
+                "mode": "browserbase",
+                "program": program_id,
+                "portalUrl": portal_url,
+                "liveViewUrl": live_url,
+                "sessionId": session.id,
+            })
 
         screenshot_b64 = None
         confirmation = _confirmation(program_id)

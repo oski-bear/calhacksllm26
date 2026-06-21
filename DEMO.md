@@ -6,8 +6,10 @@
 2. Click **Find my benefits**.
 3. Show the dashboard with CalFresh and WIC in **Ready to auto-apply**.
 4. Click **Auto-apply with AI agent** on CalFresh.
-5. Show the Browserbase-completed BenefitsCal-style confirmation receipt.
-6. Go back and repeat for WIC.
+5. As soon as the live Browserbase link appears, open it if you want judges to
+   watch the agent while it is still filling the portal.
+6. Show the Browserbase-completed BenefitsCal-style confirmation receipt.
+7. Go back and repeat for WIC.
 
 The agent navigates to realistic BenefitsCal/WIC URLs in Browserbase, but
 Playwright intercepts those page loads and serves our local demo portal HTML.

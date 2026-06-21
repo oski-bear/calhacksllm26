@@ -57,18 +57,37 @@ export async function saveProfile(userInfo) {
   return data.profile
 }
 
-// Ask the AI agent to draft an application by filling the portal.
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+// Start the AI agent and poll until it finishes. `onProgress` receives
+// { status, liveViewUrl, sessionId, ... } as soon as Browserbase publishes it.
 // Returns { mode, steps, values, liveViewUrl, portalUrl, ... }.
-export async function applyWithAgent(programId, profile) {
-  const res = await fetch(`${API_BASE}/api/agent/apply`, {
+export async function applyWithAgent(programId, profile, onProgress) {
+  const start = await fetch(`${API_BASE}/api/agent/start`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ programId, profile }),
   })
-  if (!res.ok) {
-    throw new Error(`Server responded with ${res.status}`)
+  if (!start.ok) {
+    throw new Error(`Server responded with ${start.status}`)
   }
-  return res.json()
+  let job = await start.json()
+  onProgress?.(job)
+
+  while (job.status === 'running') {
+    await sleep(1000)
+    const status = await fetch(`${API_BASE}/api/agent/status/${encodeURIComponent(job.jobId)}`)
+    if (!status.ok) {
+      throw new Error(`Server responded with ${status.status}`)
+    }
+    job = await status.json()
+    onProgress?.(job)
+  }
+
+  if (job.status === 'done' && job.result) {
+    return job.result
+  }
+  throw new Error(job.error || 'Agent job did not finish')
 }
 
 // Load submitted/in-progress application records for a user.

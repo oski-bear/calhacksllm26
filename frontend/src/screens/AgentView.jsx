@@ -55,6 +55,7 @@ export default function AgentView({ program, userInfo, onApplied, onBack }) {
   const [error, setError] = useState(null)
   const [step, setStep] = useState(0)
   const [pendingStep, setPendingStep] = useState(0)
+  const [job, setJob] = useState(null)
   const startedRef = useRef(false)
 
   const programId = program?.id || 'calfresh'
@@ -64,7 +65,7 @@ export default function AgentView({ program, userInfo, onApplied, onBack }) {
   useEffect(() => {
     if (startedRef.current) return
     startedRef.current = true
-    applyWithAgent(programId, userInfo)
+    applyWithAgent(programId, userInfo, setJob)
       .then((res) => {
         setResult(res)
         if (res.application) onApplied?.(programId, res)
@@ -122,12 +123,30 @@ export default function AgentView({ program, userInfo, onApplied, onBack }) {
         {loading && (
           <>
             <Alert severity="info" sx={{ mb: 3 }}>
-              Browserbase is running the portal automation now. This can take 20-60 seconds during the demo.
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ alignItems: { sm: 'center' } }}>
+                <Typography variant="body2" sx={{ flex: 1 }}>
+                  {job?.liveViewUrl
+                    ? 'Live Browserbase session is available while the agent works.'
+                    : 'Browserbase is running the portal automation now. This can take 20-60 seconds during the demo.'}
+                </Typography>
+                {job?.liveViewUrl && (
+                  <Button
+                    component="a"
+                    href={job.liveViewUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    size="small"
+                    variant="outlined"
+                  >
+                    Open live browser
+                  </Button>
+                )}
+              </Stack>
             </Alert>
             <Grid container spacing={3}>
               <Grid size={{ xs: 12, md: 7 }}>
                 <BrowserChrome url={PORTAL_URLS[programId] || PORTAL_URLS.calfresh}>
-                  <PendingPortal programName={programName} />
+                  <PendingPortal programName={programName} liveViewUrl={job?.liveViewUrl} sessionId={job?.sessionId} />
                 </BrowserChrome>
               </Grid>
               <Grid size={{ xs: 12, md: 5 }}>
@@ -215,7 +234,7 @@ export default function AgentView({ program, userInfo, onApplied, onBack }) {
   )
 }
 
-function PendingPortal({ programName }) {
+function PendingPortal({ programName, liveViewUrl, sessionId }) {
   return (
     <Box sx={{ p: 3, minHeight: 360, bgcolor: '#f8fafc' }}>
       <Stack spacing={2} sx={{ alignItems: 'center', justifyContent: 'center', minHeight: 310, textAlign: 'center' }}>
@@ -227,10 +246,19 @@ function PendingPortal({ programName }) {
           </Typography>
         </Box>
         <Stack direction="row" spacing={1} sx={{ justifyContent: 'center', flexWrap: 'wrap', rowGap: 1 }}>
-          <Chip size="small" color="info" label="Browserbase session starting" />
+          <Chip
+            size="small"
+            color={liveViewUrl ? 'success' : 'info'}
+            label={liveViewUrl ? 'Live Browserbase session ready' : 'Browserbase session starting'}
+          />
           <Chip size="small" variant="outlined" label="Human-safe routed portal" />
           <Chip size="small" variant="outlined" label="No real government submission" />
         </Stack>
+        {sessionId && (
+          <Typography variant="caption" color="text.secondary">
+            Session {sessionId}
+          </Typography>
+        )}
       </Stack>
     </Box>
   )
