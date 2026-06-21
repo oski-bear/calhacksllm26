@@ -7,6 +7,7 @@ import AgentView from './screens/AgentView.jsx'
 import { LoadingScreen, ErrorScreen } from './screens/StatusScreens.jsx'
 import DocumentsSection from './screens/DocumentsSection.jsx'
 import { fetchEligibility, saveProfile, fetchExplanations } from './api.js'
+import { demoProfile } from './data/demoProfile.js'
 
 // The whole app is a simple "wizard". `screen` decides which page shows,
 // and `userInfo` is the shared data we collect and carry between screens.
@@ -160,5 +161,11 @@ export default function App() {
     )
   }
 
-  return <BasicInfoForm initialValues={userInfo} onSubmit={handleFormSubmit} />
+  return (
+    <BasicInfoForm
+      initialValues={userInfo}
+      onSubmit={handleFormSubmit}
+      demoProfile={demoProfile}
+    />
+  )
 }

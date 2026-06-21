@@ -35,6 +35,7 @@ const CURRENT_YEAR = 2026
 export default function BasicInfoForm({
   initialValues = {},
   onSubmit,
+  demoProfile,
   title = 'Find the benefits you qualify for',
   subtitle = "Tell us a bit about your situation. We'll figure out which programs you're eligible for and help you apply.",
   submitLabel = 'Find my benefits →',
@@ -107,6 +108,32 @@ export default function BasicInfoForm({
               <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
                 {subtitle}
               </Typography>
+              {demoProfile && (
+                <Box
+                  sx={{
+                    mb: 3,
+                    p: 2,
+                    borderRadius: 2,
+                    bgcolor: '#e6f3f2',
+                    border: '1px solid',
+                    borderColor: 'primary.light',
+                  }}
+                >
+                  <Typography variant="subtitle2" color="primary" sx={{ mb: 0.5 }}>
+                    Judge demo shortcut
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+                    Loads a Berkeley household that qualifies for both CalFresh and WIC.
+                  </Typography>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    onClick={() => setData(demoProfile())}
+                  >
+                    Load CalFresh + WIC demo profile
+                  </Button>
+                </Box>
+              )}
 
               {/* ══ CONTACT ══ */}
               <SectionLabel>Let's get started!</SectionLabel>

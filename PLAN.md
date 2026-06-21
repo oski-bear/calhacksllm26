@@ -40,7 +40,11 @@ React (MUI) · Flask · SQLite + Redis · Anthropic · Browserbase · Deepgram
       a "Review your draft" screen (`DraftReview.jsx`) between the detail screen
       and the agent — Claude drafts a situation statement + Q&A answers, the user
       edits, then proceeds. Degrades gracefully without a key.
-- [ ] Browserbase — real portal auto-fill (currently a CSS animation)
+- [x] Browserbase — drives safe mock CalFresh/WIC portals end-to-end:
+      account/assessment steps, form fill, review, signature/submit where
+      applicable, and final confirmation screenshots. Requires
+      `BROWSERBASE_API_KEY` + `BROWSERBASE_PROJECT_ID`; falls back to a
+      simulated animation without credentials.
 - [ ] Deepgram — voice agent calling county offices
 
 ## 🟡 Remaining frontend
@@ -55,4 +59,4 @@ React (MUI) · Flask · SQLite + Redis · Anthropic · Browserbase · Deepgram
 
 ---
 
-_Current focus: Flask backend + eligibility engine._
+_Current focus: judging demo reliability + CalFresh/WIC portal fidelity._
