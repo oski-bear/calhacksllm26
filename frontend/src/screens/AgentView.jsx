@@ -121,6 +121,7 @@ export default function AgentView({ program, userInfo, onApplied, onBack }) {
               <Grid size={{ xs: 12, md: 7 }}>
                 {isLive ? (
                   <BrowserChrome url={result.portalUrl}>
+                    <AutomationEvidence result={result} />
                     <SubmittedScreenshot result={result} />
                   </BrowserChrome>
                 ) : (
@@ -174,9 +175,9 @@ export default function AgentView({ program, userInfo, onApplied, onBack }) {
 
 function SubmittedScreenshot({ result }) {
   return (
-    <Box sx={{ p: 2, bgcolor: '#f8fafc' }}>
+    <Box sx={{ p: 2, bgcolor: '#f8fafc', borderTop: '1px solid', borderColor: 'divider' }}>
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-        Final submitted portal state{result.sessionId ? ` · Browserbase session ${result.sessionId}` : ''}
+        Captured submitted portal proof{result.sessionId ? ` · Browserbase session ${result.sessionId}` : ''}
       </Typography>
       {result.screenshot ? (
         <Box
@@ -190,6 +191,38 @@ function SubmittedScreenshot({ result }) {
           Browserbase finished, but no screenshot was returned.
         </Typography>
       )}
+    </Box>
+  )
+}
+
+function AutomationEvidence({ result }) {
+  return (
+    <Box sx={{ p: 2, bgcolor: 'white' }}>
+      <Stack
+        direction={{ xs: 'column', sm: 'row' }}
+        spacing={1.25}
+        sx={{ alignItems: { sm: 'center' }, justifyContent: 'space-between', mb: 1 }}
+      >
+        <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', rowGap: 1 }}>
+          <Chip size="small" color="success" label="Browserbase cloud browser" />
+          <Chip size="small" variant="outlined" label="Routed portal URL" />
+          <Chip size="small" variant="outlined" label="Confirmation captured" />
+        </Stack>
+        <Button
+          component="a"
+          href={result.liveViewUrl}
+          target="_blank"
+          rel="noreferrer"
+          size="small"
+          variant="text"
+          sx={{ alignSelf: { xs: 'flex-start', sm: 'center' } }}
+        >
+          Open in new tab
+        </Button>
+      </Stack>
+      <Typography variant="caption" color="text.secondary">
+        Session {result.sessionId || 'created'} stayed in Browserbase after the agent filled the routed demo portal.
+      </Typography>
     </Box>
   )
 }
