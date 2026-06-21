@@ -159,6 +159,9 @@ export default function Dashboard({
 
 function ProgramCard({ program, featured, application, onAction }) {
   const isSubmitted = application?.status === 'submitted'
+  const verifiedFieldCount = Number(application?.verified_field_count || 0)
+  const verifiedControlCount = Number(application?.verified_control_count || 0)
+  const hasBrowserbaseProof = application?.mode === 'browserbase' && application?.confirmation_verified
   const style = isSubmitted
     ? { label: 'Submitted', color: 'success', Icon: CheckCircleIcon }
     : STATUS_STYLES[program.status]
@@ -208,6 +211,13 @@ function ProgramCard({ program, featured, application, onAction }) {
               <Typography variant="caption" color="text.secondary">
                 Submitted {formatDate(application.submitted_at)}
               </Typography>
+            )}
+            {hasBrowserbaseProof && (
+              <Stack direction="row" spacing={1} sx={{ mt: 1, flexWrap: 'wrap', rowGap: 1 }}>
+                <Chip size="small" color="success" label="Browserbase verified" />
+                <Chip size="small" variant="outlined" label={`${verifiedFieldCount} fields`} />
+                <Chip size="small" variant="outlined" label={`${verifiedControlCount} controls`} />
+              </Stack>
             )}
           </Box>
         )}

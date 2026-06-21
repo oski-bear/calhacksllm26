@@ -54,6 +54,7 @@ def main():
         page.get_by_role("button", name=re.compile("Back to dashboard", re.I)).click()
         expect(page.get_by_text("Submitted applications")).to_be_visible(timeout=15000)
         expect(page.get_by_text("CalFresh application submitted. Confirmation #CF-DEMO-4821")).to_be_visible(timeout=15000)
+        expect(page.get_by_text("Browserbase verified")).to_be_visible(timeout=15000)
         expect(page.get_by_text("Ready to auto-apply")).to_be_visible(timeout=15000)
 
         auto_apply(
@@ -68,6 +69,7 @@ def main():
         expect(page.get_by_text("2 applications are submitted")).to_be_visible(timeout=15000)
         expect(page.get_by_text("CalFresh application submitted. Confirmation #CF-DEMO-4821")).to_be_visible(timeout=15000)
         expect(page.get_by_text("WIC appointment request submitted. Confirmation #WIC-DEMO-2048")).to_be_visible(timeout=15000)
+        expect(page.get_by_text("Browserbase verified").first).to_be_visible(timeout=15000)
         page.screenshot(path=str(OUT_DIR / "submitted-dashboard.png"), full_page=True)
 
         issues = [

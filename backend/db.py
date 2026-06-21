@@ -79,11 +79,17 @@ def init_db():
           mode TEXT,
           portal_url TEXT,
           session_id TEXT,
+          verified_field_count INTEGER,
+          verified_control_count INTEGER,
+          confirmation_verified INTEGER,
           submitted_at TEXT,
           UNIQUE(email, program_id)
         )
         """
     )
+    _ensure_column(conn, "applications", "verified_field_count", "INTEGER")
+    _ensure_column(conn, "applications", "verified_control_count", "INTEGER")
+    _ensure_column(conn, "applications", "confirmation_verified", "INTEGER")
     conn.commit()
     conn.close()
 
@@ -225,6 +231,9 @@ def _application_to_dict(row):
         "mode": row["mode"],
         "portal_url": row["portal_url"],
         "session_id": row["session_id"],
+        "verified_field_count": row["verified_field_count"] or 0,
+        "verified_control_count": row["verified_control_count"] or 0,
+        "confirmation_verified": bool(row["confirmation_verified"]),
         "submitted_at": row["submitted_at"],
     }
 
@@ -237,6 +246,7 @@ def save_application(email, program_id, result):
     if not program_id:
         raise ValueError("program_id is required")
 
+    evidence = result.get("automationEvidence") or {}
     data = {
         "email": email,
         "program_id": program_id,
@@ -245,6 +255,9 @@ def save_application(email, program_id, result):
         "mode": result.get("mode", ""),
         "portal_url": result.get("portalUrl", ""),
         "session_id": result.get("sessionId", ""),
+        "verified_field_count": len(evidence.get("filledFields") or []),
+        "verified_control_count": len(evidence.get("clickedControls") or []),
+        "confirmation_verified": 1 if evidence.get("confirmationVerified") else 0,
         "submitted_at": datetime.now(timezone.utc).isoformat(),
     }
     columns = list(data.keys())
