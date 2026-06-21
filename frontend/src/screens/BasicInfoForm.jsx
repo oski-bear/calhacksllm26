@@ -8,6 +8,7 @@ import AddIcon from '@mui/icons-material/Add'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined'
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1'
 import PenguinLogo from '../components/PenguinLogo.jsx'
+import VoiceIntakeButton from '../components/VoiceIntakeButton.jsx'
 import {
   RELATIONSHIP_OPTIONS, FREQUENCY_OPTIONS, INCOME_CATEGORIES, EXPENSE_OPTIONS,
   HEALTH_INSURANCE_OPTIONS, CONDITION_OPTIONS, BENEFIT_OPTIONS,
@@ -101,6 +102,43 @@ export default function BasicInfoForm({
     }
   }
 
+  function handleVoiceIntake(parsed) {
+    setData((current) => {
+      const updates = {}
+
+      if (parsed.name) updates.name = parsed.name
+      if (parsed.zipcode) updates.zipcode = parsed.zipcode
+      if (parsed.county) updates.county = parsed.county
+      if (parsed.citizenship) updates.citizenship = parsed.citizenship
+      if (parsed.assets) updates.assets = String(parsed.assets)
+
+      if (parsed.members?.length > 0) {
+        const newMembers = parsed.members.map((m, i) => {
+          const base = current.members[i] ?? newMember(i === 0)
+          return {
+            ...base,
+            ...(m.relationship ? { relationship: m.relationship } : {}),
+            ...(m.birthYear ? { birthYear: String(m.birthYear) } : {}),
+            ...(m.birthMonth ? { birthMonth: Number(m.birthMonth) } : {}),
+            conditions: m.conditions?.length ? m.conditions : base.conditions,
+            incomeSources: m.incomeSources?.length
+              ? m.incomeSources.map((s) => ({ ...newIncome(), ...s }))
+              : base.incomeSources,
+          }
+        })
+        updates.members = newMembers
+      }
+
+      if (parsed.expenses?.length > 0) {
+        updates.expenses = parsed.expenses.map((e) => ({ ...newExpense(), ...e }))
+      }
+      if (parsed.currentBenefits?.length > 0) updates.currentBenefits = parsed.currentBenefits
+      if (parsed.immediateNeeds?.length > 0) updates.immediateNeeds = parsed.immediateNeeds
+
+      return { ...current, ...updates }
+    })
+  }
+
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', bgcolor: '#f0f2f5' }}>
       <AppBar position="static" color="primary" elevation={0}>
@@ -127,6 +165,9 @@ export default function BasicInfoForm({
               <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
                 {subtitle}
               </Typography>
+
+              <VoiceIntakeButton onIntake={handleVoiceIntake} />
+
               {demoProfile && (
                 <Box
                   sx={{

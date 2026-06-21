@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(__file__)
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 from eligibility import evaluate_all
-from claude_client import generate_explanations, draft_application
+from claude_client import generate_explanations, draft_application, parse_voice_intake
 import db
 from db import init_db, save_profile, get_profile
 from agent import run_application
@@ -72,6 +72,22 @@ def explain():
     except Exception as err:  # noqa: BLE001 - report any API failure to the client
         return jsonify({"error": "explanation failed", "detail": str(err)}), 502
     return jsonify(result)
+
+
+@app.post("/api/voice-intake")
+def voice_intake():
+    """Parse a freeform spoken transcript into pre-filled form data via Claude."""
+    body = request.get_json(silent=True) or {}
+    transcript = (body.get("transcript") or "").strip()
+    if not transcript:
+        return jsonify({"error": "transcript is required"}), 400
+    try:
+        parsed = parse_voice_intake(transcript)
+        return jsonify(parsed)
+    except RuntimeError as err:
+        return jsonify({"error": str(err), "fieldsExtracted": []}), 503
+    except Exception as err:  # noqa: BLE001
+        return jsonify({"error": str(err)}), 500
 
 
 @app.post("/api/draft")

@@ -149,6 +149,20 @@ export async function deleteDocument(id) {
   return true
 }
 
+// Parse a spoken transcript into pre-filled form data via Claude on the backend.
+export async function parseVoiceIntake(transcript) {
+  const res = await fetch(`${API_BASE}/api/voice-intake`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ transcript }),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.error || `Server error ${res.status}`)
+  }
+  return res.json()
+}
+
 // URL to view/download a document.
 export function documentDownloadUrl(id) {
   return `${API_BASE}/api/documents/${id}/download`

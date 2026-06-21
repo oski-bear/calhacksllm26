@@ -142,6 +142,145 @@ DRAFT_SCHEMA = {
 }
 
 
+VOICE_INTAKE_SYSTEM_PROMPT = (
+    "You extract structured household information from a spoken transcript to pre-fill "
+    "a California benefits eligibility form. Extract ONLY what is explicitly stated. "
+    "Use empty strings for unmentioned text fields and empty arrays for unmentioned lists. "
+    "The first member in the members array is always the applicant (relationship: 'Self'). "
+    "Match county names exactly to California counties (e.g. 'Alameda', 'Los Angeles'). "
+    "Match citizenship to one of: U.S. Citizen, Permanent Resident, Visa Holder, "
+    "Other / Undocumented, Prefer not to say, or empty string. "
+    "For income: category 'earned' = jobs/wages, 'benefits' = government assistance, 'other' = everything else. "
+    "For fieldsExtracted, list short readable labels for each thing you found "
+    "(e.g. 'name', 'county', 'monthly income', '2 household members', 'rent expense')."
+)
+
+VOICE_INTAKE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "name": {"type": "string"},
+        "zipcode": {"type": "string"},
+        "county": {"type": "string"},
+        "citizenship": {
+            "type": "string",
+            "enum": ["U.S. Citizen", "Permanent Resident", "Visa Holder",
+                     "Other / Undocumented", "Prefer not to say", ""],
+        },
+        "assets": {"type": "string"},
+        "members": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "relationship": {
+                        "type": "string",
+                        "enum": ["Self", "Spouse / partner", "Child", "Parent", "Sibling",
+                                 "Grandparent", "Grandchild", "Other relative", "Roommate / unrelated"],
+                    },
+                    "birthYear": {"type": "string"},
+                    "birthMonth": {"type": "string"},
+                    "conditions": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": ["Pregnant", "Has a disability / long-term illness",
+                                     "Blind or visually impaired", "Veteran or active military",
+                                     "Recently lost a job"],
+                        },
+                    },
+                    "incomeSources": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "category": {"type": "string", "enum": ["earned", "benefits", "other"]},
+                                "type": {"type": "string"},
+                                "frequency": {"type": "string",
+                                              "enum": ["weekly", "biweekly", "semimonthly", "monthly", "yearly"]},
+                                "amount": {"type": "string"},
+                            },
+                            "required": ["category", "type", "frequency", "amount"],
+                            "additionalProperties": False,
+                        },
+                    },
+                },
+                "required": ["relationship", "birthYear", "birthMonth", "conditions", "incomeSources"],
+                "additionalProperties": False,
+            },
+        },
+        "expenses": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": ["Rent", "Mortgage", "Utilities (gas, electric, water)",
+                                 "Child care", "Child support paid", "Medical / dental (out of pocket)",
+                                 "Health insurance premiums", "Dependent / elder care"],
+                    },
+                    "amount": {"type": "string"},
+                    "frequency": {"type": "string",
+                                  "enum": ["weekly", "biweekly", "semimonthly", "monthly", "yearly"]},
+                },
+                "required": ["type", "amount", "frequency"],
+                "additionalProperties": False,
+            },
+        },
+        "currentBenefits": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "enum": ["CalFresh / SNAP", "Medi-Cal", "CalWORKs", "SSI / SSDI",
+                         "Social Security", "WIC", "Section 8 / Housing Choice Voucher",
+                         "Unemployment", "LIHEAP (energy assistance)", "Free / reduced school meals"],
+            },
+        },
+        "immediateNeeds": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "enum": ["Food", "Housing / shelter", "Health care", "Child care", "Mental health",
+                         "Family planning", "Job resources", "Legal help", "Baby supplies",
+                         "Transportation", "Utility assistance"],
+            },
+        },
+        "fieldsExtracted": {
+            "type": "array",
+            "items": {"type": "string"},
+        },
+    },
+    "required": ["name", "zipcode", "county", "citizenship", "assets",
+                 "members", "expenses", "currentBenefits", "immediateNeeds", "fieldsExtracted"],
+    "additionalProperties": False,
+}
+
+
+def parse_voice_intake(transcript):
+    """Parse a freeform spoken transcript into structured form data.
+
+    Returns a dict matching the intake form's data shape.
+    Uses claude-haiku for speed — this is in the interactive UX loop.
+    """
+    client = _client()
+    user_message = (
+        f'Transcript: "{transcript}"\n\n'
+        "Extract all household information from this transcript to pre-fill the "
+        "California benefits eligibility form. Use empty values for anything not mentioned."
+    )
+    response = client.messages.create(
+        model=MODEL,
+        max_tokens=2000,
+        system=VOICE_INTAKE_SYSTEM_PROMPT,
+        output_config={
+            "format": {"type": "json_schema", "schema": VOICE_INTAKE_SCHEMA},
+        },
+        messages=[{"role": "user", "content": user_message}],
+    )
+    text = next(block.text for block in response.content if block.type == "text")
+    return json.loads(text)
+
+
 def draft_application(user, program):
     """Draft the application: a first-person situation statement + Q&A answers.
 
