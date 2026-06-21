@@ -62,6 +62,8 @@ def main():
         expect(page.get_by_text("Submitted applications")).to_be_visible(timeout=15000)
         expect(page.get_by_text("CalFresh application submitted. Confirmation #CF-DEMO-4821")).to_be_visible(timeout=15000)
         expect(page.get_by_text("Browserbase verified")).to_be_visible(timeout=15000)
+        expect(page.get_by_alt_text("CalFresh (SNAP) submitted portal proof")).to_be_visible(timeout=15000)
+        expect(page.get_by_role("link", name="Open full proof")).to_have_count(1, timeout=15000)
         expect(page.get_by_text("Ready to auto-apply")).to_be_visible(timeout=15000)
         expect(page.get_by_text("Also worth applying for")).to_be_hidden(timeout=15000)
 
@@ -77,6 +79,9 @@ def main():
         expect(page.get_by_text("CalFresh and WIC are submitted and verified for the demo.")).to_be_visible(timeout=15000)
         expect(page.get_by_text("CalFresh application submitted. Confirmation #CF-DEMO-4821")).to_be_visible(timeout=15000)
         expect(page.get_by_text("WIC appointment request submitted. Confirmation #WIC-DEMO-2048")).to_be_visible(timeout=15000)
+        expect(page.get_by_alt_text("CalFresh (SNAP) submitted portal proof")).to_be_visible(timeout=15000)
+        expect(page.get_by_alt_text("WIC submitted portal proof")).to_be_visible(timeout=15000)
+        expect(page.get_by_role("link", name="Open full proof")).to_have_count(2, timeout=15000)
         expect(page.get_by_text("Browserbase verified").first).to_be_visible(timeout=15000)
         expect(page.get_by_text("Also worth applying for")).to_be_hidden(timeout=15000)
         page.screenshot(path=str(OUT_DIR / "submitted-dashboard.png"), full_page=True)

@@ -79,6 +79,7 @@ def init_db():
           mode TEXT,
           portal_url TEXT,
           session_id TEXT,
+          screenshot TEXT,
           verified_field_count INTEGER,
           verified_control_count INTEGER,
           confirmation_verified INTEGER,
@@ -90,6 +91,7 @@ def init_db():
     _ensure_column(conn, "applications", "verified_field_count", "INTEGER")
     _ensure_column(conn, "applications", "verified_control_count", "INTEGER")
     _ensure_column(conn, "applications", "confirmation_verified", "INTEGER")
+    _ensure_column(conn, "applications", "screenshot", "TEXT")
     conn.commit()
     conn.close()
 
@@ -231,6 +233,7 @@ def _application_to_dict(row):
         "mode": row["mode"],
         "portal_url": row["portal_url"],
         "session_id": row["session_id"],
+        "screenshot": row["screenshot"],
         "verified_field_count": row["verified_field_count"] or 0,
         "verified_control_count": row["verified_control_count"] or 0,
         "confirmation_verified": bool(row["confirmation_verified"]),
@@ -255,6 +258,7 @@ def save_application(email, program_id, result):
         "mode": result.get("mode", ""),
         "portal_url": result.get("portalUrl", ""),
         "session_id": result.get("sessionId", ""),
+        "screenshot": result.get("screenshot", ""),
         "verified_field_count": len(evidence.get("filledFields") or []),
         "verified_control_count": len(evidence.get("clickedControls") or []),
         "confirmation_verified": 1 if evidence.get("confirmationVerified") else 0,

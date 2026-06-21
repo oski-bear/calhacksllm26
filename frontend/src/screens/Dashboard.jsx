@@ -315,6 +315,45 @@ function ProgramCard({ program, featured, application, onAction }) {
                 <Chip size="small" variant="outlined" label={`${verifiedControlCount} controls`} />
               </Stack>
             )}
+            {application.screenshot && (
+              <Box sx={{ mt: 1.5 }}>
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{ mb: 0.75, alignItems: 'center', justifyContent: 'space-between' }}
+                >
+                  <Typography variant="caption" color="text.secondary">
+                    Saved submitted portal proof
+                  </Typography>
+                  <Button
+                    component="a"
+                    href={`data:image/png;base64,${application.screenshot}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    size="small"
+                    variant="text"
+                  >
+                    Open full proof
+                  </Button>
+                </Stack>
+                <Box
+                  component="img"
+                  alt={`${program.name} submitted portal proof`}
+                  src={`data:image/png;base64,${application.screenshot}`}
+                  sx={{
+                    display: 'block',
+                    width: '100%',
+                    maxHeight: 220,
+                    objectFit: 'cover',
+                    objectPosition: 'top',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    borderRadius: 1,
+                    bgcolor: 'white',
+                  }}
+                />
+              </Box>
+            )}
           </Box>
         )}
 
