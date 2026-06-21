@@ -9,8 +9,8 @@
     body {
       margin: 0;
       font-family: Arial, "Helvetica Neue", sans-serif;
-      background: #f3f5f7;
-      color: #1f2933;
+      background: #d6d8dc;
+      color: #3c3f44;
     }
     .demo {
       background: #fff6d7;
@@ -31,23 +31,29 @@
       color: #425466;
     }
     .brandbar {
-      background: #0b5e95;
-      color: white;
+      background: #e3e3e3;
+      color: #3a3a3a;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 18px 44px;
+      padding: 10px 18px;
       box-shadow: 0 2px 6px rgba(0, 0, 0, .16);
     }
-    .logo { font-size: 25px; font-weight: 800; letter-spacing: -.4px; }
-    .logo span { color: #b9e7ff; }
-    .nav { display: flex; gap: 24px; font-weight: 700; font-size: 14px; }
-    main { max-width: 1180px; margin: 28px auto 44px; padding: 0 28px; }
+    .logo { font-size: 22px; font-weight: 800; letter-spacing: -.4px; }
+    .logo:before { content: "☰"; margin-right: 12px; font-size: 20px; font-weight: 400; }
+    .logo span { color: #3a3a3a; }
+    .nav { display: flex; gap: 14px; font-weight: 700; font-size: 12px; }
+    .nav span:not(.login-pill) { display: none; }
+    .login-pill {
+      background: #8c8c8c;
+      border-radius: 2px;
+      color: white;
+      padding: 7px 13px;
+      text-transform: uppercase;
+    }
+    main { max-width: 430px; margin: 20px auto 44px; padding: 0 14px; }
     .grid {
-      display: grid;
-      grid-template-columns: 320px minmax(0, 1fr);
-      gap: 26px;
-      align-items: start;
+      display: block;
     }
     .rail, .panel, .hero {
       background: white;
@@ -55,7 +61,7 @@
       border-radius: 4px;
       box-shadow: 0 1px 3px rgba(15, 23, 42, .08);
     }
-    .rail { padding: 20px; }
+    .rail { display: none; }
     .rail h2 { color: #0b5e95; font-size: 18px; margin: 0 0 12px; }
     .rail ol { list-style: none; margin: 0; padding: 0; }
     .rail li {
@@ -66,14 +72,14 @@
     }
     .rail li.active { border-left-color: #0b5e95; color: #0f2f4f; font-weight: 800; }
     .hero {
-      background: linear-gradient(135deg, #e9f6fd 0%, #ffffff 54%);
-      padding: 30px;
-      margin-bottom: 22px;
-      display: flex;
-      justify-content: space-between;
-      gap: 24px;
+      background: #444;
+      color: white;
+      padding: 22px 18px;
+      margin-bottom: 12px;
       overflow: hidden;
       position: relative;
+      border: 0;
+      border-radius: 0;
     }
     .hero:after {
       content: "";
@@ -83,27 +89,27 @@
       border-radius: 50%;
       right: -80px;
       top: -80px;
-      background: rgba(255, 194, 14, .35);
+      background: rgba(255, 255, 255, .08);
     }
-    h1 { color: #073d67; font-size: 30px; line-height: 1.15; margin: 0 0 10px; }
-    .lede { color: #425466; max-width: 620px; font-size: 16px; line-height: 1.45; }
+    h1 { color: white; font-size: 22px; line-height: 1.15; margin: 0 0 10px; }
+    .lede { color: #ededed; max-width: 620px; font-size: 13px; line-height: 1.45; }
     .badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       border-radius: 999px;
-      background: #e5f3ff;
-      color: #0b5e95;
+      background: #ffffff;
+      color: #444;
       padding: 7px 12px;
       font-size: 13px;
       font-weight: 800;
       margin-bottom: 12px;
     }
-    .panel { padding: 26px 30px; }
+    .panel { padding: 14px; border-radius: 0 0 18px 18px; }
     .stage { display: none; }
     .stage.active { display: block; }
     .section-title {
-      color: #0b5e95;
+      color: #3e3e3e;
       font-size: 18px;
       font-weight: 800;
       margin: 0 0 4px;
@@ -131,27 +137,27 @@
     .choice.active { border-color: #0b5e95; box-shadow: inset 0 0 0 1px #0b5e95; }
     .choice strong { color: #0f2f4f; display: block; margin-bottom: 6px; }
     .summary {
-      border: 1px solid #c7d7e4;
-      background: #f8fbfd;
+      border: 4px solid #ff951d;
+      background: #ffffff;
       border-radius: 5px;
       padding: 18px;
       margin-top: 16px;
     }
-    .summary dl { display: grid; grid-template-columns: 190px 1fr; gap: 10px 16px; margin: 0; }
+    .summary dl { display: grid; grid-template-columns: 115px 1fr; gap: 9px 12px; margin: 0; }
     .summary dt { color: #64748b; font-weight: 800; }
     .summary dd { margin: 0; color: #102a43; }
     .actions { margin-top: 26px; display: flex; justify-content: space-between; align-items: center; gap: 18px; }
     button {
-      background: #0b5e95;
+      background: #808080;
       border: 0;
-      border-radius: 4px;
+      border-radius: 2px;
       color: white;
       cursor: pointer;
       font-size: 15px;
       font-weight: 800;
       padding: 12px 22px;
     }
-    button.secondary { background: white; color: #0b5e95; border: 2px solid #0b5e95; }
+    button.secondary { background: white; color: #555; border: 1px solid #aaa; }
     button.success { background: #1b7f45; }
     .trust { color: #486070; font-size: 13px; }
     .confirmation {
@@ -165,8 +171,98 @@
       font-weight: 800;
     }
     .submitted .confirmation { display: block; }
+    .process-list {
+      border: 4px solid #ff951d;
+      border-radius: 4px;
+      padding: 14px;
+      background: white;
+      margin: 12px 0;
+    }
+    .process-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 9px 0;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 13px;
+    }
+    .process-item:last-child { border-bottom: 0; }
+    .step-dot {
+      align-items: center;
+      background: #2f80d1;
+      border-radius: 50%;
+      color: white;
+      display: inline-flex;
+      flex: 0 0 24px;
+      font-size: 12px;
+      font-weight: 800;
+      height: 24px;
+      justify-content: center;
+      width: 24px;
+    }
+    .fine-print {
+      border: 4px solid #ff951d;
+      max-height: 210px;
+      overflow: auto;
+      padding: 14px;
+      background: white;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .check-row {
+      border: 4px solid #ff951d;
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+      padding: 12px;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    .receipt-card {
+      border: 4px solid #ff951d;
+      background: white;
+      border-radius: 4px;
+      padding: 14px;
+      margin-top: 14px;
+    }
+    .receipt-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 8px 0;
+      font-size: 13px;
+    }
+    .save-row {
+      display: flex;
+      justify-content: space-around;
+      color: #2f80d1;
+      font-size: 12px;
+      margin-top: 12px;
+    }
+    .rating-row { display: flex; gap: 16px; justify-content: center; margin: 16px 0; }
+    .face {
+      align-items: center;
+      border: 3px solid currentColor;
+      border-radius: 50%;
+      display: inline-flex;
+      font-size: 24px;
+      height: 48px;
+      justify-content: center;
+      width: 48px;
+    }
+    .face.good { color: #21a365; }
+    .face.ok { color: #f29f2b; }
+    .face.bad { color: #e65d5d; }
+    .agent-readable {
+      position: absolute;
+      left: -10000px;
+      top: auto;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
     @media (max-width: 840px) {
-      .grid { grid-template-columns: 1fr; }
       .card-row { grid-template-columns: 1fr; }
       .brandbar, .topbar { padding-left: 18px; padding-right: 18px; }
     }
@@ -179,11 +275,16 @@
         el.classList.toggle('active', el.dataset.step === id);
       });
     }
+    function signDemo() {
+      showStage('submit-stage');
+    }
     function submitDemo(event) {
       event.preventDefault();
-      document.getElementById('review-stage').classList.add('submitted');
-      document.querySelector('[data-agent-submit="true"]').textContent = 'Submitted';
-      document.querySelector('[data-agent-submit="true"]').classList.add('success');
+      const number = document.querySelector('[data-receipt="number"]');
+      const time = document.querySelector('[data-receipt="time"]');
+      if (number) number.textContent = 'CF-DEMO-4821';
+      if (time) time.textContent = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      showStage('confirmation-stage');
     }
     function mirrorReview() {
       const names = ['firstName', 'lastName', 'dob', 'phone', 'email', 'address', 'city', 'zip', 'county', 'householdSize', 'monthlyIncome', 'rent', 'utilities'];
@@ -207,6 +308,7 @@
       <span>Apply for Benefits</span>
       <span>Manage My Case</span>
       <span>Find Help</span>
+      <span class="login-pill">Log in</span>
     </nav>
   </header>
   <main>
@@ -331,9 +433,71 @@
             </div>
             <div class="actions">
               <button class="secondary" type="button" onclick="showStage('form-stage')">Edit answers</button>
-              <button type="submit" data-agent-submit="true">Submit CalFresh application</button>
+              <button type="button" data-agent-review-next="true" onclick="showStage('signature-stage')">Next</button>
             </div>
-            <div id="confirmation" class="confirmation">CalFresh application submitted. Confirmation #CF-DEMO-4821</div>
+          </div>
+
+          <div id="signature-stage" class="stage">
+            <h2 class="section-title">Please sign below.</h2>
+            <p class="hint">Read the rights and responsibilities, then electronically sign the application.</p>
+            <div class="fine-print">
+              <p><a href="#">Review my application</a></p>
+              <p>I read, or had read to me, the information in this application and my answers to the questions in this application.</p>
+              <p>My answers are true, correct, and complete to the best of my knowledge.</p>
+              <p>I read, or had read to me, and I understand and agree to the Rights and Responsibilities and Program Rules and Penalties.</p>
+            </div>
+            <div class="row">
+              <div class="field"><label>First Name</label><input name="signatureFirstName" /></div>
+              <div class="field"><label>Last Name</label><input name="signatureLastName" /></div>
+              <div class="field"><label>Date</label><input name="signatureDate" /></div>
+            </div>
+            <label class="check-row">
+              <input name="signatureAgree" type="checkbox" />
+              <span>By checking this box, you are signing this application electronically. You agree that your electronic signature is the legal equivalent of your manual signature on this application.</span>
+            </label>
+            <div class="actions">
+              <button class="secondary" type="button" onclick="showStage('review-stage')">Back</button>
+              <button type="button" data-agent-signature="true" onclick="signDemo()">Submit signature</button>
+            </div>
+          </div>
+
+          <div id="submit-stage" class="stage">
+            <h2 class="section-title">We are ready to submit!</h2>
+            <div class="process-list">
+              <div class="process-item"><span class="step-dot">✓</span><div><strong>Your Programs:</strong><br />CalFresh</div></div>
+              <div class="process-item"><span class="step-dot">●</span><div><strong>Your Office:</strong><br />Alameda County Social Services<br />2000 San Pablo Ave, Oakland, CA</div></div>
+              <div class="process-item"><span class="step-dot">i</span><div>Monday-Friday: 8 a.m. - 5 p.m.</div></div>
+            </div>
+            <div class="actions">
+              <button class="secondary" type="button" onclick="showStage('signature-stage')">Back</button>
+              <button type="submit" data-agent-submit="true">Submit application</button>
+            </div>
+          </div>
+
+          <div id="confirmation-stage" class="stage">
+            <h2 class="section-title">Congrats! We received your application. Next, let's complete your interview.</h2>
+            <div class="process-list">
+              <div class="process-item"><span class="step-dot">✓</span><div><strong>Application Submitted</strong><br /><a href="#">Save a copy of your application</a></div></div>
+              <div class="process-item"><span class="step-dot">2</span><div><strong>Complete your interview</strong><br />We'll reach out to you with information about your interview time and date.</div></div>
+              <div class="process-item"><span class="step-dot">↗</span><div><strong>Track your status</strong><br />Log in or create an account to track your application status.</div></div>
+            </div>
+            <div class="receipt-card">
+              <strong>Confirmation Receipt</strong>
+              <div class="receipt-row"><span>Date</span><span>06/21/2026</span></div>
+              <div class="receipt-row"><span>Time</span><span data-receipt="time">4:31 PM</span></div>
+              <div class="receipt-row"><span>Application Number</span><span data-receipt="number">CF-DEMO-4821</span></div>
+              <div class="save-row"><span>Text</span><span>Email</span><span>Download</span></div>
+            </div>
+            <div id="confirmation" class="agent-readable">CalFresh application submitted. Confirmation #CF-DEMO-4821</div>
+            <div class="rating-row" aria-label="Application experience rating">
+              <span class="face good">☺</span>
+              <span class="face ok">○</span>
+              <span class="face bad">☹</span>
+            </div>
+            <div class="actions">
+              <span></span>
+              <button class="success" type="button">Back to homepage</button>
+            </div>
           </div>
         </form>
       </section>

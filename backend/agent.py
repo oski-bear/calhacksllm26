@@ -28,6 +28,7 @@ STEPS = {
         "Entering home address and county...",
         "Entering household size, income, and expenses...",
         "Reviewing answers before submission...",
+        "Signing the application electronically...",
         "Submitting completed demo application...",
         "Capturing the confirmation number.",
     ],
@@ -153,10 +154,14 @@ def field_values(program_id, profile):
 
 
 def account_values(profile):
+    first, last = _split_name(profile.get("name"))
     return {
         "accountEmail": profile.get("email", "oski@example.com"),
         "accountPassword": "DemoPass!2026",
         "accountPhone": profile.get("phone", "(510) 555-0148"),
+        "signatureFirstName": first,
+        "signatureLastName": last,
+        "signatureDate": "06/21/2026",
     }
 
 
@@ -256,6 +261,18 @@ def _drive_portal(page, program_id, values, profile):
             ],
         )
         _click(page, '[data-agent-review="true"]')
+        _click(page, '[data-agent-review-next="true"]')
+        _fill_fields(
+            page,
+            account_values(profile),
+            ["signatureFirstName", "signatureLastName", "signatureDate"],
+        )
+        try:
+            page.check('[name="signatureAgree"]', timeout=4000)
+            page.wait_for_timeout(250)
+        except Exception:
+            pass
+        _click(page, '[data-agent-signature="true"]')
 
     _click(page, '[data-agent-submit="true"]')
 
