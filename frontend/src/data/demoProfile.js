@@ -9,6 +9,7 @@ export function demoProfile() {
     zipcode: '94704',
     county: 'Alameda',
     state: 'CA',
+    demoMode: true,
     citizenship: 'U.S. Citizen',
     assets: '250',
     currentBenefits: ['Medi-Cal'],

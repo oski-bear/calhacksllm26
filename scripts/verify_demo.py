@@ -39,8 +39,10 @@ def main():
         verify_profile_roundtrip(email)
 
         expect(page.get_by_text("Ready to auto-apply")).to_be_visible(timeout=15000)
+        expect(page.get_by_text("For the demo, we are focusing on the two end-to-end agent flows")).to_be_visible(timeout=15000)
         expect(page.get_by_text("CalFresh (SNAP)")).to_be_visible(timeout=15000)
         expect(page.get_by_text("California WIC")).to_be_visible(timeout=15000)
+        expect(page.get_by_text("Also worth applying for")).to_be_hidden(timeout=15000)
         page.screenshot(path=str(OUT_DIR / "dashboard.png"), full_page=True)
 
         auto_apply(
@@ -56,6 +58,7 @@ def main():
         expect(page.get_by_text("CalFresh application submitted. Confirmation #CF-DEMO-4821")).to_be_visible(timeout=15000)
         expect(page.get_by_text("Browserbase verified")).to_be_visible(timeout=15000)
         expect(page.get_by_text("Ready to auto-apply")).to_be_visible(timeout=15000)
+        expect(page.get_by_text("Also worth applying for")).to_be_hidden(timeout=15000)
 
         auto_apply(
             page,
@@ -66,10 +69,11 @@ def main():
         page.screenshot(path=str(OUT_DIR / "wic-agent.png"), full_page=True)
 
         page.get_by_role("button", name=re.compile("Back to dashboard", re.I)).click()
-        expect(page.get_by_text("2 applications are submitted")).to_be_visible(timeout=15000)
+        expect(page.get_by_text("CalFresh and WIC are submitted and verified for the demo.")).to_be_visible(timeout=15000)
         expect(page.get_by_text("CalFresh application submitted. Confirmation #CF-DEMO-4821")).to_be_visible(timeout=15000)
         expect(page.get_by_text("WIC appointment request submitted. Confirmation #WIC-DEMO-2048")).to_be_visible(timeout=15000)
         expect(page.get_by_text("Browserbase verified").first).to_be_visible(timeout=15000)
+        expect(page.get_by_text("Also worth applying for")).to_be_hidden(timeout=15000)
         page.screenshot(path=str(OUT_DIR / "submitted-dashboard.png"), full_page=True)
 
         issues = [

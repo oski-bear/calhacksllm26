@@ -16,6 +16,7 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutlineOutlined'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 
 const TEAL = '#0d7d6f'
+const DEMO_PROGRAM_IDS = new Set(['calfresh', 'wic'])
 
 const STATUS_STYLES = {
   eligible: { label: 'Likely eligible', color: 'success', Icon: CheckCircleIcon },
@@ -33,7 +34,11 @@ export default function Dashboard({
   onEditProfile,
 }) {
   const order = { eligible: 0, maybe: 1 }
-  const shown = programs
+  const demoMode = userInfo.demoMode === true
+  const visiblePrograms = demoMode
+    ? programs.filter((p) => DEMO_PROGRAM_IDS.has(p.id))
+    : programs
+  const shown = visiblePrograms
     .filter((p) => p.status === 'eligible' || p.status === 'maybe')
     .sort((a, b) => order[a.status] - order[b.status])
 
@@ -43,6 +48,13 @@ export default function Dashboard({
   const others = available.filter((p) => !featured.includes(p))
   const firstName = userInfo.name ? userInfo.name.split(' ')[0] : 'there'
   const submittedCount = submitted.length
+  const introText = dashboardIntroText({
+    demoMode,
+    submittedCount,
+    featuredCount: featured.length,
+    otherCount: others.length,
+    shownCount: shown.length,
+  })
 
   return (
     <Box sx={{ minHeight: '100vh', py: 6 }}>
@@ -56,13 +68,7 @@ export default function Dashboard({
             Hi {firstName} - here's what you may qualify for
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            {submittedCount > 0
-              ? `${submittedCount} application${submittedCount === 1 ? ' is' : 's are'} submitted. ${featured.length > 0 ? `We can still auto-apply to ${featured.length} more.` : 'You can review other programs below.'}`
-              : featured.length > 0
-              ? `We can auto-apply to ${featured.length} program${featured.length === 1 ? '' : 's'} right now, plus ${others.length} more worth reviewing.`
-              : shown.length > 0
-                ? `We found ${shown.length} program${shown.length === 1 ? '' : 's'} you may qualify for.`
-                : 'Based on what you entered, we did not find programs you qualify for. You can go back and adjust your info.'}
+            {introText}
           </Typography>
         </Stack>
 
@@ -155,6 +161,27 @@ export default function Dashboard({
       </Container>
     </Box>
   )
+}
+
+function dashboardIntroText({ demoMode, submittedCount, featuredCount, otherCount, shownCount }) {
+  if (demoMode) {
+    if (submittedCount === 2) return 'CalFresh and WIC are submitted and verified for the demo.'
+    if (submittedCount > 0) {
+      return `${submittedCount} demo application${submittedCount === 1 ? ' is' : 's are'} submitted. ${featuredCount > 0 ? `${featuredCount} remains ready for auto-apply.` : ''}`
+    }
+    return 'For the demo, we are focusing on the two end-to-end agent flows: CalFresh and WIC.'
+  }
+
+  if (submittedCount > 0) {
+    return `${submittedCount} application${submittedCount === 1 ? ' is' : 's are'} submitted. ${featuredCount > 0 ? `We can still auto-apply to ${featuredCount} more.` : 'You can review other programs below.'}`
+  }
+  if (featuredCount > 0) {
+    return otherCount > 0
+      ? `We can auto-apply to ${featuredCount} program${featuredCount === 1 ? '' : 's'} right now, plus ${otherCount} more worth reviewing.`
+      : `We can auto-apply to ${featuredCount} program${featuredCount === 1 ? '' : 's'} right now.`
+  }
+  if (shownCount > 0) return `We found ${shownCount} program${shownCount === 1 ? '' : 's'} you may qualify for.`
+  return 'Based on what you entered, we did not find programs you qualify for. You can go back and adjust your info.'
 }
 
 function ProgramCard({ program, featured, application, onAction }) {

@@ -56,6 +56,8 @@ def explain():
     programs = [
         p for p in evaluate_all(user) if p["status"] in ("eligible", "maybe")
     ]
+    if user.get("demoMode"):
+        programs = [p for p in programs if p["id"] in ("calfresh", "wic")]
     try:
         result = generate_explanations(user, programs)
     except RuntimeError as err:
