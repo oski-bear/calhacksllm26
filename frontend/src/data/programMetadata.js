@@ -2,6 +2,9 @@ export const PROGRAM_METADATA = {
   calfresh: {
     logoText: 'CalFresh',
     logoSubtext: 'SNAP',
+    logoSrc: '/program-logos/calfresh-food.svg',
+    logoAlt: 'CalFresh Food logo',
+    logoPadding: 0.25,
     brandColor: '#2f80d1',
     brandBg: '#e8f2fc',
     applyUrl: 'https://benefitscal.com/Public/login?lang=en',
@@ -14,6 +17,9 @@ export const PROGRAM_METADATA = {
   wic: {
     logoText: 'WIC',
     logoSubtext: 'CA',
+    logoSrc: '/program-logos/california-wic-trimmed.png',
+    logoAlt: 'California WIC logo',
+    logoPadding: 0.3,
     brandColor: '#8f399b',
     brandBg: '#f5e9f7',
     applyUrl: 'https://www.myfamily.wic.ca.gov/Home/HowCanIGetWIC',

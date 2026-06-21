@@ -437,29 +437,47 @@ function ProgramBrand({ program, meta }) {
   const label = meta?.logoText || program.name.slice(0, 2)
   return (
     <Box
-      aria-hidden="true"
       sx={{
-        width: 58,
-        height: 58,
-        borderRadius: 1,
-        bgcolor: meta?.brandBg || '#eef2f7',
-        border: '1px solid',
-        borderColor: 'divider',
+        width: 70,
+        height: 70,
+        borderRadius: '50%',
+        bgcolor: '#fff',
+        border: '2px solid',
+        borderColor: meta?.brandColor || 'divider',
+        boxShadow: '0 4px 14px rgba(15, 23, 42, 0.10)',
+        p: meta?.logoPadding ?? 0.35,
         color: meta?.brandColor || 'primary.main',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         flex: '0 0 auto',
+        overflow: 'hidden',
       }}
     >
-      <Typography variant="subtitle2" sx={{ fontWeight: 900, lineHeight: 1 }}>
-        {label}
-      </Typography>
-      {meta?.logoSubtext && (
-        <Typography variant="caption" sx={{ fontWeight: 800, letterSpacing: '0.08em' }}>
-          {meta.logoSubtext}
-        </Typography>
+      {meta?.logoSrc ? (
+        <Box
+          component="img"
+          src={meta.logoSrc}
+          alt={meta.logoAlt || `${program.name} logo`}
+          sx={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+            display: 'block',
+          }}
+        />
+      ) : (
+        <>
+          <Typography variant="subtitle2" sx={{ fontWeight: 900, lineHeight: 1 }}>
+            {label}
+          </Typography>
+          {meta?.logoSubtext && (
+            <Typography variant="caption" sx={{ fontWeight: 800, letterSpacing: '0.08em' }}>
+              {meta.logoSubtext}
+            </Typography>
+          )}
+        </>
       )}
     </Box>
   )
