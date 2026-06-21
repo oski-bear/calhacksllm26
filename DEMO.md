@@ -63,6 +63,7 @@ Screenshots: /tmp/benefits_frontend_e2e
 The script checks the full path:
 
 - demo profile loads
+- rich profile data round-trips through `/api/profile`
 - eligibility dashboard shows CalFresh and WIC
 - CalFresh agent returns confirmation `CF-DEMO-4821`
 - WIC agent returns confirmation `WIC-DEMO-2048`

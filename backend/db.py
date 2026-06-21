@@ -48,10 +48,12 @@ def init_db():
           email TEXT UNIQUE NOT NULL,
           {other_columns},
           currentBenefits TEXT,
+          profile_json TEXT,
           updated_at TEXT
         )
         """
     )
+    _ensure_column(conn, "users", "profile_json", "TEXT")
     # Uploaded documents, linked to a user by email. The real file lives on
     # disk (see app.py); here we only keep metadata.
     conn.execute(
@@ -92,9 +94,11 @@ def save_profile(profile):
     if not email:
         raise ValueError("email is required")
 
+    saved_profile = {**profile, "email": email}
     data = {field: (profile.get(field) or "") for field in PROFILE_FIELDS}
     data["email"] = email
     data["currentBenefits"] = json.dumps(profile.get("currentBenefits", []))
+    data["profile_json"] = json.dumps(saved_profile)
     data["updated_at"] = datetime.now(timezone.utc).isoformat()
 
     columns = list(data.keys())
@@ -124,9 +128,23 @@ def get_profile(email):
     if row is None:
         return None
 
-    profile = {field: row[field] for field in PROFILE_FIELDS}
-    profile["currentBenefits"] = json.loads(row["currentBenefits"] or "[]")
-    return profile
+    if "profile_json" in row.keys() and row["profile_json"]:
+        try:
+            profile = json.loads(row["profile_json"])
+            profile["email"] = row["email"]
+            return profile
+        except json.JSONDecodeError:
+            pass
+
+    fallback = {field: row[field] for field in PROFILE_FIELDS}
+    fallback["currentBenefits"] = json.loads(row["currentBenefits"] or "[]")
+    return fallback
+
+
+def _ensure_column(conn, table, column, column_type):
+    columns = {row["name"] for row in conn.execute(f"PRAGMA table_info({table})")}
+    if column not in columns:
+        conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {column_type}")
 
 
 # --- Documents -------------------------------------------------------------

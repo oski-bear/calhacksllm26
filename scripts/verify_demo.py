@@ -11,6 +11,9 @@ It saves screenshots under /tmp/benefits_frontend_e2e.
 """
 
 import re
+import json
+from urllib.parse import quote
+from urllib.request import urlopen
 from pathlib import Path
 
 from playwright.sync_api import expect, sync_playwright
@@ -30,8 +33,10 @@ def main():
 
         page.goto(FRONTEND_URL, wait_until="networkidle")
         page.get_by_role("button", name="Load CalFresh + WIC demo profile").click()
+        email = page.get_by_label("Email address").input_value()
         page.get_by_role("button", name=re.compile("Find my benefits", re.I)).click()
         page.wait_for_load_state("networkidle")
+        verify_profile_roundtrip(email)
 
         expect(page.get_by_text("Ready to auto-apply")).to_be_visible(timeout=15000)
         expect(page.get_by_text("CalFresh (SNAP)")).to_be_visible(timeout=15000)
@@ -77,6 +82,16 @@ def auto_apply(page, card_text, confirmation):
     expect(page.get_by_text(re.compile("AI agent applying to"))).to_be_visible(timeout=15000)
     expect(page.get_by_text(confirmation)).to_be_visible(timeout=60000)
     expect(page.get_by_alt_text("Submitted portal screenshot")).to_be_visible(timeout=15000)
+
+
+def verify_profile_roundtrip(email):
+    with urlopen(f"http://127.0.0.1:5001/api/profile?email={quote(email)}", timeout=10) as res:
+        profile = json.load(res)["profile"]
+    assert profile["zipcode"] == "94704"
+    assert profile["county"] == "Alameda"
+    assert len(profile["members"]) == 2
+    assert profile["members"][0]["conditions"] == ["Pregnant"]
+    assert len(profile["expenses"]) == 2
 
 
 if __name__ == "__main__":

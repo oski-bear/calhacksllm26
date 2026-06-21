@@ -23,7 +23,9 @@ React (MUI) · Flask · SQLite + Redis · Anthropic · Browserbase · Deepgram
 - [x] API contract — `POST /api/eligibility` → `{ programs: [...] }`
       (same shape as the frontend's mock data)
 - [x] SQLite — **user profile** save/load by email (`backend/db.py`,
-      `POST`/`GET /api/profile`); form persists on submit.
+      `POST`/`GET /api/profile`); stores the full rich intake JSON
+      (members, expenses, contact info, county/ZIP, current benefits) so the
+      agent can reuse it.
 - [x] SQLite — **documents** table + file storage on disk
       (`POST`/`GET`/`DELETE /api/documents`, download endpoint).
       Applications/status table still to do.
