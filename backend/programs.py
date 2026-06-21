@@ -19,7 +19,7 @@ PROGRAMS = [
         "name": "CalFresh (SNAP)",
         "agency": "CA Dept. of Social Services",
         "category": "Food",
-        "estimate": "Up to $298 / month (1 person)",
+        "estimate": "Up to the household max monthly grocery benefit",
         "auto_apply": True,
         "description": "Monthly money on an EBT card to buy groceries.",
         "requirements": [
@@ -54,7 +54,7 @@ PROGRAMS = [
         "name": "WIC",
         "agency": "CA Dept. of Public Health",
         "category": "Food",
-        "estimate": "Monthly food benefits + nutrition support",
+        "estimate": "WIC food package + produce benefit + nutrition support",
         "auto_apply": True,
         "description": (
             "Food, nutrition counseling, and breastfeeding support for pregnant "

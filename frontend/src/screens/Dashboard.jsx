@@ -127,6 +127,8 @@ export default function Dashboard({
           </Stack>
         ) : null}
 
+        {shown.length > 0 && <ImpactSummary programs={shown} userInfo={userInfo} />}
+
         {featured.length > 0 && <AgentPacket userInfo={userInfo} />}
 
         {submitted.length > 0 && (
@@ -142,6 +144,7 @@ export default function Dashboard({
                 <ProgramCard
                   key={program.id}
                   program={program}
+                  userInfo={userInfo}
                   application={applications[program.id]}
                   onAction={onViewApplication || onSelectProgram}
                 />
@@ -163,6 +166,7 @@ export default function Dashboard({
                 <ProgramCard
                   key={program.id}
                   program={program}
+                  userInfo={userInfo}
                   featured
                   application={applications[program.id]}
                   onAction={onStartAgent || onSelectProgram}
@@ -183,6 +187,7 @@ export default function Dashboard({
                 <ProgramCard
                   key={program.id}
                   program={program}
+                  userInfo={userInfo}
                   application={applications[program.id]}
                   onAction={onSelectProgram}
                 />
@@ -214,6 +219,84 @@ function dashboardIntroText({ demoMode, submittedCount, featuredCount, otherCoun
   }
   if (shownCount > 0) return `We found ${shownCount} program${shownCount === 1 ? '' : 's'} you may qualify for.`
   return 'Based on what you entered, we did not find programs you qualify for. You can go back and adjust your info.'
+}
+
+function ImpactSummary({ programs, userInfo }) {
+  const impact = buildImpactSummary(programs, userInfo)
+  const metrics = [
+    {
+      label: 'Programs found',
+      value: String(impact.programCount),
+      helper: 'Eligible or worth applying for',
+    },
+    {
+      label: 'Estimated monthly value',
+      value: impact.monthlyValue ? `${formatMoney(impact.monthlyValue)}/mo` : 'Varies',
+      helper: impact.valueHelper,
+    },
+    {
+      label: 'Application time saved',
+      value: impact.applicationMinutes ? formatMinutes(impact.applicationMinutes) : 'Varies',
+      helper: 'Agent drafts the paperwork for review',
+    },
+  ]
+
+  return (
+    <Box
+      sx={{
+        mb: 3,
+        display: 'grid',
+        gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' },
+        gap: 1.5,
+      }}
+    >
+      {metrics.map((metric) => (
+        <Box
+          key={metric.label}
+          sx={{
+            p: 2,
+            borderRadius: 2,
+            bgcolor: metric.label === 'Estimated monthly value' ? '#fffde7' : '#fff',
+            border: '1px solid',
+            borderColor: metric.label === 'Estimated monthly value' ? '#f4d35e' : 'divider',
+            boxShadow: '0 4px 14px rgba(15, 23, 42, 0.06)',
+          }}
+        >
+          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            {metric.label}
+          </Typography>
+          <Typography variant="h5" sx={{ mt: 0.5, fontWeight: 800, color: metric.label === 'Estimated monthly value' ? TEAL : 'text.primary' }}>
+            {metric.value}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {metric.helper}
+          </Typography>
+        </Box>
+      ))}
+    </Box>
+  )
+}
+
+function buildImpactSummary(programs, userInfo) {
+  const summary = programs.reduce((current, program) => {
+    const impact = buildProgramImpact(program, userInfo)
+    const monthlyValue = impact?.monthlyValue || 0
+    return {
+      programCount: current.programCount + 1,
+      monthlyValue: current.monthlyValue + monthlyValue,
+      applicationMinutes: current.applicationMinutes + (impact?.applicationMinutes || 0),
+      valueSources: monthlyValue && impact?.summaryLabel
+        ? [...current.valueSources, impact.summaryLabel]
+        : current.valueSources,
+    }
+  }, { programCount: 0, monthlyValue: 0, applicationMinutes: 0, valueSources: [] })
+
+  return {
+    ...summary,
+    valueHelper: summary.valueSources.length
+      ? `${summary.valueSources.join(' + ')} estimate`
+      : 'Benefit amount depends on final approval',
+  }
 }
 
 function AgentPacket({ userInfo }) {
@@ -274,7 +357,7 @@ function monthlyExpensesAmount(expenses) {
 function hasPregnancyOrYoungChild(userInfo) {
   return (userInfo.members || []).some((member) => {
     if ((member.conditions || []).includes('Pregnant')) return true
-    const age = Number(member.birthYear) ? 2026 - Number(member.birthYear) : null
+    const age = memberAge(member)
     return age !== null && age < 5
   })
 }
@@ -283,9 +366,86 @@ function formatMoney(value) {
   return `$${Math.round(Number(value || 0)).toLocaleString()}`
 }
 
-function ProgramCard({ program, featured, application, onAction }) {
+function formatMinutes(minutes) {
+  const amount = Math.round(Number(minutes || 0))
+  if (amount < 60) return `${amount} min`
+  if (amount === 60) return '1 hr'
+  const hours = Math.floor(amount / 60)
+  const rest = amount % 60
+  return rest ? `${hours} hr ${rest} min` : `${hours} hr`
+}
+
+function getHouseholdSize(userInfo) {
+  return Number(userInfo.householdSize || userInfo.members?.length || 1)
+}
+
+function memberAge(member) {
+  const birthYear = Number(member.birthYear)
+  if (!birthYear) return null
+  return new Date().getFullYear() - birthYear
+}
+
+function buildProgramImpact(program, userInfo) {
+  const meta = programMeta(program.id)
+  if (!meta) return null
+
+  if (program.id === 'calfresh') {
+    const householdSize = getHouseholdSize(userInfo)
+    const table = meta.monthlyValueByHousehold || {}
+    const base = table[Math.min(householdSize, 8)] || 0
+    const extra = householdSize > 8 ? (householdSize - 8) * (meta.monthlyValueExtraPerson || 0) : 0
+    const monthlyValue = base + extra
+    return {
+      applicationTime: meta.applicationTime,
+      applicationMinutes: meta.applicationMinutes || 0,
+      valueLabel: `Up to ${formatMoney(monthlyValue)}/month`,
+      monthlyValue,
+      valueTitle: meta.impactLabel,
+      summaryLabel: 'CalFresh max',
+      headline: `Up to ${formatMoney(monthlyValue)} / month in grocery benefits`,
+      note: meta.impactNote,
+    }
+  }
+
+  if (program.id === 'wic') {
+    const values = meta.wicProduceValues || {}
+    const monthlyValue = (userInfo.members || []).reduce((sum, member) => {
+      if ((member.conditions || []).includes('Pregnant')) return sum + (values.pregnant || 0)
+      const age = memberAge(member)
+      if (age !== null && age >= 1 && age < 5) return sum + (values.childAge1To5 || 0)
+      return sum
+    }, 0)
+
+    return {
+      applicationTime: meta.applicationTime,
+      applicationMinutes: meta.applicationMinutes || 0,
+      valueLabel: monthlyValue ? `${formatMoney(monthlyValue)}/month produce + WIC foods` : 'WIC foods vary',
+      monthlyValue,
+      valueTitle: meta.impactLabel,
+      summaryLabel: 'WIC produce',
+      headline: monthlyValue
+        ? `${formatMoney(monthlyValue)} / month produce benefit + WIC foods`
+        : 'WIC food package + nutrition support',
+      note: meta.impactNote,
+    }
+  }
+
+  return {
+    applicationTime: meta.applicationTime,
+    applicationMinutes: meta.applicationMinutes || 0,
+    valueLabel: meta.estimatedSavings || program.estimate,
+    monthlyValue: meta.monthlyValue || 0,
+    valueTitle: meta.impactLabel || 'Estimated value',
+    summaryLabel: meta.summaryLabel,
+    headline: program.estimate,
+    note: meta.impactNote,
+  }
+}
+
+function ProgramCard({ program, userInfo, featured, application, onAction }) {
   const isSubmitted = application?.status === 'submitted'
   const meta = programMeta(program.id)
+  const impact = buildProgramImpact(program, userInfo)
   const verifiedFieldCount = Number(application?.verified_field_count || 0)
   const verifiedControlCount = Number(application?.verified_control_count || 0)
   const hasBrowserbaseProof = application?.mode === 'browserbase' && application?.confirmation_verified
@@ -329,11 +489,12 @@ function ProgramCard({ program, featured, application, onAction }) {
         </Stack>
 
         <Typography variant="subtitle1" color="primary" sx={{ mt: 2 }}>
-          {program.estimate}
+          {impact?.headline || program.estimate}
         </Typography>
         <Typography variant="body2" sx={{ mt: 0.5 }}>
           {program.description}
         </Typography>
+        <ProgramImpact impact={impact} />
         <ProgramLinks meta={meta} />
 
         {isSubmitted && (
@@ -500,6 +661,53 @@ function ProgramInfo({ program, meta }) {
         <HelpOutlineIcon fontSize="small" />
       </IconButton>
     </Tooltip>
+  )
+}
+
+function ProgramImpact({ impact }) {
+  if (!impact) return null
+  const items = [
+    { label: 'Application time', value: impact.applicationTime },
+    { label: impact.valueTitle || 'Estimated value', value: impact.valueLabel },
+  ].filter((item) => item.value)
+
+  if (items.length === 0) return null
+
+  return (
+    <Box
+      sx={{
+        mt: 1.5,
+        p: 1.5,
+        borderRadius: 1,
+        bgcolor: '#fff',
+        border: '1px solid',
+        borderColor: 'divider',
+      }}
+    >
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' },
+          gap: 1.5,
+        }}
+      >
+        {items.map((item) => (
+          <Box key={item.label}>
+            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              {item.label}
+            </Typography>
+            <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
+              {item.value}
+            </Typography>
+          </Box>
+        ))}
+      </Box>
+      {impact.note && (
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+          {impact.note}
+        </Typography>
+      )}
+    </Box>
   )
 }
 
