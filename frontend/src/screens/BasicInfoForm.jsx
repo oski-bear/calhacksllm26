@@ -15,8 +15,8 @@ import {
 } from '../data/screenerOptions.js'
 import { totalAnnualIncome } from '../data/income.js'
 
-const TEAL = '#0d7d6f'
-const TEAL_LIGHT = '#e6f3f2'
+const TEAL = '#2D5BA8'
+const TEAL_LIGHT = '#DCE6F5'
 
 let _id = 0
 const uid = () => `id${_id++}`
@@ -133,7 +133,7 @@ export default function BasicInfoForm({
                     mb: 3,
                     p: 2,
                     borderRadius: 2,
-                    bgcolor: '#e6f3f2',
+                    bgcolor: '#DCE6F5',
                     border: '1px solid',
                     borderColor: 'primary.light',
                   }}

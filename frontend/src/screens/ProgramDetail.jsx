@@ -10,6 +10,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
+import { PaperWallpaper, WrittenHeading } from '../components/paperdoodle'
 // The per-program application screen (whiteboard: "In-Progress" / CalFresh
 // detail). Collects the info the program needs, then hands off to the agent
 // view to auto-fill the real portal.
@@ -49,14 +50,15 @@ export default function ProgramDetail({ program, onContinue, onBack }) {
 
   return (
     <Box sx={{ minHeight: '100vh', py: 6 }}>
+      <PaperWallpaper shader="topo" scrim={0.5} />
       <Container maxWidth="md">
         <Stack
           direction="row"
           sx={{ mb: 3, justifyContent: 'space-between', alignItems: 'center' }}
         >
-          <Typography variant="h4" color="primary">
+          <WrittenHeading as="h1" level="h2" underline>
             {program.name}
-          </Typography>
+          </WrittenHeading>
           <Chip label="Action needed" color="warning" />
         </Stack>
 

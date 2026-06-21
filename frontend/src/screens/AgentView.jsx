@@ -6,6 +6,7 @@ import {
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import { applyWithAgent } from '../api.js'
+import { PaperWallpaper, WrittenHeading } from '../components/paperdoodle'
 
 const STEP_MS = 1100
 
@@ -105,14 +106,15 @@ export default function AgentView({ program, userInfo, onApplied, onBack }) {
   const revealCount = steps.length ? Math.round((step / steps.length) * valueEntries.length) : 0
 
   return (
-    <Box sx={{ minHeight: '100vh', py: 6, bgcolor: 'background.default' }}>
+    <Box sx={{ minHeight: '100vh', py: 6, bgcolor: 'transparent' }}>
+      <PaperWallpaper shader="grid" scrim={0.55} />
       <Container maxWidth="lg">
         <Stack direction="row" sx={{ mb: 3, justifyContent: 'space-between', alignItems: 'center' }}>
           <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
             <AutoAwesomeIcon color="primary" />
-            <Typography variant="h4" color="primary">
+            <WrittenHeading as="h1" level="h2">
               AI agent applying to {programName}
-            </Typography>
+            </WrittenHeading>
           </Stack>
           <Chip
             label={done ? (isPersisted ? 'Submitted' : 'Simulation complete') : 'Agent working...'}

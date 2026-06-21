@@ -1,0 +1,48 @@
+/* ============================================================
+   TYPOGRAPHY — Paperdoodle
+   Hand-lettered type. Three voices: a flowing SCRIPT for display
+   "written" moments, a tidy MARKER for UI/headings, and a legible
+   handwriting for BODY. Mono kept for code only.
+   ============================================================ */
+:root {
+  /* ---- Families ---- */
+  --font-script: 'Caveat', 'Segoe Script', cursive;        /* hero / written headers */
+  --font-marker: 'Patrick Hand', 'Comic Sans MS', cursive; /* headings, UI labels, buttons */
+  --font-body:   'Kalam', 'Patrick Hand', cursive;         /* paragraphs, long text */
+  --font-accent: 'Gloria Hallelujah', cursive;             /* sparing handwritten asides */
+  --font-mono:   'Kalam', ui-monospace, Consolas, monospace;
+
+  /* ---- Type scale (fluid-friendly, hand-set) ---- */
+  --fs-display: 72px;  /* hero name, written */
+  --fs-h1:      48px;
+  --fs-h2:      34px;
+  --fs-h3:      26px;
+  --fs-lead:    22px;  /* intro paragraph */
+  --fs-body:    19px;
+  --fs-small:   16px;
+  --fs-caption: 14px;
+
+  /* ---- Line heights — handwriting wants a little air ---- */
+  --lh-tight:  1.05;   /* @kind font */
+  --lh-snug:   1.2;    /* @kind font */
+  --lh-normal: 1.55;   /* @kind font */
+  --lh-loose:  1.7;    /* @kind font */
+
+  /* ---- Weights available in the loaded fonts ---- */
+  --fw-light:   300;   /* @kind font */
+  --fw-regular: 400;   /* @kind font */
+  --fw-medium:  500;   /* @kind font */
+  --fw-bold:    700;   /* @kind font */
+
+  /* ---- Letter spacing (handwriting reads better slightly open) ---- */
+  --ls-tight:  -0.5px; /* @kind font */
+  --ls-normal: 0.2px;  /* @kind font */
+  --ls-wide:   0.6px;  /* @kind font */
+
+  /* ---- Semantic aliases ---- */
+  --text-display: var(--fw-bold) var(--fs-display)/var(--lh-tight) var(--font-script);
+  --text-h1:      var(--fw-regular) var(--fs-h1)/var(--lh-snug) var(--font-marker);
+  --text-h2:      var(--fw-regular) var(--fs-h2)/var(--lh-snug) var(--font-marker);
+  --text-h3:      var(--fw-regular) var(--fs-h3)/var(--lh-snug) var(--font-marker);
+  --text-default: var(--fw-light) var(--fs-body)/var(--lh-normal) var(--font-body);
+}

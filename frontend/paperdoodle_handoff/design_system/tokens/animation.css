@@ -1,0 +1,74 @@
+/* ============================================================
+   MOTION — Paperdoodle
+   Easing leans springy/loose (hand motion), never robotic.
+   Signature moves: WRITE-ON (text revealed left→right as if drawn),
+   WOBBLE-IN (settles with a tiny rotation), and PAGE-FLIP.
+   All entrance anims must respect prefers-reduced-motion.
+   ============================================================ */
+:root {
+  --ease-doodle:  cubic-bezier(0.34, 1.56, 0.64, 1);   /* @kind other */
+  --ease-out:     cubic-bezier(0.22, 1, 0.36, 1);      /* @kind other */
+  --ease-in-out:  cubic-bezier(0.65, 0, 0.35, 1);      /* @kind other */
+
+  --dur-fast:   140ms;    /* @kind other */
+  --dur-base:   260ms;    /* @kind other */
+  --dur-slow:   480ms;    /* @kind other */
+  --dur-write:  1600ms;   /* @kind other */
+  --dur-flip:   720ms;    /* @kind other */
+}
+
+/* Left→right reveal — the "being written" effect.
+   Apply to a text element; pair with --font-script. */
+@keyframes pd-write-on {
+  from { clip-path: inset(0 100% 0 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+
+/* Settle into place with a hand-placed tilt. */
+@keyframes pd-wobble-in {
+  0%   { opacity: 0; transform: translateY(8px) rotate(-3deg) scale(0.96); }
+  60%  { opacity: 1; transform: translateY(0) rotate(1.5deg) scale(1.01); }
+  100% { opacity: 1; transform: translateY(0) rotate(0) scale(1); }
+}
+
+/* Gentle ink fade-up for body content. */
+@keyframes pd-ink-fade {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Page-turn — used on project navigation. Rotate around the left spine. */
+@keyframes pd-page-flip-out {
+  from { transform: perspective(1800px) rotateY(0deg);   transform-origin: left center; opacity: 1; }
+  to   { transform: perspective(1800px) rotateY(-105deg);transform-origin: left center; opacity: 0.2; }
+}
+@keyframes pd-page-flip-in {
+  from { transform: perspective(1800px) rotateY(100deg); transform-origin: left center; opacity: 0.2; }
+  to   { transform: perspective(1800px) rotateY(0deg);   transform-origin: left center; opacity: 1; }
+}
+
+/* Highlighter swipe (reveals the mark behind text). */
+@keyframes pd-highlight-swipe {
+  from { background-size: 0% 100%; }
+  to   { background-size: 100% 100%; }
+}
+
+/* Utility classes consumers can drop on elements. */
+.pd-anim-write {
+  animation: pd-write-on var(--dur-write) var(--ease-in-out) both;
+}
+.pd-anim-wobble {
+  animation: pd-wobble-in var(--dur-slow) var(--ease-doodle) both;
+}
+.pd-anim-fade {
+  animation: pd-ink-fade var(--dur-base) var(--ease-out) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pd-anim-write, .pd-anim-wobble, .pd-anim-fade {
+    animation: none !important;
+    clip-path: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

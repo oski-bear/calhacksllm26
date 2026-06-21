@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Paperdoodle OS — Wallpapers</title>
+
+<link rel="stylesheet" href="_ds/paperdoodle-design-system-9051b37f-c90e-4639-84d7-88aea9accfc2/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/paperdoodle-design-system-9051b37f-c90e-4639-84d7-88aea9accfc2/tokens/colors.css">
+<link rel="stylesheet" href="_ds/paperdoodle-design-system-9051b37f-c90e-4639-84d7-88aea9accfc2/tokens/typography.css">
+<link rel="stylesheet" href="_ds/paperdoodle-design-system-9051b37f-c90e-4639-84d7-88aea9accfc2/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/paperdoodle-design-system-9051b37f-c90e-4639-84d7-88aea9accfc2/tokens/effects.css">
+<link rel="stylesheet" href="_ds/paperdoodle-design-system-9051b37f-c90e-4639-84d7-88aea9accfc2/tokens/animation.css">
+<link rel="stylesheet" href="_ds/paperdoodle-design-system-9051b37f-c90e-4639-84d7-88aea9accfc2/tokens/base.css">
+<link rel="stylesheet" href="_ds/paperdoodle-design-system-9051b37f-c90e-4639-84d7-88aea9accfc2/styles.css">
+
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--paper-100); }
+  body { font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+  #wp {
+    position: fixed; inset: 0; z-index: 0; display: block;
+    cursor: crosshair; touch-action: none;
+  }
+
+  /* ---- top menu bar ---- */
+  .pd-menubar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 40px; padding: 0 var(--space-5);
+    background: color-mix(in srgb, var(--paper-50) 72%, transparent);
+    backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+    border-bottom: var(--border-ink, 2px solid var(--ink-800));
+    font-family: var(--font-marker);
+    color: var(--ink-800);
+    user-select: none;
+  }
+  .pd-menubar .left { display: flex; align-items: center; gap: var(--space-3); letter-spacing: var(--ls-wide); }
+  .pd-menubar .left .mark { color: var(--pen-blue); font-size: 18px; }
+  .pd-menubar .menus { display: flex; gap: var(--space-4); font-size: 15px; color: var(--ink-600); }
+  .pd-menubar .menus span { opacity: .8; }
+  .pd-menubar .clock { display: flex; align-items: baseline; gap: var(--space-3); font-size: 15px; }
+  .pd-menubar .clock .date { color: var(--ink-400); }
+
+  /* ---- bottom dock ---- */
+  .pd-dock-wrap {
+    position: fixed; left: 50%; bottom: var(--space-6); transform: translateX(-50%);
+    z-index: 20; user-select: none;
+  }
+  .pd-dock {
+    position: relative;
+    display: flex; flex-direction: column; gap: var(--space-3);
+    padding: var(--space-5) var(--space-6) var(--space-4);
+  }
+  .pd-dock .washi { position: absolute; top: -14px; left: 22px; z-index: 2; }
+  .pd-switch { display: flex; align-items: center; gap: var(--space-3); }
+  .pd-dot {
+    width: 11px; height: 11px; border-radius: 60% 40% 55% 45%;
+    border: 1.5px solid var(--ink-800); display: inline-block; flex: none;
+    transform: rotate(-6deg);
+  }
+  .pd-tagline {
+    font-family: var(--font-body); font-size: var(--fs-small);
+    color: var(--ink-600); text-align: center; min-height: 1.4em;
+    max-width: 520px; margin: 0 auto; text-wrap: pretty;
+  }
+  .pd-tagline b { color: var(--ink-800); font-weight: var(--fw-bold); }
+
+  /* keep DS button labels tight in the dock */
+  .pd-dock button { font-size: 15px !important; }
+
+  /* ---- corner hint ---- */
+  .pd-hint {
+    position: fixed; right: var(--space-5); bottom: var(--space-6); z-index: 20;
+    font-family: var(--font-accent); font-size: 13px; color: var(--ink-400);
+    text-align: right; line-height: 1.5; user-select: none; pointer-events: none;
+    max-width: 220px;
+  }
+  .pd-hint .k {
+    font-family: var(--font-marker); color: var(--ink-600);
+    border: 1.5px solid var(--ink-300); border-radius: 5px 7px 6px 8px;
+    padding: 0 5px; margin: 0 1px; background: color-mix(in srgb, var(--paper-50) 70%, transparent);
+  }
+</style>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script src="_ds/paperdoodle-design-system-9051b37f-c90e-4639-84d7-88aea9accfc2/_ds_bundle.js"></script>
+<script src="shaders.js"></script>
+<script src="webgl-wallpaper.js"></script>
+</head>
+<body>
+  <canvas id="wp"></canvas>
+  <div id="chrome"></div>
+
+  <script type="text/babel">
+    const DS = window.PaperdoodleDesignSystem_9051b3
+      || window[Object.keys(window).find(k => /^PaperdoodleDesignSystem/.test(k))] || {};
+    const { Button, Badge, WashiTape, Card, Divider } = DS;
+    const { useState, useEffect, useRef } = React;
+
+    const SHADERS = window.PD_SHADERS;
+    const STORE_KEY = 'pd-wallpaper-index';
+
+    function Clock() {
+      const [now, setNow] = useState(new Date());
+      useEffect(() => {
+        const id = setInterval(() => setNow(new Date()), 1000 * 20);
+        return () => clearInterval(id);
+      }, []);
+      const time = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      const date = now.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+      return (
+        <div className="clock">
+          <span className="date">{date}</span>
+          <span>{time}</span>
+        </div>
+      );
+    }
+
+    function App() {
+      const initial = Math.min(Math.max(parseInt(localStorage.getItem(STORE_KEY) || '0', 10) || 0, 0), SHADERS.length - 1);
+      const [idx, setIdx] = useState(initial);
+      const engineRef = useRef(null);
+
+      // boot the WebGL engine once
+      useEffect(() => {
+        const engine = new window.PDWallpaper(document.getElementById('wp'));
+        engineRef.current = engine;
+        engine.setShader(SHADERS[idx]);
+
+        const onMove = (e) => engine.pointer(e.clientX, e.clientY);
+        const onDown = (e) => {
+          if (e.target.closest && e.target.closest('.pd-ui')) return; // ignore UI clicks
+          engine.click(e.clientX, e.clientY);
+        };
+        window.addEventListener('pointermove', onMove, { passive: true });
+        window.addEventListener('pointerdown', onDown, { passive: true });
+        return () => {
+          window.removeEventListener('pointermove', onMove);
+          window.removeEventListener('pointerdown', onDown);
+        };
+      }, []);
+
+      // swap shader + persist when index changes
+      useEffect(() => {
+        if (engineRef.current) engineRef.current.setShader(SHADERS[idx]);
+        localStorage.setItem(STORE_KEY, String(idx));
+      }, [idx]);
+
+      // keyboard: 1–5 + arrows
+      useEffect(() => {
+        const onKey = (e) => {
+          if (e.key >= '1' && e.key <= String(SHADERS.length)) setIdx(parseInt(e.key, 10) - 1);
+          else if (e.key === 'ArrowRight') setIdx(i => (i + 1) % SHADERS.length);
+          else if (e.key === 'ArrowLeft') setIdx(i => (i - 1 + SHADERS.length) % SHADERS.length);
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+      }, []);
+
+      const cur = SHADERS[idx];
+
+      return (
+        <React.Fragment>
+          {/* menu bar */}
+          <div className="pd-menubar pd-ui">
+            <div className="left">
+              <span className="mark">✦</span>
+              <span>Paperdoodle OS</span>
+              <span className="menus">
+                <span>Wallpaper</span><span>Doodle</span><span>View</span>
+              </span>
+            </div>
+            <Clock />
+          </div>
+
+          {/* dock */}
+          <div className="pd-dock-wrap pd-ui">
+            <Card flat={false}>
+              <div className="pd-dock">
+                <span className="washi"><WashiTape color="blue" tilt={-3}>WALLPAPERS</WashiTape></span>
+                <div className="pd-switch">
+                  {SHADERS.map((s, i) => (
+                    <Button
+                      key={s.id}
+                      size="sm"
+                      variant={i === idx ? 'primary' : 'ghost'}
+                      onClick={() => setIdx(i)}
+                    >
+                      <span className="pd-dot" style={{ background: s.accent }}></span>
+                      {s.name}
+                    </Button>
+                  ))}
+                </div>
+                <div className="pd-tagline"><b>{cur.name}.</b> {cur.tag}</div>
+              </div>
+            </Card>
+          </div>
+
+          {/* corner hint */}
+          <div className="pd-hint">
+            move to stir · click to doodle<br />
+            <span className="k">1</span>–<span className="k">5</span> or <span className="k">←</span><span className="k">→</span> to switch
+          </div>
+        </React.Fragment>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('chrome')).render(<App />);
+  </script>
+</body>
+</html>

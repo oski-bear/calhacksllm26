@@ -1,0 +1,40 @@
+/* ============================================================
+   SPACING & SIZING — Paperdoodle
+   4px base grid. Hand-made layouts breathe a little more than
+   digital-native ones, so the mid scale is generous.
+   ============================================================ */
+:root {
+  --space-0:  0;
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* ---- Container widths ---- */
+  --measure:     66ch;    /* comfortable reading width */
+  --container:   1126px;  /* matches the portfolio frame */
+  --container-narrow: 760px;
+
+  /* ---- Control sizing ---- */
+  --control-sm: 34px;
+  --control-md: 44px;   /* min hit target */
+  --control-lg: 54px;
+
+  /* ---- Hand-drawn corner radii (the "wobbly" trick) ----
+     Asymmetric multi-value radii read as a drawn-by-hand box.
+     Pair with a 2px ink border and a tiny rotation. */
+  --radius-sketch-1: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  --radius-sketch-2: 15px 225px 15px 255px / 255px 15px 225px 15px;
+  --radius-sketch-3: 125px 10px 20px 185px / 25px 205px 205px 25px;
+  --radius-blob:     38% 62% 63% 37% / 41% 44% 56% 59%;
+  --radius-pill:     980px;   /* tags / chips */
+  --radius-soft:     10px;    /* when a calmer corner is wanted */
+}

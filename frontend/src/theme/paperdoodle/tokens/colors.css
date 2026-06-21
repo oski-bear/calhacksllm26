@@ -1,0 +1,69 @@
+/* ============================================================
+   COLORS — Paperdoodle
+   A warm, aged-paper palette with pen/marker accents.
+   Base values first, then semantic aliases.
+   ============================================================ */
+:root {
+  /* ---- Paper (warm parchment surfaces) ---- */
+  --paper-50:  #FFFDF6;  /* brightest sheet — cards, popovers */
+  --paper-100: #FBF6E9;  /* default page */
+  --paper-200: #F4ECD8;  /* resting paper */
+  --paper-300: #EDE0C4;  /* aged paper, hover wells */
+  --paper-400: #E2D1AC;  /* deep aged edge */
+  --paper-shadow: #D9C8A6;/* paper-on-paper shadow tone */
+
+  /* ---- Ink (warm near-blacks for text & strokes) ---- */
+  --ink-900: #221F1A;  /* darkest pen ink */
+  --ink-800: #2B2620;  /* primary text / sketch strokes */
+  --ink-600: #5B5347;  /* secondary text */
+  --ink-400: #8C8270;  /* muted text, captions */
+  --ink-300: #B3A98F;  /* faint lines, disabled */
+  --ink-100: #CFC4A6;  /* hairlines on paper */
+
+  /* ---- Pen & marker accents ---- */
+  --pen-blue:    #2D5BA8;  /* ballpoint blue — primary action */
+  --pen-blue-ink:#1E3F77;  /* darker blue for pressed/text */
+  --pen-blue-soft: #DCE6F5;
+  --pen-red:     #CB4536;  /* red pen — destructive, marks */
+  --pen-red-soft:#F6DCD6;
+  --pencil:      #6E6A64;  /* graphite */
+
+  /* ---- Highlighter & sticky tones ---- */
+  --hi-yellow:   #F6DE71;  /* highlighter swipe */
+  --hi-yellow-deep:#EFCF3F;
+  --hi-pink:     #F4B7C8;
+  --hi-mint:     #BFE3C2;
+
+  /* ---- Lavender (from the Wired Elements reference fills) ---- */
+  --lavender-100:#EDE6F7;
+  --lavender-200:#E0D4F2;
+  --lavender-ink:#6B4FA0;
+
+  /* ============================================================
+     SEMANTIC ALIASES — reference these in components
+     ============================================================ */
+  --surface-page:   var(--paper-100);
+  --surface-card:   var(--paper-50);
+  --surface-sunken: var(--paper-200);
+  --surface-hover:  var(--paper-300);
+
+  --text-heading:   var(--ink-900);
+  --text-body:      var(--ink-600);
+  --text-muted:     var(--ink-400);
+  --text-faint:     var(--ink-300);
+  --text-on-accent: var(--paper-50);
+
+  --stroke:         var(--ink-800);   /* hand-drawn border ink */
+  --stroke-soft:    var(--ink-300);
+  --hairline:       var(--ink-100);
+
+  --accent:         var(--pen-blue);
+  --accent-ink:     var(--pen-blue-ink);
+  --accent-soft:    var(--pen-blue-soft);
+  --accent-2:       var(--lavender-200);
+  --accent-2-ink:   var(--lavender-ink);
+
+  --danger:         var(--pen-red);
+  --danger-soft:    var(--pen-red-soft);
+  --mark:           var(--hi-yellow);  /* highlighter mark */
+}

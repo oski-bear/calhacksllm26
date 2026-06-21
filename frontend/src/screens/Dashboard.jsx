@@ -18,8 +18,9 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutlineOutlined'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import { programMeta } from '../data/programMetadata.js'
 import PenguinLogo from '../components/PenguinLogo.jsx'
+import { PaperWallpaper, WrittenHeading, WashiTape } from '../components/paperdoodle'
 
-const TEAL = '#0d7d6f'
+const TEAL = '#2D5BA8'
 const DEMO_PROGRAM_IDS = new Set(['calfresh', 'wic'])
 
 const DOCUMENT_CHECKLISTS = {
@@ -86,6 +87,7 @@ export default function Dashboard({
 
   return (
     <Box sx={{ minHeight: '100vh', py: 6 }}>
+      <PaperWallpaper shader="hilite" scrim={0.62} />
       <Container maxWidth="md">
         <Stack direction="row" sx={{ mb: 1, justifyContent: 'flex-end' }}>
           <Button variant="outlined" onClick={onEditProfile}>Edit my info</Button>
@@ -98,8 +100,11 @@ export default function Dashboard({
         >
           <PenguinLogo size={56} sx={{ borderColor: 'primary.light' }} />
           <Box>
-            <Typography variant="h4" color="primary">
-              Hi {firstName} - here's what you may qualify for
+            <WrittenHeading as="h1" level="h1" underline>
+              Hi {firstName}
+            </WrittenHeading>
+            <Typography variant="h5" color="primary" sx={{ mt: 0.5, mb: 0.5 }}>
+              here's what you may qualify for
             </Typography>
             <Typography variant="body1" color="text.secondary">
               {introText}
@@ -113,7 +118,7 @@ export default function Dashboard({
               mb: 3,
               p: 2,
               borderRadius: 2,
-              bgcolor: '#e0f2f1',
+              bgcolor: '#DCE6F5',
               border: '1px solid',
               borderColor: 'primary.light',
             }}
@@ -162,9 +167,7 @@ export default function Dashboard({
           <>
             <Stack direction="row" spacing={1} sx={{ mb: 1.5, alignItems: 'center' }}>
               <AutoAwesomeIcon sx={{ color: TEAL, fontSize: 20 }} />
-              <Typography variant="overline" sx={{ color: TEAL, fontWeight: 700, letterSpacing: '0.1em' }}>
-                Ready to auto-apply
-              </Typography>
+              <WashiTape color="blue" tilt={-3}>READY TO AUTO-APPLY</WashiTape>
             </Stack>
             <Stack spacing={2} sx={{ mb: 4 }}>
               {featured.map((program) => (
@@ -470,9 +473,9 @@ function ProgramCard({ program, userInfo, featured, application, onAction }) {
     <Card
       variant="outlined"
       sx={isSubmitted
-        ? { borderColor: 'success.main', borderWidth: 2, bgcolor: '#f6fbfa' }
+        ? { borderColor: 'success.main', borderWidth: 2, bgcolor: '#EEF4FC' }
         : featured
-          ? { borderColor: TEAL, borderWidth: 2, bgcolor: '#f6fbfa' }
+          ? { borderColor: TEAL, borderWidth: 2, bgcolor: '#EEF4FC' }
           : undefined}
     >
       <CardContent>
@@ -567,7 +570,7 @@ function ProgramCard({ program, userInfo, featured, application, onAction }) {
         )}
 
         {program.personalized && (
-          <Box sx={{ mt: 1.5, p: 1.5, borderRadius: 1, bgcolor: '#e0f2f1' }}>
+          <Box sx={{ mt: 1.5, p: 1.5, borderRadius: 1, bgcolor: '#DCE6F5' }}>
             <Typography variant="body2">{program.personalized}</Typography>
           </Box>
         )}
