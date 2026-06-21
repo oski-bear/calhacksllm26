@@ -26,6 +26,11 @@ PORTAL_ROUTE_PATTERNS = {
     "wic": "https://www.myfamily.wic.ca.gov/Home/AmIEligible*",
 }
 
+PORTAL_VIEWPORTS = {
+    "calfresh": {"width": 430, "height": 900},
+    "wic": {"width": 1180, "height": 960},
+}
+
 # The ordered fill steps shown to the user, per program.
 STEPS = {
     "calfresh": [
@@ -331,6 +336,7 @@ def run_application(program_id, profile):
             browser = p.chromium.connect_over_cdp(session.connect_url)
             context = browser.contexts[0] if browser.contexts else browser.new_context()
             page = context.pages[0] if context.pages else context.new_page()
+            page.set_viewport_size(PORTAL_VIEWPORTS.get(program_id, PORTAL_VIEWPORTS["calfresh"]))
             _route_mock_portal(page, program_id)
             page.goto(portal_url, wait_until="load")
             _drive_portal(page, program_id, values, profile)
