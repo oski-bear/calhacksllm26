@@ -31,8 +31,12 @@ React (MUI) · Flask · SQLite + Redis · Anthropic · Browserbase · Deepgram
 - [x] Wire frontend to the backend — form POSTs to `/api/eligibility`,
       Dashboard renders live results + reasons, with loading/error screens
 
-## 🔴 The real agent (currently faked)
-- [ ] Anthropic — eligibility reasoning + drafting applications
+## 🟡 The real agent
+- [x] Anthropic — **personalized explanations** (`backend/claude_client.py`,
+      `POST /api/explain`, claude-opus-4-8): warm per-program guidance + summary,
+      merged into the dashboard as progressive enhancement. Needs
+      `ANTHROPIC_API_KEY` in `backend/.env`; degrades gracefully without it.
+- [ ] Anthropic — drafting application answers (next)
 - [ ] Browserbase — real portal auto-fill (currently a CSS animation)
 - [ ] Deepgram — voice agent calling county offices
 

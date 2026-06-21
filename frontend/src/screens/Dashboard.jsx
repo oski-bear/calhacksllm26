@@ -5,6 +5,7 @@ import {
   CardActions,
   CardContent,
   Chip,
+  CircularProgress,
   Container,
   Stack,
   Typography,
@@ -18,7 +19,14 @@ const STATUS_STYLES = {
   maybe: { label: 'May qualify', color: 'warning', Icon: HelpOutlineIcon },
 }
 
-export default function Dashboard({ userInfo, programs, onSelectProgram, onEditProfile }) {
+export default function Dashboard({
+  userInfo,
+  programs,
+  summary,
+  explaining,
+  onSelectProgram,
+  onEditProfile,
+}) {
   // Only show programs the user might get; ineligible ones are hidden.
   // Eligible first, then "maybe".
   const order = { eligible: 0, maybe: 1 }
@@ -49,6 +57,32 @@ export default function Dashboard({ userInfo, programs, onSelectProgram, onEditP
               : 'Based on what you entered, we didn’t find programs you qualify for. You can go back and adjust your info.'}
           </Typography>
         </Stack>
+
+        {/* Claude's friendly overall summary (loads in after the page) */}
+        {summary ? (
+          <Box
+            sx={{
+              mb: 3,
+              p: 2,
+              borderRadius: 2,
+              bgcolor: '#e0f2f1',
+              border: '1px solid',
+              borderColor: 'primary.light',
+            }}
+          >
+            <Typography variant="subtitle2" color="primary" sx={{ mb: 0.5 }}>
+              ✨ Your benefits guide
+            </Typography>
+            <Typography variant="body2">{summary}</Typography>
+          </Box>
+        ) : explaining ? (
+          <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 3 }}>
+            <CircularProgress size={16} />
+            <Typography variant="body2" color="text.secondary">
+              Personalizing your guidance…
+            </Typography>
+          </Stack>
+        ) : null}
 
         <Stack spacing={2}>
           {shown.map((program) => {
@@ -83,6 +117,17 @@ export default function Dashboard({ userInfo, programs, onSelectProgram, onEditP
                   <Typography variant="body2" sx={{ mt: 0.5 }}>
                     {program.description}
                   </Typography>
+
+                  {/* Claude's personalized guidance (merges in after load) */}
+                  {program.personalized && (
+                    <Box
+                      sx={{ mt: 1.5, p: 1.5, borderRadius: 1, bgcolor: '#e0f2f1' }}
+                    >
+                      <Typography variant="body2">
+                        ✨ {program.personalized}
+                      </Typography>
+                    </Box>
+                  )}
 
                   {/* Why the engine reached this result */}
                   {program.reasons && program.reasons.length > 0 && (

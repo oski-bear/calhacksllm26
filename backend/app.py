@@ -8,11 +8,16 @@ Endpoints:
 import os
 from uuid import uuid4
 
+from dotenv import load_dotenv
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
+# Load backend/.env so ANTHROPIC_API_KEY is available (file is gitignored).
+load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
+
 from eligibility import evaluate_all
+from claude_client import generate_explanations
 import db
 from db import init_db, save_profile, get_profile
 
@@ -36,6 +41,24 @@ def eligibility():
     user = request.get_json(silent=True) or {}
     programs = evaluate_all(user)
     return jsonify({"programs": programs})
+
+
+@app.post("/api/explain")
+def explain():
+    """Claude-generated, personalized guidance for the programs the user may get.
+    Recomputes eligibility server-side so we don't trust client-sent results."""
+    user = request.get_json(silent=True) or {}
+    programs = [
+        p for p in evaluate_all(user) if p["status"] in ("eligible", "maybe")
+    ]
+    try:
+        result = generate_explanations(user, programs)
+    except RuntimeError as err:
+        # Missing API key — surface a clear, non-fatal signal.
+        return jsonify({"error": str(err)}), 503
+    except Exception as err:  # noqa: BLE001 - report any API failure to the client
+        return jsonify({"error": "explanation failed", "detail": str(err)}), 502
+    return jsonify(result)
 
 
 @app.post("/api/profile")

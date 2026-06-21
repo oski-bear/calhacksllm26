@@ -15,6 +15,20 @@ export async function fetchEligibility(userInfo) {
   return data.programs
 }
 
+// Ask the backend (Claude) for a friendly summary + per-program explanations.
+// Returns { summary, explanations: { programId: text } }.
+export async function fetchExplanations(userInfo) {
+  const res = await fetch(`${API_BASE}/api/explain`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(userInfo),
+  })
+  if (!res.ok) {
+    throw new Error(`Server responded with ${res.status}`)
+  }
+  return res.json()
+}
+
 // Save (or update) the user's profile, keyed by email. Returns the saved profile.
 export async function saveProfile(userInfo) {
   const res = await fetch(`${API_BASE}/api/profile`, {
