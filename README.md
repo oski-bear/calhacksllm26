@@ -15,6 +15,7 @@ application status to SQLite.
 - Rich household intake with saved profile data
 - Rule-based eligibility results for California benefit programs
 - CalFresh and WIC prioritized in demo mode
+- Per-program document preflight checklists before auto-apply
 - Claude-generated explanations/draft answers when `ANTHROPIC_API_KEY` exists
 - Browserbase live cloud browser for CalFresh and WIC auto-apply flows
 - Safe fallback animation when Browserbase credentials are missing

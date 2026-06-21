@@ -47,6 +47,10 @@ def main():
         expect(page.get_by_text("WIC signal: pregnancy or child under 5")).to_be_visible(timeout=15000)
         expect(page.get_by_text("CalFresh (SNAP)")).to_be_visible(timeout=15000)
         expect(page.get_by_text("California WIC")).to_be_visible(timeout=15000)
+        expect(page.get_by_text("Document preflight for county follow-up")).to_be_visible(timeout=15000)
+        expect(page.get_by_text("Bring or upload before the WIC appointment")).to_be_visible(timeout=15000)
+        expect(page.get_by_text("Last 30 days of pay stubs or employer statement")).to_be_visible(timeout=15000)
+        expect(page.get_by_text("Proof of household income, or active Medi-Cal / CalFresh / CalWORKs card")).to_be_visible(timeout=15000)
         expect(page.get_by_text("Also worth applying for")).to_be_hidden(timeout=15000)
         page.screenshot(path=str(OUT_DIR / "dashboard.png"), full_page=True)
 

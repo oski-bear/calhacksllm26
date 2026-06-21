@@ -36,10 +36,12 @@ Screenshots: /tmp/benefits_frontend_e2e
 2. Run eligibility and show the rule-grounded recommendations.
 3. Point out the agent-ready packet: identity, household, income, location,
    current benefits, and WIC signal.
-4. Auto-apply to CalFresh. Open the live Browserbase session if it appears early.
-5. Show verified fields/actions, confirmation `CF-DEMO-4821`, and saved proof.
-6. Go back to dashboard and repeat for WIC.
-7. End on the dashboard with both submissions saved and proof thumbnails.
+4. Point out the per-program document preflight: CalFresh county follow-up
+   proofs and WIC appointment proofs.
+5. Auto-apply to CalFresh. Open the live Browserbase session if it appears early.
+6. Show verified fields/actions, confirmation `CF-DEMO-4821`, and saved proof.
+7. Go back to dashboard and repeat for WIC.
+8. End on the dashboard with both submissions saved and proof thumbnails.
 
 ## Judge Talking Points
 
@@ -47,6 +49,8 @@ Screenshots: /tmp/benefits_frontend_e2e
   into program-specific eligibility and application fields.
 - The agent is auditable: fields, clicks, confirmation, screenshot, and
   persisted status are all visible.
+- The document checklist solves a real approval bottleneck: users can submit a
+  draft now, but know exactly what to bring/upload for verification.
 - The submission boundary is safe: Browserbase drives a routed portal mock, so
   no real government application is filed.
 - The user stays in control. In a real deployment the final submit would be

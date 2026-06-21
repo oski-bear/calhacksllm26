@@ -18,6 +18,32 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 const TEAL = '#0d7d6f'
 const DEMO_PROGRAM_IDS = new Set(['calfresh', 'wic'])
 
+const DOCUMENT_CHECKLISTS = {
+  calfresh: {
+    title: 'Document preflight for county follow-up',
+    note: 'You can still start the CalFresh application now. These proofs help avoid delays at the interview.',
+    items: [
+      'Photo ID for the applicant',
+      'Proof of California address',
+      'Last 30 days of pay stubs or employer statement',
+      'Bank statements or other resource proof, if requested',
+      'Rent, mortgage, utility, phone, childcare, medical, or child-support proof for deductions',
+      'Immigration document only for noncitizens applying for benefits',
+    ],
+  },
+  wic: {
+    title: 'Bring or upload before the WIC appointment',
+    note: 'The agent can request an appointment now. Local WIC staff confirm eligibility and may ask for these.',
+    items: [
+      'ID for yourself and any children under 5',
+      'Proof of address',
+      'Proof of household income, or active Medi-Cal / CalFresh / CalWORKs card',
+      'Proof of pregnancy, if applying while pregnant',
+      'Medical forms from a health care provider, if requested',
+    ],
+  },
+}
+
 const STATUS_STYLES = {
   eligible: { label: 'Likely eligible', color: 'success', Icon: CheckCircleIcon },
   maybe: { label: 'May qualify', color: 'warning', Icon: HelpOutlineIcon },
@@ -378,6 +404,8 @@ function ProgramCard({ program, featured, application, onAction }) {
             {source}
           </Typography>
         )}
+
+        {featured && !isSubmitted && <DocumentChecklist programId={program.id} />}
       </CardContent>
       <CardActions sx={{ px: 2, pb: 2 }}>
         <Button
@@ -391,6 +419,27 @@ function ProgramCard({ program, featured, application, onAction }) {
         </Button>
       </CardActions>
     </Card>
+  )
+}
+
+function DocumentChecklist({ programId }) {
+  const checklist = DOCUMENT_CHECKLISTS[programId]
+  if (!checklist) return null
+
+  return (
+    <Box sx={{ mt: 2, p: 1.5, borderRadius: 1, bgcolor: '#fffde7', border: '1px solid', borderColor: '#f4d35e' }}>
+      <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+        {checklist.title}
+      </Typography>
+      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.25, mb: 1 }}>
+        {checklist.note}
+      </Typography>
+      <Stack direction="row" spacing={0.75} sx={{ flexWrap: 'wrap', rowGap: 0.75 }}>
+        {checklist.items.map((item) => (
+          <Chip key={item} size="small" variant="outlined" label={item} />
+        ))}
+      </Stack>
+    </Box>
   )
 }
 
