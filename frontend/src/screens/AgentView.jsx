@@ -38,7 +38,7 @@ export default function AgentView({ program, userInfo, onApplied, onBack }) {
     applyWithAgent(programId, userInfo)
       .then((res) => {
         setResult(res)
-        if (res.confirmation) onApplied?.(programId, res)
+        if (res.application) onApplied?.(programId, res)
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
@@ -56,6 +56,7 @@ export default function AgentView({ program, userInfo, onApplied, onBack }) {
   const values = result?.values || {}
   const valueEntries = Object.entries(values)
   const isLive = result?.mode === 'browserbase' && result?.liveViewUrl
+  const isPersisted = Boolean(result?.application)
   // Reveal fields progressively in sync with the steps.
   const revealCount = steps.length ? Math.round((step / steps.length) * valueEntries.length) : 0
   const progress = steps.length ? Math.round((step / steps.length) * 100) : 0
@@ -71,8 +72,8 @@ export default function AgentView({ program, userInfo, onApplied, onBack }) {
             </Typography>
           </Stack>
           <Chip
-            label={done ? 'Submitted' : 'Agent working…'}
-            color={done ? 'success' : 'info'}
+            label={done ? (isPersisted ? 'Submitted' : 'Simulation complete') : 'Agent working...'}
+            color={done ? (isPersisted ? 'success' : 'warning') : 'info'}
           />
         </Stack>
 
@@ -88,8 +89,10 @@ export default function AgentView({ program, userInfo, onApplied, onBack }) {
         {result && (
           <>
             {done && (
-              <Alert severity="success" icon={<CheckCircleIcon />} sx={{ mb: 3 }}>
-                Demo application submitted. {result.confirmation || 'Confirmation captured.'}
+              <Alert severity={isPersisted ? 'success' : 'warning'} icon={<CheckCircleIcon />} sx={{ mb: 3 }}>
+                {isPersisted
+                  ? `Demo application submitted. ${result.confirmation || 'Confirmation captured.'}`
+                  : `Simulation complete. No application was recorded as submitted. ${result.confirmation || ''}`}
               </Alert>
             )}
 

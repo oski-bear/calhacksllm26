@@ -167,9 +167,21 @@ def agent_apply():
     profile = body.get("profile") or {}
     result = run_application(program_id, profile)
     email = (profile.get("email") or "").strip()
-    if email and result.get("confirmation"):
+    if email and _is_verified_browserbase_submission(result):
         result["application"] = db.save_application(email, program_id, result)
+        result["applicationPersisted"] = True
+    else:
+        result["applicationPersisted"] = False
     return jsonify(result)
+
+
+def _is_verified_browserbase_submission(result):
+    evidence = result.get("automationEvidence") or {}
+    return (
+        result.get("mode") == "browserbase"
+        and bool(result.get("confirmation"))
+        and evidence.get("confirmationVerified") is True
+    )
 
 
 @app.get("/mock/<path:filename>")
