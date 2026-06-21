@@ -43,7 +43,12 @@ def main():
         expect(page.get_by_text("California WIC")).to_be_visible(timeout=15000)
         page.screenshot(path=str(OUT_DIR / "dashboard.png"), full_page=True)
 
-        auto_apply(page, "CalFresh (SNAP)", "CalFresh application submitted. Confirmation #CF-DEMO-4821")
+        auto_apply(
+            page,
+            "CalFresh (SNAP)",
+            "CalFresh application submitted. Confirmation #CF-DEMO-4821",
+            "https://benefitscal.com/Public/login",
+        )
         page.screenshot(path=str(OUT_DIR / "calfresh-agent.png"), full_page=True)
 
         page.get_by_role("button", name=re.compile("Back to dashboard", re.I)).click()
@@ -51,7 +56,12 @@ def main():
         expect(page.get_by_text("CalFresh application submitted. Confirmation #CF-DEMO-4821")).to_be_visible(timeout=15000)
         expect(page.get_by_text("Ready to auto-apply")).to_be_visible(timeout=15000)
 
-        auto_apply(page, "California WIC", "WIC appointment request submitted. Confirmation #WIC-DEMO-2048")
+        auto_apply(
+            page,
+            "California WIC",
+            "WIC appointment request submitted. Confirmation #WIC-DEMO-2048",
+            "https://www.myfamily.wic.ca.gov/Home/AmIEligible",
+        )
         page.screenshot(path=str(OUT_DIR / "wic-agent.png"), full_page=True)
 
         page.get_by_role("button", name=re.compile("Back to dashboard", re.I)).click()
@@ -75,11 +85,12 @@ def main():
         browser.close()
 
 
-def auto_apply(page, card_text, confirmation):
+def auto_apply(page, card_text, confirmation, portal_url):
     page.locator(".MuiCard-root").filter(has_text=card_text).get_by_role(
         "button", name=re.compile("Auto-apply", re.I)
     ).click()
     expect(page.get_by_text(re.compile("AI agent applying to"))).to_be_visible(timeout=15000)
+    expect(page.get_by_text(portal_url)).to_be_visible(timeout=60000)
     expect(page.get_by_text(confirmation)).to_be_visible(timeout=60000)
     expect(page.get_by_alt_text("Submitted portal screenshot")).to_be_visible(timeout=15000)
 

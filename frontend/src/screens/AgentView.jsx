@@ -95,9 +95,25 @@ export default function AgentView({ program, userInfo, onApplied, onBack }) {
 
             {/* Mode banner */}
             <Alert severity={isLive ? 'info' : 'warning'} sx={{ mb: 3 }}>
-              {isLive
-                ? 'Browserbase cloud browser completed the demo submission. Final portal state below.'
-                : 'Simulated demo submission. Set BROWSERBASE_API_KEY + BROWSERBASE_PROJECT_ID to run a real browser live.'}
+              {isLive ? (
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ alignItems: { sm: 'center' } }}>
+                  <Typography variant="body2" sx={{ flex: 1 }}>
+                    Browserbase navigated the demo portal, filled it, and submitted it. Final portal state below.
+                  </Typography>
+                  <Button
+                    component="a"
+                    href={result.liveViewUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    size="small"
+                    variant="outlined"
+                  >
+                    Open live browser
+                  </Button>
+                </Stack>
+              ) : (
+                'Simulated demo submission. Set BROWSERBASE_API_KEY + BROWSERBASE_PROJECT_ID to run a real browser live.'
+              )}
             </Alert>
 
             <Grid container spacing={3}>

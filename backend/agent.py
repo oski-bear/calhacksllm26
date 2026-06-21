@@ -8,7 +8,6 @@ can watch live); otherwise it returns a "simulated" plan the frontend animates.
 Env:
   BROWSERBASE_API_KEY     enable real browser automation
   BROWSERBASE_PROJECT_ID  required with the API key
-  MOCK_PORTAL_BASE        default http://localhost:5001/mock
 """
 
 import base64
@@ -16,6 +15,16 @@ import os
 
 CURRENT_YEAR = 2026
 BASE_DIR = os.path.dirname(__file__)
+
+PORTAL_URLS = {
+    "calfresh": "https://benefitscal.com/Public/login",
+    "wic": "https://www.myfamily.wic.ca.gov/Home/AmIEligible",
+}
+
+PORTAL_ROUTE_PATTERNS = {
+    "calfresh": "https://benefitscal.com/Public/login*",
+    "wic": "https://www.myfamily.wic.ca.gov/Home/AmIEligible*",
+}
 
 # The ordered fill steps shown to the user, per program.
 STEPS = {
@@ -166,9 +175,7 @@ def account_values(profile):
 
 
 def _portal_url(program_id):
-    base = os.environ.get("MOCK_PORTAL_BASE", "http://localhost:5001/mock")
-    page = "benefitscal" if program_id == "calfresh" else "wic"
-    return f"{base}/{page}.html"
+    return PORTAL_URLS.get(program_id, PORTAL_URLS["calfresh"])
 
 
 def _portal_file(program_id):
@@ -176,13 +183,14 @@ def _portal_file(program_id):
     return os.path.join(BASE_DIR, "mock", f"{page}.html")
 
 
-def _is_local_url(url):
-    return (
-        url.startswith("http://localhost:")
-        or url.startswith("https://localhost:")
-        or url.startswith("http://127.0.0.1:")
-        or url.startswith("https://127.0.0.1:")
-    )
+def _route_mock_portal(page, program_id):
+    with open(_portal_file(program_id), encoding="utf-8") as f:
+        html = f.read()
+
+    def fulfill(route):
+        route.fulfill(status=200, content_type="text/html", body=html)
+
+    page.route(PORTAL_ROUTE_PATTERNS.get(program_id, PORTAL_ROUTE_PATTERNS["calfresh"]), fulfill)
 
 
 def _confirmation(program_id):
@@ -323,11 +331,8 @@ def run_application(program_id, profile):
             browser = p.chromium.connect_over_cdp(session.connect_url)
             context = browser.contexts[0] if browser.contexts else browser.new_context()
             page = context.pages[0] if context.pages else context.new_page()
-            if _is_local_url(portal_url):
-                with open(_portal_file(program_id), encoding="utf-8") as f:
-                    page.set_content(f.read(), wait_until="load")
-            else:
-                page.goto(portal_url, wait_until="load")
+            _route_mock_portal(page, program_id)
+            page.goto(portal_url, wait_until="load")
             _drive_portal(page, program_id, values, profile)
             try:
                 confirmation = page.locator("#confirmation").inner_text(timeout=2000)

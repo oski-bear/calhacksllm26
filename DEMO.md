@@ -9,8 +9,10 @@
 5. Show the Browserbase-completed BenefitsCal-style confirmation receipt.
 6. Go back and repeat for WIC.
 
-The agent submits only to local mock portals. This is intentional: no real
-government application is submitted during the demo.
+The agent navigates to realistic BenefitsCal/WIC URLs in Browserbase, but
+Playwright intercepts those page loads and serves our local demo portal HTML.
+This is intentional: no real government application is submitted during the
+demo.
 
 The demo profile creates a fresh `oski.demo+...@example.com` email each time,
 so repeated rehearsals start with clean application statuses.
@@ -23,7 +25,6 @@ Create `backend/.env`:
 ANTHROPIC_API_KEY=
 BROWSERBASE_API_KEY=
 BROWSERBASE_PROJECT_ID=
-MOCK_PORTAL_BASE=http://localhost:5001/mock
 ```
 
 Anthropic is optional. Browserbase is needed for the cloud-browser screenshots.
@@ -67,6 +68,7 @@ The script checks the full path:
 - eligibility dashboard shows CalFresh and WIC
 - CalFresh agent returns confirmation `CF-DEMO-4821`
 - WIC agent returns confirmation `WIC-DEMO-2048`
+- agent pages show realistic BenefitsCal/WIC portal URLs
 - submitted portal screenshots render
 - dashboard moves completed programs into **Submitted applications**
 - browser console has no React/resource errors

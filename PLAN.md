@@ -28,7 +28,8 @@ React (MUI) · Flask · SQLite + Redis · Anthropic · Browserbase · Deepgram
       agent can reuse it.
 - [x] SQLite — **documents** table + file storage on disk
       (`POST`/`GET`/`DELETE /api/documents`, download endpoint).
-      Applications/status table still to do.
+- [x] SQLite — **applications/status** table tracks submitted CalFresh/WIC
+      confirmations after the agent finishes.
 - [ ] Redis (agent memory + RAG over program rules)
 - [x] Wire frontend to the backend — form POSTs to `/api/eligibility`,
       Dashboard renders live results + reasons, with loading/error screens
@@ -44,9 +45,11 @@ React (MUI) · Flask · SQLite + Redis · Anthropic · Browserbase · Deepgram
       edits, then proceeds. Degrades gracefully without a key.
 - [x] Browserbase — drives safe mock CalFresh/WIC portals end-to-end:
       account/assessment steps, form fill, review, signature/submit where
-      applicable, and final confirmation screenshots. Requires
-      `BROWSERBASE_API_KEY` + `BROWSERBASE_PROJECT_ID`; falls back to a
-      simulated animation without credentials.
+      applicable, and final confirmation screenshots. The cloud browser
+      navigates to realistic BenefitsCal/WIC URLs while Playwright routes those
+      requests to local demo HTML, so the demo has no real government side
+      effects. Requires `BROWSERBASE_API_KEY` + `BROWSERBASE_PROJECT_ID`; falls
+      back to a simulated animation without credentials.
 - [ ] Deepgram — voice agent calling county offices
 
 ## 🟡 Remaining frontend
