@@ -1,0 +1,8 @@
+Idea,Done Before Summary,Audience Usefulness,Prior-Art Whitespace,Hackathon Win Fit,Demo Clarity,24h Build Feasibility,Technical Depth,Data API Feasibility,Sponsor Fit,Risk Control,Overall,Best Modification
+BridgeBenefits,"Yes: benefit finders, SNAP screeners, resource directories, benefits apps",10,6,9,9,7,8,7,10,7,8.1,"Scope to California/Alameda County and generate cited eligibility receipts, document checklists, and human-reviewed application drafts"
+CivicTrust,"Partly: live fact-checking, fact-check APIs, public official databases, legislative trackers",9,7,9,9,7,8,7,9,6,8.0,"Narrow to one civic live-demo scenario and generate citation-backed truth/consistency receipts"
+TrustLayer for Agents,"Yes: observability, evals, MCP registries, agent marketplaces",7,6,8,6,7,8,8,9,7,7.3,"Build trust receipts for tool calls with concrete agent workflow and trace dashboard"
+MemoryVault MCP,"Yes: agent memory platforms, local memory tools, MCP memory servers",7,5,6,6,8,7,8,8,8,7.0,"Pitch as memory permissions for agents with inspect/delete/export controls"
+SongForge,"Yes: music training apps, ear-training games, MIDI/music practice apps",7,4,7,8,6,7,8,5,6,6.4,"Make it a tight melody/rhythm challenge game with precise scoring and leaderboard"
+CartPilot / ErrandOps,"Yes: grocery price comparison, shopping list apps, route optimizers",8,3,6,8,6,6,4,6,5,5.8,"Constrain to Berkeley errands with seeded data and clear price/time route tradeoffs"
+TrustRank Browser,"Yes: custom search lenses, ranking goggles, credibility ratings, moderation labels",7,4,5,6,5,6,5,6,5,5.4,"Build a source credibility overlay for one domain instead of a full search engine"
