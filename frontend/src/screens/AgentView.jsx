@@ -9,6 +9,28 @@ import { applyWithAgent } from '../api.js'
 
 const STEP_MS = 1100
 
+const PORTAL_URLS = {
+  calfresh: 'https://benefitscal.com/Public/login',
+  wic: 'https://www.myfamily.wic.ca.gov/Home/AmIEligible',
+}
+
+const PENDING_STEPS = {
+  calfresh: [
+    'Preparing secure Browserbase session...',
+    'Opening BenefitsCal routed portal...',
+    'Creating the demo account workspace...',
+    'Mapping your saved profile to the application fields...',
+    'Waiting for portal confirmation proof...',
+  ],
+  wic: [
+    'Preparing secure Browserbase session...',
+    'Opening California WIC routed portal...',
+    'Mapping your saved profile to the appointment request...',
+    'Selecting the local WIC office workflow...',
+    'Waiting for portal confirmation proof...',
+  ],
+}
+
 // Pretty labels for the mapped portal fields.
 const LABELS = {
   firstName: 'First name', lastName: 'Last name', dob: 'Date of birth',
@@ -26,6 +48,7 @@ export default function AgentView({ program, userInfo, onApplied, onBack }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [step, setStep] = useState(0)
+  const [pendingStep, setPendingStep] = useState(0)
   const startedRef = useRef(false)
 
   const programId = program?.id || 'calfresh'
@@ -44,6 +67,19 @@ export default function AgentView({ program, userInfo, onApplied, onBack }) {
       .finally(() => setLoading(false))
   }, [onApplied, programId, userInfo])
 
+  const pendingSteps = PENDING_STEPS[programId] || PENDING_STEPS.calfresh
+
+  // While the backend is doing the real Browserbase work, keep the page alive
+  // with the same steps judges should expect to see happening in the cloud.
+  useEffect(() => {
+    if (!loading || result || error) return
+    const t = setTimeout(
+      () => setPendingStep((s) => Math.min(s + 1, pendingSteps.length - 1)),
+      STEP_MS,
+    )
+    return () => clearTimeout(t)
+  }, [error, loading, pendingStep, pendingSteps.length, result])
+
   // Advance the step animation once we have a plan.
   const steps = result?.steps || []
   const done = result && step >= steps.length
@@ -57,9 +93,9 @@ export default function AgentView({ program, userInfo, onApplied, onBack }) {
   const valueEntries = Object.entries(values)
   const isLive = result?.mode === 'browserbase' && result?.liveViewUrl
   const isPersisted = Boolean(result?.application)
+  const pendingProgress = Math.round(((pendingStep + 1) / pendingSteps.length) * 100)
   // Reveal fields progressively in sync with the steps.
   const revealCount = steps.length ? Math.round((step / steps.length) * valueEntries.length) : 0
-  const progress = steps.length ? Math.round((step / steps.length) * 100) : 0
 
   return (
     <Box sx={{ minHeight: '100vh', py: 6, bgcolor: 'background.default' }}>
@@ -78,10 +114,21 @@ export default function AgentView({ program, userInfo, onApplied, onBack }) {
         </Stack>
 
         {loading && (
-          <Stack direction="row" spacing={1.5} sx={{ mb: 3, alignItems: 'center' }}>
-            <CircularProgress size={20} />
-            <Typography color="text.secondary">Starting the agent…</Typography>
-          </Stack>
+          <>
+            <Alert severity="info" sx={{ mb: 3 }}>
+              Browserbase is running the portal automation now. This can take 20-60 seconds during the demo.
+            </Alert>
+            <Grid container spacing={3}>
+              <Grid size={{ xs: 12, md: 7 }}>
+                <BrowserChrome url={PORTAL_URLS[programId] || PORTAL_URLS.calfresh}>
+                  <PendingPortal programName={programName} />
+                </BrowserChrome>
+              </Grid>
+              <Grid size={{ xs: 12, md: 5 }}>
+                <ActivityLog steps={pendingSteps} step={pendingStep} progress={pendingProgress} />
+              </Grid>
+            </Grid>
+          </>
         )}
 
         {error && <Alert severity="error" sx={{ mb: 3 }}>Couldn’t start the agent: {error}</Alert>}
@@ -150,21 +197,7 @@ export default function AgentView({ program, userInfo, onApplied, onBack }) {
 
               {/* Activity log */}
               <Grid size={{ xs: 12, md: 5 }}>
-                <Card variant="outlined">
-                  <CardContent>
-                    <Typography variant="h6" sx={{ mb: 1 }}>Agent activity</Typography>
-                    {!done && <LinearProgress variant="determinate" value={progress} sx={{ mb: 2 }} />}
-                    <Stack spacing={1.5}>
-                      {steps.map((label, i) => (
-                        <ActivityRow
-                          key={i}
-                          label={label}
-                          state={step > i ? 'done' : step === i ? 'active' : 'pending'}
-                        />
-                      ))}
-                    </Stack>
-                  </CardContent>
-                </Card>
+                <ActivityLog steps={steps} step={step} done={done} />
               </Grid>
             </Grid>
           </>
@@ -172,6 +205,27 @@ export default function AgentView({ program, userInfo, onApplied, onBack }) {
 
         <Button onClick={onBack} sx={{ mt: 3 }}>← Back to dashboard</Button>
       </Container>
+    </Box>
+  )
+}
+
+function PendingPortal({ programName }) {
+  return (
+    <Box sx={{ p: 3, minHeight: 360, bgcolor: '#f8fafc' }}>
+      <Stack spacing={2} sx={{ alignItems: 'center', justifyContent: 'center', minHeight: 310, textAlign: 'center' }}>
+        <CircularProgress size={34} />
+        <Box>
+          <Typography variant="h6">Cloud browser is applying to {programName}</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            We will show the submitted portal proof here as soon as Browserbase returns.
+          </Typography>
+        </Box>
+        <Stack direction="row" spacing={1} sx={{ justifyContent: 'center', flexWrap: 'wrap', rowGap: 1 }}>
+          <Chip size="small" color="info" label="Browserbase session starting" />
+          <Chip size="small" variant="outlined" label="Human-safe demo portal" />
+          <Chip size="small" variant="outlined" label="No real government submission" />
+        </Stack>
+      </Stack>
     </Box>
   )
 }
@@ -196,6 +250,27 @@ function FallbackMessage({ result }) {
     <Typography variant="body2">
       Simulated demo submission. Set BROWSERBASE_API_KEY and BROWSERBASE_PROJECT_ID to run a real browser live.
     </Typography>
+  )
+}
+
+function ActivityLog({ steps, step, done = false, progress }) {
+  const shownProgress = progress ?? (steps.length ? Math.round((step / steps.length) * 100) : 0)
+  return (
+    <Card variant="outlined">
+      <CardContent>
+        <Typography variant="h6" sx={{ mb: 1 }}>Agent activity</Typography>
+        {!done && <LinearProgress variant="determinate" value={shownProgress} sx={{ mb: 2 }} />}
+        <Stack spacing={1.5}>
+          {steps.map((label, i) => (
+            <ActivityRow
+              key={i}
+              label={label}
+              state={done || step > i ? 'done' : step === i ? 'active' : 'pending'}
+            />
+          ))}
+        </Stack>
+      </CardContent>
+    </Card>
   )
 }
 
