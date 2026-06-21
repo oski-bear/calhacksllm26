@@ -55,6 +55,9 @@ export const PROGRAM_METADATA = {
   },
   medical: {
     logoText: 'Medi-Cal',
+    logoSrc: '/program-logos/medi-cal-poppy.png',
+    logoAlt: 'Medi-Cal poppy logo',
+    logoPadding: 0,
     brandColor: '#1b6fb7',
     brandBg: '#e8f2fc',
     applyUrl: 'https://www.dhcs.ca.gov/medi-cal/apply/',
@@ -70,6 +73,9 @@ export const PROGRAM_METADATA = {
   },
   liheap: {
     logoText: 'LIHEAP',
+    logoSrc: '/program-logos/liheap-energy.png',
+    logoAlt: 'LIHEAP energy assistance icon',
+    logoPadding: 0,
     brandColor: '#b75f00',
     brandBg: '#fff3e0',
     applyUrl: 'https://www.caliheapapply.com/',
@@ -88,6 +94,9 @@ export const PROGRAM_METADATA = {
   },
   lifeline: {
     logoText: 'LifeLine',
+    logoSrc: '/program-logos/california-lifeline-icon.png',
+    logoAlt: 'California LifeLine phone logo',
+    logoPadding: 0.05,
     brandColor: '#365a9c',
     brandBg: '#edf3ff',
     applyUrl: 'https://www.californialifeline.com/en',
@@ -106,6 +115,9 @@ export const PROGRAM_METADATA = {
   },
   calworks: {
     logoText: 'CalWORKs',
+    logoSrc: '/program-logos/calworks-logo.png',
+    logoAlt: 'CalWORKs logo',
+    logoPadding: 0,
     brandColor: '#6b4fa3',
     brandBg: '#f0ebfb',
     applyUrl: 'https://benefitscal.com/Public/login?lang=en',
@@ -140,6 +152,10 @@ export const PROGRAM_METADATA = {
   },
   section8: {
     logoText: 'Section 8',
+    logoSrc: '/program-logos/hud-seal-white.png',
+    logoAlt: 'HUD seal',
+    logoBg: '#1f4f86',
+    logoPadding: 0.12,
     brandColor: '#4b6455',
     brandBg: '#edf6f0',
     applyUrl: 'https://www.hud.gov/helping-americans/housing-choice-vouchers-tenants',

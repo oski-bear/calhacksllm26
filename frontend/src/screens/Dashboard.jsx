@@ -612,7 +612,7 @@ function ProgramBrand({ program, meta }) {
         width: 70,
         height: 70,
         borderRadius: '50%',
-        bgcolor: '#fff',
+        bgcolor: meta?.logoBg || '#fff',
         border: '2px solid',
         borderColor: meta?.brandColor || 'divider',
         boxShadow: '0 4px 14px rgba(15, 23, 42, 0.10)',
