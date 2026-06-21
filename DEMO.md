@@ -51,6 +51,7 @@ Open `http://127.0.0.1:5173/`.
 Quick no-Browserbase fallback check:
 
 ```sh
+PATH="/Users/study/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:$PATH" node scripts/verify_demo_profile.mjs
 venv/bin/python scripts/verify_agent_fallback.py
 ```
 

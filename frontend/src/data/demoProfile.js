@@ -1,5 +1,5 @@
 export function demoProfile() {
-  const suffix = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 12)
+  const suffix = demoEmailSuffix()
   return {
     name: 'Oski Bear',
     email: `oski.demo+${suffix}@example.com`,
@@ -57,4 +57,12 @@ export function demoProfile() {
       },
     ],
   }
+}
+
+function demoEmailSuffix() {
+  const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, '')
+  const random =
+    globalThis.crypto?.randomUUID?.().slice(0, 8) ||
+    Math.random().toString(36).slice(2, 10)
+  return `${timestamp}-${random}`
 }

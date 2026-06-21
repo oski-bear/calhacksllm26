@@ -111,6 +111,7 @@ def verify_profile_roundtrip(email):
         profile = json.load(res)["profile"]
     assert profile["zipcode"] == "94704"
     assert profile["county"] == "Alameda"
+    assert profile["demoMode"] is True
     assert len(profile["members"]) == 2
     assert profile["members"][0]["conditions"] == ["Pregnant"]
     assert len(profile["expenses"]) == 2
