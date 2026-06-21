@@ -66,6 +66,22 @@ def init_db():
         )
         """
     )
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS applications (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          email TEXT NOT NULL,
+          program_id TEXT NOT NULL,
+          status TEXT NOT NULL,
+          confirmation TEXT,
+          mode TEXT,
+          portal_url TEXT,
+          session_id TEXT,
+          submitted_at TEXT,
+          UNIQUE(email, program_id)
+        )
+        """
+    )
     conn.commit()
     conn.close()
 
@@ -177,3 +193,67 @@ def delete_document(doc_id):
     conn.commit()
     conn.close()
     return doc
+
+
+# --- Applications ---------------------------------------------------------
+
+def _application_to_dict(row):
+    return {
+        "id": row["id"],
+        "email": row["email"],
+        "program_id": row["program_id"],
+        "status": row["status"],
+        "confirmation": row["confirmation"],
+        "mode": row["mode"],
+        "portal_url": row["portal_url"],
+        "session_id": row["session_id"],
+        "submitted_at": row["submitted_at"],
+    }
+
+
+def save_application(email, program_id, result):
+    """Upsert one program application status for a user."""
+    email = (email or "").strip()
+    if not email:
+        raise ValueError("email is required")
+    if not program_id:
+        raise ValueError("program_id is required")
+
+    data = {
+        "email": email,
+        "program_id": program_id,
+        "status": "submitted",
+        "confirmation": result.get("confirmation", ""),
+        "mode": result.get("mode", ""),
+        "portal_url": result.get("portalUrl", ""),
+        "session_id": result.get("sessionId", ""),
+        "submitted_at": datetime.now(timezone.utc).isoformat(),
+    }
+    columns = list(data.keys())
+    placeholders = ", ".join("?" for _ in columns)
+    updates = ", ".join(f"{c}=excluded.{c}" for c in columns if c not in ("email", "program_id"))
+
+    conn = _connect()
+    conn.execute(
+        f"INSERT INTO applications ({', '.join(columns)}) VALUES ({placeholders}) "
+        f"ON CONFLICT(email, program_id) DO UPDATE SET {updates}",
+        [data[c] for c in columns],
+    )
+    row = conn.execute(
+        "SELECT * FROM applications WHERE email = ? AND program_id = ?",
+        [email, program_id],
+    ).fetchone()
+    conn.commit()
+    conn.close()
+    return _application_to_dict(row)
+
+
+def list_applications(email):
+    """All application statuses for a user, newest first."""
+    conn = _connect()
+    rows = conn.execute(
+        "SELECT * FROM applications WHERE email = ? ORDER BY submitted_at DESC",
+        [(email or "").strip()],
+    ).fetchall()
+    conn.close()
+    return [_application_to_dict(r) for r in rows]

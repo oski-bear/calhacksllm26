@@ -21,7 +21,7 @@ const LABELS = {
   adjunctive: 'On Medi-Cal / CalFresh / CalWORKs?',
 }
 
-export default function AgentView({ program, userInfo, onBack }) {
+export default function AgentView({ program, userInfo, onApplied, onBack }) {
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -36,10 +36,13 @@ export default function AgentView({ program, userInfo, onBack }) {
     if (startedRef.current) return
     startedRef.current = true
     applyWithAgent(programId, userInfo)
-      .then((res) => setResult(res))
+      .then((res) => {
+        setResult(res)
+        if (res.confirmation) onApplied?.(programId, res)
+      })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
-  }, [programId, userInfo])
+  }, [onApplied, programId, userInfo])
 
   // Advance the step animation once we have a plan.
   const steps = result?.steps || []

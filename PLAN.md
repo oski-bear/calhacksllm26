@@ -53,7 +53,8 @@ React (MUI) · Flask · SQLite + Redis · Anthropic · Browserbase · Deepgram
 - [x] Document upload/management on the profile page — "Your documents"
       section: upload, view/download, remove.
 - [ ] Voice-call + transcript panel on the agent page (Deepgram half)
-- [ ] Dashboard reflects per-program status (In progress / Submitted)
+- [x] Dashboard reflects submitted per-program status after the agent returns
+      a confirmation, backed by the SQLite `applications` table.
 - [ ] "Auto re-apply to programs" (noted on whiteboard)
 - [ ] Flesh out programs beyond CalFresh end-to-end
 

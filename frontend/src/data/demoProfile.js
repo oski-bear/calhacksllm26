@@ -1,7 +1,8 @@
 export function demoProfile() {
+  const suffix = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 12)
   return {
     name: 'Oski Bear',
-    email: 'oski@example.com',
+    email: `oski.demo+${suffix}@example.com`,
     phone: '(510) 555-0148',
     address: '2120 Dwight Way',
     city: 'Berkeley',

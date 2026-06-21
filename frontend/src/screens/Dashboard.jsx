@@ -27,6 +27,7 @@ export default function Dashboard({
   programs,
   summary,
   explaining,
+  applications = {},
   onSelectProgram,
   onStartAgent,
   onEditProfile,
@@ -36,9 +37,12 @@ export default function Dashboard({
     .filter((p) => p.status === 'eligible' || p.status === 'maybe')
     .sort((a, b) => order[a.status] - order[b.status])
 
-  const featured = shown.filter((p) => p.auto_apply && p.status === 'eligible')
-  const others = shown.filter((p) => !featured.includes(p))
+  const submitted = shown.filter((p) => applications[p.id]?.status === 'submitted')
+  const available = shown.filter((p) => !submitted.includes(p))
+  const featured = available.filter((p) => p.auto_apply && p.status === 'eligible')
+  const others = available.filter((p) => !featured.includes(p))
   const firstName = userInfo.name ? userInfo.name.split(' ')[0] : 'there'
+  const submittedCount = submitted.length
 
   return (
     <Box sx={{ minHeight: '100vh', py: 6 }}>
@@ -52,7 +56,9 @@ export default function Dashboard({
             Hi {firstName} - here's what you may qualify for
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            {featured.length > 0
+            {submittedCount > 0
+              ? `${submittedCount} application${submittedCount === 1 ? ' is' : 's are'} submitted. ${featured.length > 0 ? `We can still auto-apply to ${featured.length} more.` : 'You can review other programs below.'}`
+              : featured.length > 0
               ? `We can auto-apply to ${featured.length} program${featured.length === 1 ? '' : 's'} right now, plus ${others.length} more worth reviewing.`
               : shown.length > 0
                 ? `We found ${shown.length} program${shown.length === 1 ? '' : 's'} you may qualify for.`
@@ -85,6 +91,27 @@ export default function Dashboard({
           </Stack>
         ) : null}
 
+        {submitted.length > 0 && (
+          <>
+            <Stack direction="row" spacing={1} sx={{ mb: 1.5, alignItems: 'center' }}>
+              <CheckCircleIcon sx={{ color: 'success.main', fontSize: 20 }} />
+              <Typography variant="overline" sx={{ color: 'success.main', fontWeight: 700, letterSpacing: '0.1em' }}>
+                Submitted applications
+              </Typography>
+            </Stack>
+            <Stack spacing={2} sx={{ mb: 4 }}>
+              {submitted.map((program) => (
+                <ProgramCard
+                  key={program.id}
+                  program={program}
+                  application={applications[program.id]}
+                  onAction={onSelectProgram}
+                />
+              ))}
+            </Stack>
+          </>
+        )}
+
         {featured.length > 0 && (
           <>
             <Stack direction="row" spacing={1} sx={{ mb: 1.5, alignItems: 'center' }}>
@@ -99,6 +126,7 @@ export default function Dashboard({
                   key={program.id}
                   program={program}
                   featured
+                  application={applications[program.id]}
                   onAction={onStartAgent || onSelectProgram}
                 />
               ))}
@@ -114,7 +142,12 @@ export default function Dashboard({
             </Typography>
             <Stack spacing={1.5} sx={{ mt: 1.5 }}>
               {others.map((program) => (
-                <ProgramCard key={program.id} program={program} onAction={onSelectProgram} />
+                <ProgramCard
+                  key={program.id}
+                  program={program}
+                  application={applications[program.id]}
+                  onAction={onSelectProgram}
+                />
               ))}
             </Stack>
           </>
@@ -124,8 +157,11 @@ export default function Dashboard({
   )
 }
 
-function ProgramCard({ program, featured, onAction }) {
-  const style = STATUS_STYLES[program.status]
+function ProgramCard({ program, featured, application, onAction }) {
+  const isSubmitted = application?.status === 'submitted'
+  const style = isSubmitted
+    ? { label: 'Submitted', color: 'success', Icon: CheckCircleIcon }
+    : STATUS_STYLES[program.status]
   const StatusIcon = style.Icon
   const reasons = (program.reasons || []).filter((r) => !r.startsWith('Source:'))
   const source = (program.reasons || []).find((r) => r.startsWith('Source:'))
@@ -133,7 +169,11 @@ function ProgramCard({ program, featured, onAction }) {
   return (
     <Card
       variant="outlined"
-      sx={featured ? { borderColor: TEAL, borderWidth: 2, bgcolor: '#f6fbfa' } : undefined}
+      sx={isSubmitted
+        ? { borderColor: 'success.main', borderWidth: 2, bgcolor: '#f6fbfa' }
+        : featured
+          ? { borderColor: TEAL, borderWidth: 2, bgcolor: '#f6fbfa' }
+          : undefined}
     >
       <CardContent>
         <Stack
@@ -159,6 +199,19 @@ function ProgramCard({ program, featured, onAction }) {
           {program.description}
         </Typography>
 
+        {isSubmitted && (
+          <Box sx={{ mt: 1.5, p: 1.5, borderRadius: 1, bgcolor: '#e8f5e9' }}>
+            <Typography variant="body2" fontWeight={700} color="success.dark">
+              {application.confirmation || 'Application submitted.'}
+            </Typography>
+            {application.submitted_at && (
+              <Typography variant="caption" color="text.secondary">
+                Submitted {formatDate(application.submitted_at)}
+              </Typography>
+            )}
+          </Box>
+        )}
+
         {program.personalized && (
           <Box sx={{ mt: 1.5, p: 1.5, borderRadius: 1, bgcolor: '#e0f2f1' }}>
             <Typography variant="body2">{program.personalized}</Typography>
@@ -183,14 +236,28 @@ function ProgramCard({ program, featured, onAction }) {
       </CardContent>
       <CardActions sx={{ px: 2, pb: 2 }}>
         <Button
-          variant={featured ? 'contained' : 'outlined'}
+          variant={featured && !isSubmitted ? 'contained' : 'outlined'}
           color="primary"
-          startIcon={featured ? <AutoAwesomeIcon /> : null}
+          startIcon={featured && !isSubmitted ? <AutoAwesomeIcon /> : null}
+          disabled={isSubmitted}
           onClick={() => onAction(program.id)}
         >
-          {featured ? 'Auto-apply with AI agent' : 'Start application'}
+          {isSubmitted ? 'Submitted' : featured ? 'Auto-apply with AI agent' : 'Start application'}
         </Button>
       </CardActions>
     </Card>
   )
+}
+
+function formatDate(value) {
+  try {
+    return new Date(value).toLocaleString([], {
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+    })
+  } catch {
+    return value
+  }
 }

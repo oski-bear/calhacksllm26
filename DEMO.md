@@ -12,6 +12,9 @@
 The agent submits only to local mock portals. This is intentional: no real
 government application is submitted during the demo.
 
+The demo profile creates a fresh `oski.demo+...@example.com` email each time,
+so repeated rehearsals start with clean application statuses.
+
 ## Environment
 
 Create `backend/.env`:
@@ -64,4 +67,5 @@ The script checks the full path:
 - CalFresh agent returns confirmation `CF-DEMO-4821`
 - WIC agent returns confirmation `WIC-DEMO-2048`
 - submitted portal screenshots render
+- dashboard moves completed programs into **Submitted applications**
 - browser console has no React/resource errors

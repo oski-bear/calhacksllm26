@@ -6,7 +6,7 @@ import DraftReview from './screens/DraftReview.jsx'
 import AgentView from './screens/AgentView.jsx'
 import { LoadingScreen, ErrorScreen } from './screens/StatusScreens.jsx'
 import DocumentsSection from './screens/DocumentsSection.jsx'
-import { fetchEligibility, saveProfile, fetchExplanations } from './api.js'
+import { fetchEligibility, saveProfile, fetchExplanations, fetchApplications } from './api.js'
 import { demoProfile } from './data/demoProfile.js'
 
 // The whole app is a simple "wizard". `screen` decides which page shows,
@@ -34,6 +34,7 @@ export default function App() {
   const [error, setError] = useState(null)
   const [summary, setSummary] = useState('') // Claude's friendly overall summary
   const [explaining, setExplaining] = useState(false) // loading personalized text
+  const [applications, setApplications] = useState({})
 
   // On submit, ask the backend which programs the user qualifies for.
   async function handleFormSubmit(info) {
@@ -44,7 +45,9 @@ export default function App() {
     try {
       await saveProfile(info) // persist the profile (keyed by email)
       const result = await fetchEligibility(info)
+      const applicationRows = await fetchApplications(info.email).catch(() => [])
       setPrograms(result)
+      setApplications(indexApplications(applicationRows))
       setScreen('dashboard')
       loadExplanations(info) // enhance with Claude guidance in the background
     } catch (err) {
@@ -90,6 +93,17 @@ export default function App() {
     setScreen('agent')
   }
 
+  function handleAgentApplied(programId, result) {
+    const application = result.application || {
+      program_id: programId,
+      status: 'submitted',
+      confirmation: result.confirmation || '',
+      mode: result.mode || '',
+      submitted_at: new Date().toISOString(),
+    }
+    setApplications((prev) => ({ ...prev, [programId]: application }))
+  }
+
   const selectedProgram =
     programs.find((p) => p.id === selectedProgramId) || null
 
@@ -108,6 +122,7 @@ export default function App() {
         programs={programs}
         summary={summary}
         explaining={explaining}
+        applications={applications}
         onSelectProgram={handleSelectProgram}
         onStartAgent={handleStartAgent}
         onEditProfile={() => setScreen('profile')}
@@ -156,6 +171,7 @@ export default function App() {
       <AgentView
         program={selectedProgram}
         userInfo={userInfo}
+        onApplied={handleAgentApplied}
         onBack={() => setScreen('dashboard')}
       />
     )
@@ -168,4 +184,8 @@ export default function App() {
       demoProfile={demoProfile}
     />
   )
+}
+
+function indexApplications(rows) {
+  return Object.fromEntries((rows || []).map((row) => [row.program_id, row]))
 }

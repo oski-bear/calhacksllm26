@@ -71,6 +71,16 @@ export async function applyWithAgent(programId, profile) {
   return res.json()
 }
 
+// Load submitted/in-progress application records for a user.
+export async function fetchApplications(email) {
+  const res = await fetch(`${API_BASE}/api/applications?email=${encodeURIComponent(email)}`)
+  if (!res.ok) {
+    throw new Error(`Server responded with ${res.status}`)
+  }
+  const data = await res.json()
+  return data.applications
+}
+
 // Load a saved profile by email, or null if we haven't seen this email.
 export async function getProfile(email) {
   const res = await fetch(`${API_BASE}/api/profile?email=${encodeURIComponent(email)}`)

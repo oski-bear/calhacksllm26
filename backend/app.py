@@ -153,6 +153,12 @@ def delete_document_route(doc_id):
     return jsonify({"ok": True})
 
 
+@app.get("/api/applications")
+def list_applications_route():
+    applications = db.list_applications(request.args.get("email", ""))
+    return jsonify({"applications": applications})
+
+
 @app.post("/api/agent/apply")
 def agent_apply():
     """Have the AI agent draft an application by filling the mock portal."""
@@ -160,6 +166,9 @@ def agent_apply():
     program_id = body.get("programId", "calfresh")
     profile = body.get("profile") or {}
     result = run_application(program_id, profile)
+    email = (profile.get("email") or "").strip()
+    if email and result.get("confirmation"):
+        result["application"] = db.save_application(email, program_id, result)
     return jsonify(result)
 
 
