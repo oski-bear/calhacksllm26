@@ -97,6 +97,8 @@ export default function Dashboard({
           </Stack>
         ) : null}
 
+        {featured.length > 0 && <AgentPacket userInfo={userInfo} />}
+
         {submitted.length > 0 && (
           <>
             <Stack direction="row" spacing={1} sx={{ mb: 1.5, alignItems: 'center' }}>
@@ -182,6 +184,73 @@ function dashboardIntroText({ demoMode, submittedCount, featuredCount, otherCoun
   }
   if (shownCount > 0) return `We found ${shownCount} program${shownCount === 1 ? '' : 's'} you may qualify for.`
   return 'Based on what you entered, we did not find programs you qualify for. You can go back and adjust your info.'
+}
+
+function AgentPacket({ userInfo }) {
+  const packet = buildAgentPacket(userInfo)
+
+  return (
+    <Card variant="outlined" sx={{ mb: 3, borderColor: 'primary.light', bgcolor: '#f8fffe' }}>
+      <CardContent>
+        <Stack direction="row" spacing={1} sx={{ mb: 1, alignItems: 'center' }}>
+          <AutoAwesomeIcon sx={{ color: TEAL, fontSize: 20 }} />
+          <Typography variant="subtitle1" fontWeight={700} color="primary">
+            Agent-ready packet
+          </Typography>
+        </Stack>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+          Saved from intake and reused by the CalFresh/WIC browser agent instead of asking the user twice.
+        </Typography>
+        <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', rowGap: 1 }}>
+          {packet.map((item) => (
+            <Chip key={item} size="small" variant="outlined" color="primary" label={item} />
+          ))}
+        </Stack>
+      </CardContent>
+    </Card>
+  )
+}
+
+function buildAgentPacket(userInfo) {
+  const householdSize = userInfo.householdSize || String(userInfo.members?.length || 1)
+  const benefits = (userInfo.currentBenefits || []).filter((b) => b !== 'None of the above')
+  const packet = [
+    `Identity: ${userInfo.name || 'saved'}`,
+    `Location: ${[userInfo.city, userInfo.county, userInfo.zipcode].filter(Boolean).join(', ')}`,
+    `Household: ${householdSize} people`,
+    `Monthly income: ${formatMoney(monthlyAmount(userInfo.income))}`,
+    `Monthly expenses: ${formatMoney(monthlyExpensesAmount(userInfo.expenses || []))}`,
+  ]
+
+  if (benefits.length) packet.push(`Current benefits: ${benefits.join(', ')}`)
+  if (hasPregnancyOrYoungChild(userInfo)) packet.push('WIC signal: pregnancy or child under 5')
+  return packet.filter((item) => !item.endsWith(': '))
+}
+
+function monthlyAmount(annualIncome) {
+  const amount = Number(annualIncome || 0)
+  return amount > 0 ? amount / 12 : 0
+}
+
+function monthlyExpensesAmount(expenses) {
+  const perYear = { weekly: 52, biweekly: 26, semimonthly: 24, monthly: 12, yearly: 1 }
+  return expenses.reduce((sum, expense) => {
+    const amount = Number(expense.amount || 0)
+    const multiplier = perYear[expense.frequency] || 12
+    return sum + (amount * multiplier / 12)
+  }, 0)
+}
+
+function hasPregnancyOrYoungChild(userInfo) {
+  return (userInfo.members || []).some((member) => {
+    if ((member.conditions || []).includes('Pregnant')) return true
+    const age = Number(member.birthYear) ? 2026 - Number(member.birthYear) : null
+    return age !== null && age < 5
+  })
+}
+
+function formatMoney(value) {
+  return `$${Math.round(Number(value || 0)).toLocaleString()}`
 }
 
 function ProgramCard({ program, featured, application, onAction }) {

@@ -40,6 +40,11 @@ def main():
 
         expect(page.get_by_text("Ready to auto-apply")).to_be_visible(timeout=15000)
         expect(page.get_by_text("For the demo, we are focusing on the two end-to-end agent flows")).to_be_visible(timeout=15000)
+        expect(page.get_by_text("Agent-ready packet")).to_be_visible(timeout=15000)
+        expect(page.get_by_text("Household: 2 people")).to_be_visible(timeout=15000)
+        expect(page.get_by_text("Monthly income: $2,000")).to_be_visible(timeout=15000)
+        expect(page.get_by_text("Current benefits: Medi-Cal")).to_be_visible(timeout=15000)
+        expect(page.get_by_text("WIC signal: pregnancy or child under 5")).to_be_visible(timeout=15000)
         expect(page.get_by_text("CalFresh (SNAP)")).to_be_visible(timeout=15000)
         expect(page.get_by_text("California WIC")).to_be_visible(timeout=15000)
         expect(page.get_by_text("Also worth applying for")).to_be_hidden(timeout=15000)
